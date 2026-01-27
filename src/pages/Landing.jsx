@@ -9,7 +9,7 @@ export default function Landing() {
       {/* --- NAVBAR --- */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto z-50 relative">
         <div className="text-2xl font-bold tracking-tighter cursor-default">
-          MONTIJO<span className="text-brand-lime">SPORT</span>
+          KORE<span className="text-brand-lime">MANAGER</span>
         </div>
         
         {/* Botón Acceso Usuarios */}
@@ -37,7 +37,7 @@ export default function Landing() {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
-            El deporte en Montijo,<br />
+            El deporte,<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime to-emerald-400 filter drop-shadow-lg">
               ahora es digital.
             </span>
@@ -126,7 +126,7 @@ export default function Landing() {
 
       {/* --- FOOTER --- */}
       <footer className="py-12 text-center border-t border-white/5 bg-[#0A0A12]">
-        <p className="text-gray-500 text-sm mb-2">© 2026 Ayuntamiento de Montijo. Gestión Deportiva Municipal.</p>
+        <p className="text-gray-500 text-sm mb-2">© 2026 Luis Gordillo Rodríguez. Gestión Deportiva.</p>
         <div className="flex justify-center gap-4 text-xs text-gray-600">
            <a href="#" className="hover:text-brand-lime transition-colors">Política de Privacidad</a>
            <span>•</span>

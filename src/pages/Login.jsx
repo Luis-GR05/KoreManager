@@ -48,7 +48,7 @@ export default function Login() {
         
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold text-white tracking-tight">
-            MONTIJO <span className="text-brand-lime">SPORT</span>
+            KORE <span className="text-brand-lime">MANAGER</span>
           </h1>
           <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-brand-lime shadow-[0_0_10px_#CCFF00]"></div>
         </div>
@@ -61,7 +61,7 @@ export default function Login() {
             </label>
             <input
               type="email" 
-              placeholder="admin@montijo.com"
+              placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl bg-[#0F0F15] border border-gray-700/50 p-4 text-white placeholder-gray-600 focus:border-brand-lime focus:ring-1 focus:ring-brand-lime focus:outline-none transition-all duration-300"

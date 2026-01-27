@@ -28,8 +28,8 @@ export default function Layout({ children }) {
         {/* Logo Sidebar */}
         <div className="p-8">
           <h1 className="text-2xl font-bold text-white leading-none tracking-tight">
-            MONTIJO<br />
-            <span className="text-brand-lime">SPORT</span>
+            KORE<br />
+            <span className="text-brand-lime">MANAGER</span>
           </h1>
         </div>
 
