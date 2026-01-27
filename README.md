@@ -1,7 +1,7 @@
-# 🏟️ Montijo Sport - Gestor de Instalaciones Deportivas
+# 🏟️ KORE MANAGER - Gestor de Instalaciones Deportivas
 
 <div align="center">
-  <h1 style="font-size: 3rem; color: #CCFF00;">MONTIJO SPORT</h1>
+  <h1 style="font-size: 3rem; color: #CCFF00;">KORE MANAGER</h1>
   
   ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
@@ -21,7 +21,7 @@
 
 ## 📋 Sobre el Proyecto
 
-**Montijo Sport** nace como respuesta a la necesidad de digitalizar el sistema deportivo municipal. El objetivo es eliminar la burocracia, optimizar la ocupación de pistas y mejorar la comunicación entre el ayuntamiento y los ciudadanos.
+**KORE MANAGER** nace como respuesta a la necesidad de digitalizar el sistema deportivo municipal. El objetivo es eliminar la burocracia, optimizar la ocupación de pistas y mejorar la comunicación entre el ayuntamiento y los ciudadanos.
 
 El proyecto destaca por su **Interfaz "Dark Mode"** moderna con acentos en *Acid Lime* y *Cyber Purple*, ofreciendo una experiencia de usuario ágil y visualmente impactante.
 
