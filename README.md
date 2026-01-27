@@ -1,7 +1,7 @@
 # 🏟️ KORE MANAGER - Gestor de Instalaciones Deportivas
 
 <div align="center">
-  <a href="https://github.com/Luis-GR05/kore-manager">
+  <a href="https://github.com/Luis-GR05/GestorDeportivo">
     <img src="https://readme-typing-svg.herokuapp.com?font=Montserrat&weight=900&size=50&duration=3000&pause=1000&color=CCFF00&center=true&vCenter=true&width=600&height=100&lines=KORE+MANAGER;GESTI%C3%93N+DEPORTIVA" alt="Typing SVG" />
   </a>
 
@@ -17,10 +17,18 @@
   </p>
 
   <div style="display: flex; justify-content: center; gap: 10px;">
-    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
-    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
-    <img src="https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E" />
-    <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" />
+    <a href="https://es.react.dev/" target="_blank">
+      <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+    </a>
+    <a href="https://tailwindcss.com/" target="_blank">
+      <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+    </a>
+    <a href="https://supabase.com/" target="_blank">
+      <img src="https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E" alt="Supabase" />
+    </a>
+    <a href="https://vitejs.dev/" target="_blank">
+      <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
+    </a>
   </div>
 </div>
 
@@ -67,7 +75,8 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/Luis-GR05/kore-manager.git](https://github.com/Luis-GR05/kore-manager.git)
+    git clone [https://github.com/Luis-GR05/GestorDeportivo.git](https://github.com/Luis-GR05/GestorDeportivo.git)
+    cd GestorDeportivo
     ```
 
 2.  **Instalar dependencias:**
@@ -90,7 +99,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 ## 📅 Roadmap (Planificación)
 
 - [x] **Semana 1 (13/01/26):** Configuración de entorno, Tailwind, Diseño UI y Login funcional.
-- [ ] **Semana 2 (20/01/26):** Base de Datos (Tablas Reales) y Dashboard Dinámico.
+- [x] **Semana 2 (20/01/26):** Base de Datos (Tablas Reales) y Dashboard Dinámico.
 - [ ] **Semana 3 (27/01/26):** Sistema de Reservas y lógica de disponibilidad.
 - [ ] **Semana 4 (03/02/26):** Gestión de Inventario y Panel de Admin.
 - [ ] **Semana 5 (10/02/26):** Gestión de pagos y Panel de Compra.
