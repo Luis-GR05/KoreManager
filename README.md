@@ -1,7 +1,10 @@
 # 🏟️ KORE MANAGER - Gestor de Instalaciones Deportivas
 
 <div align="center">
-  <h1 style="font-size: 3rem; color: #CCFF00;">KORE MANAGER</h1>
+  <h1 style="font-size: 3rem; letter-spacing: -0.025em; margin-bottom: 0;">
+    <span style="color: #FFFFFF;">KORE</span>
+    <span style="color: #CCFF00;">MANAGER</span>
+  </h1>
   
   ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
