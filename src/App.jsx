@@ -1,27 +1,30 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Landing from './pages/Landing'; // <--- Importamos Landing
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Ruta Pública: LANDING PAGE */}
+        <Route path="/" element={<Landing />} />
+
         {/* Ruta Login */}
         <Route path="/login" element={<Login />} />
         
-        {/* Ruta Dashboard */}
+        {/* Rutas Privadas (Con Layout) */}
         <Route path="/dashboard" element={
           <Layout>
             <Dashboard />
           </Layout>
         } />
-
-        {/* Redirección por defecto */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        
+        {/* Redirección: Si alguien pone una ruta rara, que vaya a la Landing */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
