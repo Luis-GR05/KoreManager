@@ -15,8 +15,6 @@ export default function App() {
         
         {/* Rutas con Layout */}
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-        
-        {/* NUEVA RUTA: */}
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

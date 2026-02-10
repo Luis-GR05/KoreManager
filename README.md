@@ -1,21 +1,32 @@
 # 🏟️ KORE MANAGER - Gestor de Instalaciones Deportivas
 
 <div align="center">
-  <h1 style="font-size: 3rem; color: #CCFF00;">KORE MANAGER</h1>
-  
-  ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-  ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-  ![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
-  ![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)
-  
-  <br />
+  <a href="https://github.com/Luis-GR05/kore-manager">
+    <img src="https://readme-typing-svg.herokuapp.com?font=Montserrat&weight=900&size=50&duration=3000&pause=1000&color=CCFF00&center=true&vCenter=true&width=600&height=100&lines=KORE+MANAGER;GESTI%C3%93N+DEPORTIVA;SAAS+PREMIUM" alt="Typing SVG" />
+  </a>
 
   <p align="center">
-    <strong>Modernizando el deporte municipal con una experiencia digital premium.</strong>
-    <br />
-    Aplicación Web Progresiva (PWA) para la gestión integral de reservas, inventario e incidencias.
+    <img src="https://img.shields.io/badge/STATUS-EN_DESARROLLO-CCFF00?style=for-the-badge&labelColor=151525&logoColor=black" />
+    <img src="https://img.shields.io/badge/VERSION-1.0.0-white?style=for-the-badge&labelColor=151525" />
   </p>
+
+  <p align="center">
+    <strong>Gestión inteligente. Centralizada. Escalable.</strong>
+    <br />
+    Plataforma SaaS de marca blanca para la digitalización de complejos deportivos.
+  </p>
+
+  <div style="display: flex; justify-content: center; gap: 10px;">
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+    <img src="https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E" />
+    <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" />
+  </div>
 </div>
+
+<br />
+
+<br />
 
 ---
 
@@ -56,8 +67,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/TU_USUARIO/montijo-sport.git](https://github.com/TU_USUARIO/montijo-sport.git)
-    cd montijo-sport
+    git clone [https://github.com/Luis-GR05/kore-manager.git](https://github.com/Luis-GR05/kore-manager.git)
     ```
 
 2.  **Instalar dependencias:**
@@ -83,11 +93,14 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 - [ ] **Semana 2 (20/01/26):** Base de Datos (Tablas Reales) y Dashboard Dinámico.
 - [ ] **Semana 3 (27/01/26):** Sistema de Reservas y lógica de disponibilidad.
 - [ ] **Semana 4 (03/02/26):** Gestión de Inventario y Panel de Admin.
-- [ ] **Semana 5 (10/02/26):** Gestión de pagos y Panel de Compra
+- [ ] **Semana 5 (10/02/26):** Gestión de pagos y Panel de Compra.
 - [ ] **Semana 6 (17/02/26):** Perfil de usuario, incidencias y pulido final.
 
 ---
 
 <div align="center">
-  Creado por <strong>Luis Gordillo</strong> | TFG - IES Albarregas
+  <br />
+  <a href="https://github.com/Luis-GR05">
+    <img src="https://img.shields.io/badge/Desarrollado_por-Luis_Gordillo-white?style=flat-square&logo=github&logoColor=black" alt="Desarrollado por Luis Gordillo" />
+  </a>
 </div>
