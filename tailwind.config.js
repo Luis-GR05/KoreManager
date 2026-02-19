@@ -7,17 +7,29 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Fondos Globales de Kore Manager
+        dark: {
+          base: '#0F0F1A',    // Fondo principal de la app
+          surface: '#1A1A2E', // Tarjetas y paneles
+          elevated: '#1F1F2E' // Elementos sobre tarjetas (inputs, modales)
+        },
+        // Colores de Marca
         brand: {
-          lime: '#CCFF00',
-          purple: '#7B2CBF',
-          dark: '#1A1A2E',
-          card: '#24243E',
-          red: '#FF4444',
-          gray: '#8F8F9D',
+          lime: '#CCFF00',    // Acento principal
+          purple: '#8A2BE2',  // Secundario/Efectos
+        },
+        // Colores Semánticos (Estados)
+        semantic: {
+          danger: '#FF3B30',  // Errores, borrar, salir
+          success: '#34C759', // Confirmaciones
+          warning: '#FFCC00', // Alertas medias
+          info: '#007AFF'     // Conserjes, información
         }
       },
       fontFamily: {
+        // Define la fuente global. Si usas Inter u otra, ponla aquí.
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       }
     },
   },

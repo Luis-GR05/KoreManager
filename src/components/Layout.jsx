@@ -1,3 +1,4 @@
+// src/components/Layout.jsx
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
@@ -6,7 +7,7 @@ import { Home, Package, User, LogOut, ShieldAlert, Loader2 } from 'lucide-react'
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [role, setRole] = useState(null);
+  const [roleName, setRoleName] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,14 +18,20 @@ export default function Layout({ children }) {
         return;
       }
 
-      // Buscar el rol del usuario en la tabla profiles
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('rol')
+        .select(`rol_id, roles(nombre)`)
         .eq('id', user.id)
         .single();
 
-      setRole(data?.rol || 'deportista');
+      if (error || !data) {
+        setRoleName('ciudadano');
+      } else {
+        // LÓGICA ESTRICTA: Siempre a minúsculas para que el menú no se rompa
+        const rawRole = data.roles?.nombre || 'ciudadano';
+        setRoleName(rawRole.toLowerCase().trim());
+      }
+
       setLoading(false);
     };
 
@@ -36,30 +43,24 @@ export default function Layout({ children }) {
     navigate('/login');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0F0F1A] flex items-center justify-center">
-        <Loader2 className="animate-spin text-brand-lime" size={40} />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-[#0F0F1A] flex items-center justify-center">
+      <Loader2 className="animate-spin text-brand-lime" size={40} />
+    </div>
+  );
 
-  // Definición del menú dinámico
+  // ARRAY EN MINÚSCULAS
   const menuItems = [
-    { icon: Home, label: 'Inicio', path: '/dashboard', allowed: ['deportista', 'conserje', 'admin'] },
-    { icon: User, label: 'Mi Perfil', path: '/profile', allowed: ['deportista', 'conserje', 'admin'] },
-    // Rutas restringidas
+    { icon: Home, label: 'Inicio', path: '/dashboard', allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: User, label: 'Mi Perfil', path: '/profile', allowed: ['ciudadano', 'conserje', 'admin'] },
     { icon: Package, label: 'Inventario', path: '/inventario', allowed: ['conserje', 'admin'] },
     { icon: ShieldAlert, label: 'Panel Admin', path: '/admin', allowed: ['admin'] },
   ];
 
-  // Filtrar el menú según el rol actual
-  const visibleMenu = menuItems.filter(item => item.allowed.includes(role));
+  const visibleMenu = menuItems.filter(item => item.allowed.includes(roleName));
 
   return (
     <div className="flex min-h-screen bg-[#0F0F1A] text-white">
-
-      {/* SIDEBAR */}
       <aside className="w-64 bg-[#1A1A2E] border-r border-white/5 flex flex-col hidden md:flex">
         <div className="h-20 flex items-center px-8 border-b border-white/5">
           <h1 className="text-2xl font-bold tracking-tighter">
@@ -67,10 +68,11 @@ export default function Layout({ children }) {
           </h1>
         </div>
 
+        {/* VISUAL: Aquí sí lo ponemos en mayúsculas (.toUpperCase()) */}
         <div className="p-4 text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-          {role === 'admin' && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse"></div>}
-          {role === 'conserje' && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
-          Modo: {role}
+          {roleName === 'admin' && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse"></div>}
+          {roleName === 'conserje' && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
+          Modo: {roleName.toUpperCase() || 'CARGANDO...'}
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-2">
@@ -94,23 +96,15 @@ export default function Layout({ children }) {
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-medium"
-          >
-            <LogOut size={20} />
-            Cerrar Sesión
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-medium">
+            <LogOut size={20} /> Cerrar Sesión
           </button>
         </div>
       </aside>
 
-      {/* ÁREA PRINCIPAL */}
       <main className="flex-1 relative overflow-y-auto">
-        <div className="p-8 pb-24 md:pb-8">
-          {children}
-        </div>
+        <div className="p-8 pb-24 md:pb-8">{children}</div>
       </main>
-
     </div>
   );
 }
