@@ -1,113 +1,174 @@
+// src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient'; // Importamos el cliente
+import { supabase } from '../supabaseClient';
+import { Mail, Lock, User, Phone, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // Para deshabilitar el botón mientras carga
-  const [errorMsg, setErrorMsg] = useState(null); // Para mostrar errores
-  
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  // Estado para saber si estamos en modo Login o Registro
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  // Datos del formulario
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    phone: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
 
     try {
-      // 1. Intentamos iniciar sesión con Supabase Auth
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
+      if (isRegistering) {
+        // --- LÓGICA DE REGISTRO ---
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            // Pasamos estos datos para que el TRIGGER los capture
+            data: {
+              full_name: formData.fullName,
+              phone: formData.phone // (Opcional, si ampliamos el trigger)
+            }
+          }
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+        alert('¡Registro exitoso! Revisa tu correo o inicia sesión.');
+        setIsRegistering(false); // Volvemos al login para que entre
 
-      // 2. Si no hay error, login exitoso -> Vamos al Dashboard
-      console.log("Usuario logueado:", data);
-      navigate('/dashboard');
+      } else {
+        // --- LÓGICA DE LOGIN ---
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) throw error;
+        navigate('/dashboard');
+      }
 
     } catch (error) {
-      // 3. Si falla, mostramos el mensaje
-      setErrorMsg('Usuario o contraseña incorrectos.');
-      console.error(error.message);
+      setErrorMsg(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center bg-[#0F0F1A] overflow-hidden">
-      
-      {/* Luces Ambientales */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-brand-purple/20 blur-[120px] pointer-events-none -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-brand-lime/10 blur-[120px] pointer-events-none translate-x-1/2 translate-y-1/2"></div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0F0F1A] p-4 relative overflow-hidden">
 
-      <div className="relative z-10 w-full max-w-md rounded-2xl bg-[#1A1A2E]/60 backdrop-blur-xl p-8 shadow-2xl border border-white/10">
-        
-        <div className="mb-10 text-center">
-          <h1 className="text-3xl font-bold text-white tracking-tight">
+      {/* Fondo decorativo (Efecto Glow) */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[120px]"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[120px]"></div>
+
+      <div className="w-full max-w-md bg-[#1A1A2E]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-500">
+
+        {/* Cabecera */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
             KORE <span className="text-brand-lime">MANAGER</span>
           </h1>
-          <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-brand-lime shadow-[0_0_10px_#CCFF00]"></div>
+          <p className="text-gray-400 text-sm">
+            {isRegistering ? 'Crea tu cuenta de deportista' : 'Bienvenido de nuevo'}
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-brand-gray uppercase tracking-wider ml-1">
-              Email
-            </label>
+        {/* Formulario */}
+        <form onSubmit={handleAuth} className="space-y-4">
+
+          {/* Campo Nombre (Solo en Registro) */}
+          {isRegistering && (
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-lime transition-colors" size={20} />
+              <input
+                name="fullName"
+                type="text"
+                placeholder="Nombre Completo"
+                value={formData.fullName}
+                onChange={handleChange}
+                className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-lime focus:outline-none transition-all"
+                required
+              />
+            </div>
+          )}
+
+          {/* Campo Email */}
+          <div className="relative group">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-lime transition-colors" size={20} />
             <input
-              type="email" 
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl bg-[#0F0F15] border border-gray-700/50 p-4 text-white placeholder-gray-600 focus:border-brand-lime focus:ring-1 focus:ring-brand-lime focus:outline-none transition-all duration-300"
+              name="email"
+              type="email"
+              placeholder="correo@ejemplo.com"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-lime focus:outline-none transition-all"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-brand-gray uppercase tracking-wider ml-1">
-              Contraseña
-            </label>
+          {/* Campo Contraseña */}
+          <div className="relative group">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-lime transition-colors" size={20} />
             <input
+              name="password"
               type="password"
-              placeholder="••••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl bg-[#0F0F15] border border-gray-700/50 p-4 text-white placeholder-gray-600 focus:border-brand-lime focus:ring-1 focus:ring-brand-lime focus:outline-none transition-all duration-300"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-lime focus:outline-none transition-all"
               required
             />
           </div>
 
           {/* Mensaje de Error */}
           {errorMsg && (
-            <div className="text-brand-red text-sm text-center bg-brand-red/10 p-3 rounded-lg border border-brand-red/20 animate-pulse">
+            <div className="text-red-400 text-sm text-center bg-red-500/10 p-2 rounded-lg border border-red-500/20">
               {errorMsg}
             </div>
           )}
 
+          {/* Botón Principal */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 rounded-full bg-brand-lime py-4 font-extrabold text-[#0F0F1A] tracking-wide 
-            transition-all duration-300 ease-out
-            hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_0_30px_rgba(204,255,0,0.6)]
-            active:scale-95 active:brightness-90
-            disabled:opacity-50 disabled:cursor-not-allowed
-            shadow-[0_0_15px_rgba(204,255,0,0.3)]
-            cursor-pointer"
+            className="w-full py-4 bg-brand-lime text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'VERIFICANDO...' : 'INICIAR SESIÓN'}
+            {loading ? <Loader2 className="animate-spin" /> : (
+              isRegistering ? 'Crear Cuenta' : 'Iniciar Sesión'
+            )}
+            {!loading && <ArrowRight size={20} />}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-xs text-gray-500">
-          ¿No tienes cuenta? <span className="text-brand-lime cursor-pointer hover:underline">Regístrate en el Ayuntamiento</span>
-        </p>
+        {/* Toggle Login/Registro */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-500 text-sm">
+            {isRegistering ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
+            <button
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setErrorMsg(null);
+              }}
+              className="ml-2 text-white font-bold hover:text-brand-lime underline decoration-brand-lime/50 hover:decoration-brand-lime transition-all"
+            >
+              {isRegistering ? 'Inicia Sesión' : 'Regístrate Gratis'}
+            </button>
+          </p>
+        </div>
+
       </div>
     </div>
   );

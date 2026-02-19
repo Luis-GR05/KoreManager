@@ -1,84 +1,116 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, User, History, Bell, LogOut } from 'lucide-react';
+import { supabase } from '../supabaseClient';
+import { Home, Package, User, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Función para determinar si el link está activo
-  const isActive = (path) => location.pathname === path;
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/login');
+        return;
+      }
 
-  const handleLogout = () => {
+      // Buscar el rol del usuario en la tabla profiles
+      const { data } = await supabase
+        .from('profiles')
+        .select('rol')
+        .eq('id', user.id)
+        .single();
+
+      setRole(data?.rol || 'deportista');
+      setLoading(false);
+    };
+
+    checkUserRole();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/login');
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0F0F1A] flex items-center justify-center">
+        <Loader2 className="animate-spin text-brand-lime" size={40} />
+      </div>
+    );
+  }
+
+  // Definición del menú dinámico
   const menuItems = [
-    { icon: Home, label: 'Inicio / Reservas', path: '/dashboard' },
-    { icon: User, label: 'Mis Datos', path: '/profile' },
-    { icon: History, label: 'Historial', path: '/history' },
-    { icon: Bell, label: 'Notificaciones', path: '/notifications' },
+    { icon: Home, label: 'Inicio', path: '/dashboard', allowed: ['deportista', 'conserje', 'admin'] },
+    { icon: User, label: 'Mi Perfil', path: '/profile', allowed: ['deportista', 'conserje', 'admin'] },
+    // Rutas restringidas
+    { icon: Package, label: 'Inventario', path: '/inventario', allowed: ['conserje', 'admin'] },
+    { icon: ShieldAlert, label: 'Panel Admin', path: '/admin', allowed: ['admin'] },
   ];
 
+  // Filtrar el menú según el rol actual
+  const visibleMenu = menuItems.filter(item => item.allowed.includes(role));
+
   return (
-    <div className="flex h-screen w-full bg-[#0F0F1A] overflow-hidden">
-      
-      {/* --- SIDEBAR --- */}
-      <aside className="w-64 flex-shrink-0 border-r border-white/5 bg-[#1A1A2E] flex flex-col relative z-20">
-        
-        {/* Logo Sidebar */}
-        <div className="p-8">
-          <h1 className="text-2xl font-bold text-white leading-none tracking-tight">
-            KORE<br />
-            <span className="text-brand-lime">MANAGER</span>
+    <div className="flex min-h-screen bg-[#0F0F1A] text-white">
+
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-[#1A1A2E] border-r border-white/5 flex flex-col hidden md:flex">
+        <div className="h-20 flex items-center px-8 border-b border-white/5">
+          <h1 className="text-2xl font-bold tracking-tighter">
+            KORE<span className="text-brand-lime">MANAGER</span>
           </h1>
         </div>
 
-        {/* Menú de Navegación */}
-        <nav className="flex-1 px-4 space-y-3 mt-4">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                isActive(item.path)
-                  ? 'bg-brand-purple text-white shadow-[0_0_15px_rgba(123,44,191,0.5)]' 
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <item.icon 
-                size={20} 
-                className={isActive(item.path) ? 'text-white' : 'text-gray-400 group-hover:text-brand-lime transition-colors'} 
-              />
-              <span className="font-medium text-sm">{item.label}</span>
-              
-              {/* Indicador activo */}
-              {isActive(item.path) && (
-                <div className="absolute left-0 w-1 h-8 bg-brand-lime rounded-r-full shadow-[0_0_10px_#CCFF00]"></div>
-              )}
-            </Link>
-          ))}
+        <div className="p-4 text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+          {role === 'admin' && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse"></div>}
+          {role === 'conserje' && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
+          Modo: {role}
+        </div>
+
+        <nav className="flex-1 px-4 py-4 space-y-2">
+          {visibleMenu.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${isActive
+                    ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.2)]'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+              >
+                <Icon size={20} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Botón Cerrar Sesión */}
-        <div className="p-4 border-t border-white/5 bg-[#151525]">
-          <button 
+        <div className="p-4 border-t border-white/5">
+          <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 text-brand-red hover:bg-brand-red/10 w-full rounded-lg transition-colors group"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-medium"
           >
-            <LogOut size={20} className="group-hover:scale-110 transition-transform"/>
-            <span className="font-medium text-sm">Cerrar Sesión</span>
+            <LogOut size={20} />
+            Cerrar Sesión
           </button>
         </div>
       </aside>
 
-      {/* --- CONTENIDO PRINCIPAL --- */}
-      <main className="flex-1 overflow-y-auto relative">
-         <div className="absolute top-0 left-0 w-full h-96 bg-brand-purple/5 blur-[100px] pointer-events-none"></div>
-        
-        <div className="max-w-7xl mx-auto p-8 relative z-10">
+      {/* ÁREA PRINCIPAL */}
+      <main className="flex-1 relative overflow-y-auto">
+        <div className="p-8 pb-24 md:pb-8">
           {children}
         </div>
       </main>
+
     </div>
   );
 }

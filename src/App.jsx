@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Layout from './components/Layout';
+import NewBooking from './pages/NewBooking';
 
 export default function App() {
   return (
@@ -12,10 +13,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        
+
         {/* Rutas con Layout */}
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
+        <Route path="/reservar" element={<Layout><NewBooking /></Layout>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

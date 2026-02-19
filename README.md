@@ -90,8 +90,8 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 ## 📅 Roadmap (Planificación)
 
 - [x] **Semana 1 (13/01/26):** Configuración de entorno, Tailwind, Diseño UI y Login funcional.
-- [ ] **Semana 2 (20/01/26):** Base de Datos (Tablas Reales) y Dashboard Dinámico.
-- [ ] **Semana 3 (27/01/26):** Sistema de Reservas y lógica de disponibilidad.
+- [x] **Semana 2 (20/01/26):** Base de Datos (Tablas Reales) y Dashboard Dinámico.
+- [x] **Semana 3 (27/01/26):** Sistema de Reservas y lógica de disponibilidad.
 - [ ] **Semana 4 (03/02/26):** Gestión de Inventario y Panel de Admin.
 - [ ] **Semana 5 (10/02/26):** Gestión de pagos y Panel de Compra.
 - [ ] **Semana 6 (17/02/26):** Perfil de usuario, incidencias y pulido final.

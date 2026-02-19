@@ -1,13 +1,14 @@
 // src/pages/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, AlertTriangle, MapPin, Activity } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2 } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [instalaciones, setInstalaciones] = useState([]);
+  const [misReservas, setMisReservas] = useState([]); // <--- Nuevo estado
   const [avisos, setAvisos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,24 +19,28 @@ export default function Dashboard() {
       if (!session) { navigate('/login'); return; }
       setUser(session.user);
 
-      // 2. Obtener Instalaciones (Ordenadas por ID)
-      const { data: dataInstalaciones, error: errorInst } = await supabase
-        .from('instalaciones')
-        .select('*')
-        .order('id');
-      
-      if (errorInst) console.error('Error cargando instalaciones:', errorInst);
-      else setInstalaciones(dataInstalaciones);
+      // 2. Obtener Instalaciones
+      const { data: dataInst } = await supabase.from('instalaciones').select('*').order('id');
+      if (dataInst) setInstalaciones(dataInst);
 
-      // 3. Obtener Avisos Activos
-      const { data: dataAvisos, error: errorAvisos } = await supabase
-        .from('avisos')
-        .select('*')
-        .eq('activo', true)
-        .order('fecha_publicacion', { ascending: false });
+      // 3. Obtener Mis Reservas
+      const { data: dataReservas } = await supabase
+        .from('reservas')
+        .select(`
+          id, 
+          fecha, 
+          hora, 
+          instalaciones ( nombre )
+        `)
+        .eq('user_id', session.user.id)
+        .gte('fecha', new Date().toISOString().split('T')[0]) // Solo futuras
+        .order('fecha', { ascending: true });
 
-      if (errorAvisos) console.error('Error cargando avisos:', errorAvisos);
-      else setAvisos(dataAvisos);
+      if (dataReservas) setMisReservas(dataReservas);
+
+      // 4. Obtener Avisos
+      const { data: dataAvisos } = await supabase.from('avisos').select('*').eq('activo', true);
+      if (dataAvisos) setAvisos(dataAvisos);
 
       setLoading(false);
     };
@@ -43,116 +48,128 @@ export default function Dashboard() {
     fetchData();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full text-brand-lime animate-pulse">
-        Cargando datos del club...
-      </div>
-    );
-  }
+  // Función para cancelar reserva
+  const cancelarReserva = async (id) => {
+    if (!confirm("¿Seguro que quieres cancelar este partido?")) return;
+    const { error } = await supabase.from('reservas').delete().eq('id', id);
 
-  // Formatear nombre usuario
-  const userName = user?.user_metadata?.nombre || user?.email?.split('@')[0] || 'Deportista';
-  const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1);
-
-  // Función auxiliar para obtener colores según estado
-  const getStatusColor = (estado) => {
-    switch (estado) {
-      case 'disponible': return 'text-brand-lime';
-      case 'ocupado': return 'text-brand-red';
-      case 'mantenimiento': return 'text-orange-500';
-      default: return 'text-gray-400';
+    if (!error) {
+      setMisReservas(misReservas.filter(r => r.id !== id)); // Actualizar UI
     }
   };
 
+  if (loading) return <div className="p-8 text-brand-lime animate-pulse">Cargando KORE MANAGER...</div>;
+
   return (
-    <div className="space-y-10 animate-in fade-in zoom-in duration-500 pb-10">
-      
-      {/* 1. HEADER */}
-      <div>
-        <h1 className="text-4xl font-bold text-white tracking-tight">
-          Hola, <span className="text-brand-lime">{formattedName}</span>
-        </h1>
-        <p className="text-gray-400 mt-2 text-lg">¿Qué deporte quieres practicar hoy en Montijo?</p>
-      </div>
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
 
-      {/* 2. PRÓXIMA SESIÓN (Estática por ahora - Placeholder) */}
-      <section>
-        <h3 className="text-brand-lime text-xs font-bold uppercase tracking-wider mb-4">TU PRÓXIMA SESIÓN</h3>
-        <div className="relative overflow-hidden bg-gradient-to-r from-[#24243E] to-[#1E1E2E] border border-white/10 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl group">
-           <div className="absolute inset-0 bg-brand-purple/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-           <div className="flex items-center gap-6 z-10">
-             <div className="w-20 h-20 rounded-2xl bg-brand-purple flex items-center justify-center text-white font-bold text-3xl shadow-[0_0_25px_rgba(123,44,191,0.5)]">
-               P
-             </div>
-             <div>
-               <h2 className="text-2xl font-bold text-white mb-2">Pista Pádel 01 - Pabellón A</h2>
-               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
-                 <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full"><Calendar size={16} className="text-brand-lime"/> 15 Oct 2025</span>
-               </div>
-             </div>
-           </div>
-           <button className="z-10 px-8 py-3 border border-brand-lime text-brand-lime rounded-full text-sm font-bold tracking-wide hover:bg-brand-lime hover:text-black transition-all">
-             VER QR
-           </button>
+      {/* HEADER DASHBOARD */}
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Hola, <span className="text-brand-lime">{user?.email?.split('@')[0]}</span></h1>
+          <p className="text-gray-400 text-sm mt-1">Bienvenido a tu panel de control.</p>
         </div>
-      </section>
+        <Link
+          to="/reservar"
+          className="px-6 py-3 bg-brand-lime text-black rounded-full font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(204,255,0,0.3)]"
+        >
+          <PlusCircle size={20} />
+          Nueva Reserva
+        </Link>
+      </header>
 
-      {/* 3. RESERVAR INSTALACIÓN (Dinámico desde Supabase) */}
-      <section>
-        <h2 className="text-2xl font-bold text-white mb-6">Reservar Instalación</h2>
-        
-        {instalaciones.length === 0 ? (
-          <p className="text-gray-500">No hay instalaciones disponibles.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {instalaciones.map((item) => (
-              <div 
-                key={item.id}
-                className={`bg-[#1A1A2E] rounded-2xl p-5 border border-white/5 transition-all cursor-pointer group hover:-translate-y-1 hover:shadow-xl ${
-                  item.estado !== 'disponible' ? 'opacity-75 grayscale-[0.5]' : 'hover:border-brand-lime/50'
-                }`}
-              >
-                {/* Imagen / Placeholder visual */}
-                <div className="h-40 bg-[#252535] rounded-xl mb-4 flex items-center justify-center relative overflow-hidden group-hover:bg-[#2A2A40] transition-colors">
-                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                   <Activity className="text-gray-600 group-hover:text-brand-lime transition-colors z-10" size={40} />
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                <div className="flex justify-between items-start">
+        {/* COLUMNA IZQUIERDA (2/3): Reservas e Instalaciones */}
+        <div className="lg:col-span-2 space-y-8">
+
+          {/* SECCIÓN 1: MIS PRÓXIMOS PARTIDOS */}
+          <section>
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Calendar className="text-brand-purple" /> Mis Próximos Partidos
+            </h3>
+
+            {misReservas.length === 0 ? (
+              <div className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 text-center">
+                <p className="text-gray-500 mb-4">No tienes partidos programados.</p>
+                <Link to="/reservar" className="text-brand-lime underline hover:text-white">¡Reserva uno ahora!</Link>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {misReservas.map(reserva => (
+                  <div key={reserva.id} className="bg-[#1F1F2E] p-4 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-brand-lime/30 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-brand-lime/10 rounded-xl flex items-center justify-center text-brand-lime font-bold text-lg">
+                        {reserva.hora.split(':')[0]}h
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white">{reserva.instalaciones?.nombre || "Pista Deportiva"}</h4>
+                        <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
+                          <span className="flex items-center gap-1"><Calendar size={12} /> {reserva.fecha}</span>
+                          <span className="flex items-center gap-1"><Clock size={12} /> {reserva.hora}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => cancelarReserva(reserva.id)}
+                      className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Cancelar Reserva"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* SECCIÓN 2: ESTADO INSTALACIONES */}
+          <section>
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <MapPin className="text-brand-lime" /> Estado de Pistas
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {instalaciones.map((item) => (
+                <div key={item.id} className="bg-[#1A1A2E] p-4 rounded-2xl border border-white/5 flex items-center gap-4">
+                  <div className={`w-3 h-full rounded-full ${item.estado === 'disponible' ? 'bg-brand-lime' : 'bg-red-500'}`}></div>
                   <div>
-                    <h4 className="font-bold text-lg text-white group-hover:text-brand-lime transition-colors">
-                      {item.nombre}
-                    </h4>
-                    <p className={`text-xs mt-2 font-bold flex items-center gap-2 uppercase tracking-wide ${getStatusColor(item.estado)}`}>
-                      <span className={`w-2 h-2 rounded-full ${item.estado === 'disponible' ? 'bg-brand-lime animate-pulse' : 'bg-current'}`}></span>
-                      {item.estado}
-                    </p>
+                    <h4 className="font-bold text-white">{item.nombre}</h4>
+                    <p className="text-xs text-gray-500 uppercase font-bold mt-1">{item.estado}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* COLUMNA DERECHA (1/3): Avisos */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <AlertTriangle className="text-brand-red" /> Avisos
+          </h3>
+          {avisos.length === 0 ? (
+            <p className="text-gray-500 text-sm">No hay avisos activos.</p>
+          ) : (
+            avisos.map((aviso) => (
+              <div key={aviso.id} className="bg-brand-purple/5 border border-brand-purple/20 p-5 rounded-2xl">
+                <h5 className="font-bold text-brand-purple mb-1">{aviso.titulo}</h5>
+                <p className="text-xs text-gray-400 leading-relaxed">{aviso.mensaje}</p>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+            ))
+          )}
 
-      {/* 4. AVISOS MUNICIPALES (Dinámico desde Supabase) */}
-      <section className="space-y-4">
-        {avisos.map((aviso) => (
-          <div key={aviso.id} className="border border-dashed border-brand-purple/40 bg-brand-purple/5 rounded-xl p-5 flex items-start gap-4 hover:bg-brand-purple/10 transition-colors">
-            <div className="bg-brand-purple/20 p-2 rounded-lg shrink-0">
-                <AlertTriangle className="text-brand-purple" size={24} />
+          {/* Widget Promocional (Relleno visual) */}
+          <div className="bg-gradient-to-br from-brand-lime/20 to-transparent p-6 rounded-3xl border border-brand-lime/20 text-center mt-8">
+            <h4 className="font-bold text-brand-lime text-lg mb-2">¡Sube de Nivel!</h4>
+            <p className="text-xs text-gray-300 mb-4">Completa 5 partidos este mes para entrar en el ranking municipal.</p>
+            <div className="w-full bg-black/30 h-2 rounded-full overflow-hidden">
+              <div className="bg-brand-lime w-1/5 h-full"></div>
             </div>
-            <div>
-              <span className="text-brand-purple font-bold text-sm block mb-1 uppercase">{aviso.titulo}</span>
-              <span className="text-gray-300 text-sm leading-relaxed">
-                {aviso.contenido}
-              </span>
-            </div>
+            <p className="text-[10px] text-gray-500 mt-2 text-right">1/5 Completados</p>
           </div>
-        ))}
-      </section>
+        </div>
 
+      </div>
     </div>
   );
 }
