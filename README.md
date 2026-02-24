@@ -28,7 +28,7 @@
 
 ---
 
-## 📋 Sobre el Proyecto
+## Sobre el Proyecto
 
 **KORE MANAGER** nace como respuesta a la necesidad de digitalizar el sistema deportivo municipal. El objetivo es eliminar la burocracia, optimizar la ocupación de pistas y mejorar la comunicación entre el ayuntamiento y los ciudadanos.
 
