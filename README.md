@@ -1,4 +1,4 @@
-# 🏟️ KORE MANAGER - Gestor de Instalaciones Deportivas
+# KORE MANAGER - Gestor de Instalaciones Deportivas
 
 <div align="center">
   <a href="https://github.com/Luis-GR05/kore-manager">
@@ -34,7 +34,7 @@
 
 El proyecto destaca no solo por su **Interfaz "Dark Mode"** moderna (acentos en *Acid Lime* y *Cyber Purple*), sino por su **arquitectura limpia** orientada a la escalabilidad y la seguridad de los datos.
 
-## 📂 Documentación Oficial del Proyecto
+## Documentación Oficial del Proyecto
 
 Toda la documentación técnica y operativa requerida para la evaluación se encuentra centralizada en la carpeta `/docs`:
 
@@ -43,21 +43,14 @@ Toda la documentación técnica y operativa requerida para la evaluación se enc
 * 🚀 **[C) Manual de Despliegue](./docs/C_Manual_Despliegue.md):** Requisitos y pasos exactos para la instalación y ejecución del entorno.
 * 📅 **[D) Manual del Proyecto](./docs/D_Manual_Proyecto.md):** Memoria evolutiva, registro de bloqueos técnicos superados y trabajo realizado durante los trimestres.
 
-## ✨ Características Técnicas Principales
+## Características Técnicas Principales
 
 * 🔐 **Seguridad y Accesos (RBAC):** Sistema de roles estricto (Admin, Conserje, Ciudadano) respaldado por **Row Level Security (RLS)** en la base de datos para evitar accesos no autorizados.
 * 🧩 **Arquitectura DRY:** Desarrollo basado en componentes de UI globales y *Custom Hooks* para separar la lógica de negocio de las vistas.
 * 📦 **Inventario y Panel Admin:** Control de stock en tiempo real y directorio de gestión global de usuarios.
 * 📢 **Sistema de Incidencias:** Reporte y seguimiento de problemas en las instalaciones con restricciones asimétricas de lectura/escritura.
 
-## 🎨 Galería del Proyecto
-
-| **Login Premium** | **Dashboard Principal** |
-|:---:|:---:|
-| <img src="src/assets/ImagenesGestorDeportivo/2Login.png" width="400" alt="Pantalla de Login"> | <img src="src/assets/ImagenesGestorDeportivo/3PagPrinc.png" width="400" alt="Panel Principal"> |
-| *Acceso seguro con notificaciones Toast* | *Vista general y menú dinámico por roles* |
-
-## 📅 Roadmap y Estado Actual
+## Roadmap y Estado Actual
 
 - [x] **Semana 1:** Configuración de entorno, Tailwind, Diseño UI y Login funcional.
 - [x] **Semana 2:** Base de Datos (Tablas Reales) y Dashboard Dinámico.
