@@ -1,57 +1,29 @@
 // src/hooks/useProfile.js
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export function useProfile() {
-  const [profile, setProfile] = useState(null);
-  const [roleName, setRoleName] = useState('...');
-  const [loading, setLoading] = useState(true);
+  const { profile, roleName, loading, refreshProfile } = useAuth();
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select(`*, roles ( nombre )`)
-          .eq('id', user.id)
-          .single();
-
-        if (data) {
-          setProfile(data);
-          setRoleName(data.roles?.nombre?.toUpperCase() || 'CIUDADANO');
-        } else if (error) {
-          console.error("Error cargando perfil:", error);
-          toast.error("Error de conexión con la base de datos.");
-        }
-      }
-      setLoading(false);
-    };
-
-    fetchProfile();
-  }, []);
-
   const updateProfile = async (newFullName, newPhone) => {
+    if (!profile) return;
     setUpdating(true);
+
     const { error } = await supabase
       .from('profiles')
-      .update({
-        full_name: newFullName,
-        telefono: newPhone
-      })
+      .update({ full_name: newFullName, telefono: newPhone })
       .eq('id', profile.id);
 
     if (error) {
-      toast.error('Error actualizando: ' + error.message);
+      toast.error('Error al guardar: ' + error.message);
     } else {
       toast.success('¡Perfil actualizado correctamente!');
-      // Actualizamos el estado local para que la UI reaccione al instante
-      setProfile({ ...profile, full_name: newFullName, telefono: newPhone });
+      await refreshProfile(); // Sincroniza el contexto global
     }
-    
+
     setUpdating(false);
   };
 

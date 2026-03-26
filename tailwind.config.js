@@ -27,7 +27,6 @@ export default {
         }
       },
       fontFamily: {
-        // Define la fuente global. Si usas Inter u otra, ponla aquí.
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       }
