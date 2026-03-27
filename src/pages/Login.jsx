@@ -1,9 +1,9 @@
 // src/pages/Login.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -12,11 +12,10 @@ export default function Login() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-  const [isRegistering, setIsRegistering] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [formData, setFormData] = useState({ email: '', password: '', fullName: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
   // Si ya hay sesión activa → ir al dashboard directamente
   useEffect(() => {
@@ -33,52 +32,32 @@ export default function Login() {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
-    console.log('--- Iniciando handleAuth ---');
+    console.log('--- Iniciando login ---');
 
     try {
-      if (isRegistering) {
-        if (formData.password.length < 6) {
-          toast.error('La contraseña debe tener al menos 6 caracteres.');
-          setLoading(false);
-          return;
-        }
-        console.log('Intentando registro...');
-        const { error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: { data: { full_name: formData.fullName } }
-        });
-        if (error) throw error;
-        toast.success('¡Registro exitoso! Ya puedes iniciar sesión.');
-        setIsRegistering(false);
-        setFormData({ email: formData.email, password: '', fullName: '' });
-      } else {
-        console.log('Intentando login...');
-        
-        const loginPromise = supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
+      const loginPromise = supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('TIMEOUT_ERROR: Supabase no responde después de 8 segundos.')), 8000)
-        );
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('TIMEOUT_ERROR: Supabase no responde después de 8 segundos.')), 8000)
+      );
 
-        const { data, error } = await Promise.race([loginPromise, timeoutPromise]);
+      const { data, error } = await Promise.race([loginPromise, timeoutPromise]);
 
-        if (error) {
-          console.error('Error de Supabase (Login):', error);
-          throw error;
-        }
-
-        console.log('Login exitoso. Data recuperada:', data);
-        toast.success('Sesión iniciada. Entrando...', { duration: 3000 });
-
-        // Forzamos la navegación tras un breve delay si el useEffect fallara
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 800);
+      if (error) {
+        console.error('Error de Supabase (Login):', error);
+        throw error;
       }
+
+      console.log('Login exitoso. Data recuperada:', data);
+      toast.success('Sesión iniciada. Entrando...', { duration: 3000 });
+
+      // Forzamos la navegación tras un breve delay si el useEffect fallara
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 800);
     } catch (error) {
       console.error('Catch handler:', error.message);
       const msg = error.message === 'Invalid login credentials'
@@ -87,7 +66,7 @@ export default function Login() {
       toast.error(msg);
     } finally {
       setLoading(false);
-      console.log('--- Fin handleAuth, loading=false ---');
+      console.log('--- Fin login, loading=false ---');
     }
   };
 
@@ -105,23 +84,11 @@ export default function Login() {
             KORE <span className="text-brand-lime">MANAGER</span>
           </h1>
           <p className="text-gray-400 text-sm">
-            {isRegistering ? 'Crea tu cuenta gratuita' : 'Bienvenido de nuevo'}
+            Bienvenido de nuevo
           </p>
         </div>
 
         <form onSubmit={handleAuth} className="space-y-4">
-          {isRegistering && (
-            <Input
-              icon={User}
-              name="fullName"
-              type="text"
-              placeholder="Nombre Completo"
-              value={formData.fullName}
-              onChange={handleChange}
-              required
-            />
-          )}
-
           <Input
             icon={Mail}
             name="email"
@@ -155,21 +122,20 @@ export default function Login() {
           </div>
 
           <Button type="submit" variant="primary" isLoading={loading} className="w-full mt-2">
-            {isRegistering ? 'Crear Cuenta' : 'Iniciar Sesión'}
+            Iniciar Sesión
             {!loading && <ArrowRight size={20} />}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-500 text-sm">
-            {isRegistering ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
-            <button
-              type="button"
-              onClick={() => { setIsRegistering(!isRegistering); }}
+            ¿No tienes cuenta?
+            <Link
+              to="/register"
               className="ml-2 text-white font-bold hover:text-brand-lime transition-colors"
             >
-              {isRegistering ? 'Inicia Sesión' : 'Regístrate Gratis'}
-            </button>
+              Regístrate Gratis
+            </Link>
           </p>
         </div>
       </div>

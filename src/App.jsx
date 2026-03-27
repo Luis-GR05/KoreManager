@@ -7,9 +7,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import NewBooking from './pages/NewBooking';
+import BookingHistory from './pages/BookingHistory';
 import Inventory from './pages/Inventory';
 import AdminPanel from './pages/AdminPanel';
 import Layout from './components/Layout';
@@ -36,6 +38,7 @@ export default function App() {
           {/* RUTAS PÚBLICAS */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* RUTAS PRIVADAS - todos los usuarios autenticados */}
           <Route path="/dashboard" element={
@@ -51,6 +54,11 @@ export default function App() {
           <Route path="/reservar" element={
             <ProtectedRoute>
               <Layout><NewBooking /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/historial" element={
+            <ProtectedRoute>
+              <Layout><BookingHistory /></Layout>
             </ProtectedRoute>
           } />
 
