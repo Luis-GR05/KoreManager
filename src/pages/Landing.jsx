@@ -1,136 +1,405 @@
 // src/pages/Landing.jsx
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, MapPin, Shield } from 'lucide-react';
+import { ArrowRight, Zap, Calendar, Users, Shield, Star, Clock, ChevronDown } from 'lucide-react';
+import { GiPingPongBat, GiSoccerBall, GiTennisRacket } from 'react-icons/gi';
 
+// ─── Datos ─────────────────────────────────────────────────────────────────
+const SPORTS = [
+  {
+    name: 'Pádel',
+    icon: GiPingPongBat,
+    courts: '6 pistas',
+    accent: '#CCFF00',
+    bg: 'from-[#CCFF00]/10 to-transparent',
+    border: 'border-[#CCFF00]/20',
+    description: 'Pistas cubiertas y descubiertas con iluminación LED profesional.',
+  },
+  {
+    name: 'Fútbol Sala',
+    icon: GiSoccerBall,
+    courts: '3 campos',
+    accent: '#8A2BE2',
+    bg: 'from-[#8A2BE2]/10 to-transparent',
+    border: 'border-[#8A2BE2]/20',
+    description: 'Campos de resina con marcaje oficial y cabinas de arbitraje.',
+  },
+  {
+    name: 'Tenis',
+    icon: GiTennisRacket,
+    courts: '4 pistas',
+    accent: '#007AFF',
+    bg: 'from-[#007AFF]/10 to-transparent',
+    border: 'border-[#007AFF]/20',
+    description: 'Superficie de tierra batida y pista dura certificada.',
+  },
+];
+
+const STATS = [
+  { value: '500+', label: 'Socios activos' },
+  { value: '13', label: 'Instalaciones' },
+  { value: '24/7', label: 'Disponibilidad' },
+  { value: '< 30s', label: 'Para reservar' },
+];
+
+const FEATURES = [
+  {
+    icon: Calendar,
+    title: 'Reservas en tiempo real',
+    desc: 'Consulta el calendario en vivo y asegura tu pista sin esperas ni llamadas.',
+    color: 'text-brand-lime',
+    glow: 'from-brand-lime/10',
+    border: 'group-hover:border-brand-lime/30',
+  },
+  {
+    icon: Zap,
+    title: 'Confirmación instantánea',
+    desc: 'Recibe la confirmación al instante y el recordatorio antes de tu cita.',
+    color: 'text-brand-purple',
+    glow: 'from-brand-purple/10',
+    border: 'group-hover:border-brand-purple/30',
+  },
+  {
+    icon: Users,
+    title: 'Gestión de equipos',
+    desc: 'Organiza ligas, torneos y partidos privados con tu grupo de amigos.',
+    color: 'text-blue-400',
+    glow: 'from-blue-500/10',
+    border: 'group-hover:border-blue-400/30',
+  },
+  {
+    icon: Clock,
+    title: 'Historial deportivo',
+    desc: 'Accede a todas tus reservas pasadas y lleva el control de tus horas en pista.',
+    color: 'text-emerald-400',
+    glow: 'from-emerald-500/10',
+    border: 'group-hover:border-emerald-400/30',
+  },
+  {
+    icon: Shield,
+    title: 'Acceso seguro',
+    desc: 'Identifícate con tu cuenta personal protegida y datos siempre encriptados.',
+    color: 'text-orange-400',
+    glow: 'from-orange-500/10',
+    border: 'group-hover:border-orange-400/30',
+  },
+  {
+    icon: Star,
+    title: 'Novedades y ofertas',
+    desc: 'Recibe alertas del ayuntamiento sobre actividades, torneos y promociones.',
+    color: 'text-yellow-400',
+    glow: 'from-yellow-500/10',
+    border: 'group-hover:border-yellow-400/30',
+  },
+];
+
+// ─── Componentes menores ────────────────────────────────────────────────────
+function SectionLabel({ children }) {
+  return (
+    <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-lime/70 mb-4">
+      {children}
+    </p>
+  );
+}
+
+function GlowOrb({ className }) {
+  return (
+    <div
+      className={`absolute rounded-full pointer-events-none blur-[140px] ${className}`}
+    />
+  );
+}
+
+// ─── Página principal ───────────────────────────────────────────────────────
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-[#0F0F1A] text-white overflow-x-hidden selection:bg-brand-lime selection:text-black">
-      
-      {/* --- NAVBAR --- */}
-      <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto z-50 relative">
-        <div className="text-2xl font-bold tracking-tighter cursor-default">
+    <div className="min-h-screen bg-[#0F0F1A] text-white overflow-x-hidden selection:bg-brand-lime selection:text-black font-sans">
+
+      {/* ══════════════════════════════════════════
+          NAVBAR
+      ══════════════════════════════════════════ */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 backdrop-blur-xl bg-[#0F0F1A]/70 border-b border-white/5">
+        <div className="text-2xl font-extrabold tracking-tighter cursor-default select-none">
           KORE<span className="text-brand-lime">MANAGER</span>
         </div>
-        
-        {/* Botón Acceso Usuarios */}
-        <Link 
-          to="/login" 
-          className="px-8 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
+
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+          <a href="#deportes" className="hover:text-white transition-colors duration-200">Deportes</a>
+          <a href="#funciones" className="hover:text-white transition-colors duration-200">Funciones</a>
+          <a href="#sobre" className="hover:text-white transition-colors duration-200">Sobre nosotros</a>
+        </div>
+
+        <Link
+          to="/login"
+          className="px-6 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
           transition-all duration-300 ease-out
-          hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105"
+          hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.35)] hover:scale-105"
         >
           Acceso Usuarios
         </Link>
       </nav>
 
-      {/* --- HERO SECTION --- */}
-      <header className="relative pt-20 pb-32 px-6 text-center max-w-5xl mx-auto">
-        {/* Efecto de luz de fondo central */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none"></div>
-        
-        <div className="relative z-10 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          
-          {/* Badge de versión */}
+      {/* ══════════════════════════════════════════
+          HERO
+      ══════════════════════════════════════════ */}
+      <header className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
+
+        {/* Orbes de fondo */}
+        <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        <GlowOrb className="w-[400px] h-[400px] bg-brand-lime/8 bottom-1/4 right-1/4" />
+
+        {/* Cuadrícula decorativa */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+            backgroundSize: '80px 80px',
+          }}
+        />
+
+        <div className="relative z-10 max-w-5xl mx-auto space-y-8">
+
+          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-lime/5 border border-brand-lime/20 text-brand-lime text-xs font-bold uppercase tracking-wider">
-            <span className="w-2 h-2 rounded-full bg-brand-lime animate-pulse"></span>
-            Sistema v1.0 Disponible
+            <span className="w-2 h-2 rounded-full bg-brand-lime animate-pulse" />
+            Sistema v1.0 — Ya disponible
           </div>
-          
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
-            El deporte,<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime to-emerald-400 filter drop-shadow-lg">
+
+          {/* Título principal */}
+          <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tight leading-[1.05]">
+            El deporte<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime via-emerald-400 to-brand-lime drop-shadow-lg bg-[length:200%] animate-[shimmer_3s_linear_infinite]">
               ahora es digital.
             </span>
           </h1>
-          
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Olvídate de las llamadas y el papel. Reserva pistas de pádel, fútbol y tenis en segundos. Consulta disponibilidad en tiempo real y gestiona tus partidos desde el móvil.
+
+          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Olvídate de las llamadas y el papel. Reserva pistas de pádel, fútbol y tenis
+            en segundos desde cualquier dispositivo.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link 
-              to="/login" 
-              className="px-8 py-4 bg-brand-lime text-black rounded-full font-bold text-lg 
-              shadow-[0_0_15px_rgba(204,255,0,0.3)]
-              hover:scale-105 hover:shadow-[0_0_30px_rgba(204,255,0,0.6)] 
-              transition-all duration-300 flex items-center gap-2 group"
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <Link
+              to="/login"
+              className="w-full sm:w-auto px-8 py-4 bg-brand-lime text-black rounded-full font-bold text-base
+              shadow-[0_0_20px_rgba(204,255,0,0.35)]
+              hover:scale-105 hover:shadow-[0_0_40px_rgba(204,255,0,0.6)]
+              transition-all duration-300 flex items-center justify-center gap-2 group"
             >
-              Reservar Pista Ahora
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+              Reservar pista ahora
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
             </Link>
-            
-            <button className="px-8 py-4 bg-[#1A1A2E] border border-gray-700 text-white rounded-full font-bold text-lg hover:bg-gray-800 hover:border-gray-500 transition-all">
-              Ver Instalaciones
-            </button>
+
+            <a
+              href="#deportes"
+              className="w-full sm:w-auto px-8 py-4 bg-transparent border border-white/15 text-white rounded-full font-bold text-base
+              hover:bg-white/5 hover:border-white/30 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              Ver instalaciones
+            </a>
+          </div>
+
+          {/* Scroll hint */}
+          <div className="pt-12 flex flex-col items-center gap-2 text-gray-600 text-xs animate-bounce">
+            <ChevronDown size={18} />
           </div>
         </div>
       </header>
 
-      {/* --- CARACTERÍSTICAS --- */}
-      <section className="px-6 py-24 bg-gradient-to-b from-[#0F0F1A] to-[#13131F] border-t border-white/5 relative">
-        <div className="max-w-7xl mx-auto">
-          
-          {/* Título de sección pequeño */}
-          <h2 className="text-center text-sm font-bold text-brand-gray uppercase tracking-widest mb-12">
-            ¿Por qué usar la app?
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            {/* Card 1: Reservas */}
-            <div className="bg-[#1F1F2E] p-8 rounded-3xl border border-white/5 shadow-xl hover:shadow-2xl transition-all duration-300 group hover:-translate-y-2 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              <div className="w-14 h-14 bg-[#2A2A40] rounded-2xl flex items-center justify-center mb-6 text-brand-purple border border-white/5 group-hover:scale-110 group-hover:border-brand-purple/30 transition-all duration-300 relative z-10">
-                <CheckCircle size={28} />
-              </div>
-              
-              <h3 className="text-xl font-bold mb-3 text-white relative z-10">Reservas al instante</h3>
-              <p className="text-gray-400 relative z-10 leading-relaxed">
-                Consulta el calendario en vivo y asegura tu pista sin esperas ni desplazamientos innecesarios al pabellón.
-              </p>
+      {/* ══════════════════════════════════════════
+          STATS BAR
+      ══════════════════════════════════════════ */}
+      <section className="border-y border-white/5 bg-[#13131F]">
+        <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-px">
+          {STATS.map((s, i) => (
+            <div key={i} className="flex flex-col items-center gap-1 px-4 py-2">
+              <span className="text-3xl md:text-4xl font-extrabold text-brand-lime tabular-nums">{s.value}</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">{s.label}</span>
             </div>
+          ))}
+        </div>
+      </section>
 
-            {/* Card 2: Instalaciones (Destacada) */}
-            <div className="bg-[#1F1F2E] p-8 rounded-3xl border border-white/5 shadow-xl hover:shadow-2xl transition-all duration-300 group hover:-translate-y-2 relative overflow-hidden">
-               {/* Un toque de luz extra en la tarjeta central */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-lime/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      {/* ══════════════════════════════════════════
+          DEPORTES
+      ══════════════════════════════════════════ */}
+      <section id="deportes" className="relative px-6 py-32 bg-[#0F0F1A]">
+        <GlowOrb className="w-[600px] h-[600px] bg-brand-purple/10 top-1/2 left-0 -translate-y-1/2" />
 
-              <div className="w-14 h-14 bg-[#2A2A40] rounded-2xl flex items-center justify-center mb-6 text-brand-lime border border-white/5 group-hover:scale-110 group-hover:border-brand-lime/30 transition-all duration-300 relative z-10">
-                <MapPin size={28} />
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <SectionLabel>Instalaciones</SectionLabel>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              Todos tus deportes,<br />
+              <span className="text-brand-lime">un solo lugar.</span>
+            </h2>
+            <p className="mt-4 text-gray-400 max-w-xl mx-auto">
+              Un complejo deportivo completo al alcance de tu mano. Elige tu deporte y comienza a jugar.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SPORTS.map((sport) => (
+              <div
+                key={sport.name}
+                className={`group relative p-8 rounded-3xl bg-[#1A1A2E] border border-white/5 ${sport.border} overflow-hidden
+                transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl cursor-default`}
+              >
+                {/* Gradient de hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${sport.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                <div className="relative z-10">
+                  {/* Icono + badge */}
+                  <div className="flex items-start justify-between mb-6">
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center border"
+                      style={{ color: sport.accent, borderColor: `${sport.accent}25`, background: `${sport.accent}12` }}
+                    >
+                      <sport.icon size={28} />
+                    </div>
+                    <span
+                      className="text-xs font-bold px-3 py-1 rounded-full border"
+                      style={{ color: sport.accent, borderColor: `${sport.accent}30`, background: `${sport.accent}10` }}
+                    >
+                      {sport.courts}
+                    </span>
+                  </div>
+
+                  <h3 className="text-2xl font-extrabold mb-3" style={{ color: sport.accent }}>{sport.name}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{sport.description}</p>
+
+                  <Link
+                    to="/login"
+                    className="mt-6 inline-flex items-center gap-2 text-sm font-bold transition-all duration-200 group/link"
+                    style={{ color: sport.accent }}
+                  >
+                    Reservar ahora
+                    <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
-              
-              <h3 className="text-xl font-bold mb-3 text-white relative z-10">Todas las instalaciones</h3>
-              <p className="text-gray-400 relative z-10 leading-relaxed">
-                Desde el Pabellón A hasta las pistas exteriores de tenis. Todo el complejo deportivo en tu bolsillo.
-              </p>
-            </div>
-
-             {/* Card 3: Seguridad */}
-             <div className="bg-[#1F1F2E] p-8 rounded-3xl border border-white/5 shadow-xl hover:shadow-2xl transition-all duration-300 group hover:-translate-y-2 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-              <div className="w-14 h-14 bg-[#2A2A40] rounded-2xl flex items-center justify-center mb-6 text-blue-400 border border-white/5 group-hover:scale-110 group-hover:border-blue-400/30 transition-all duration-300 relative z-10">
-                <Shield size={28} />
-              </div>
-              
-              <h3 className="text-xl font-bold mb-3 text-white relative z-10">Acceso Seguro</h3>
-              <p className="text-gray-400 relative z-10 leading-relaxed">
-                Identifícate con tu cuenta personal y accede a tu historial deportivo y notificaciones del ayuntamiento.
-              </p>
-            </div>
-
+            ))}
           </div>
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer className="py-12 text-center border-t border-white/5 bg-[#0A0A12]">
-        <p className="text-gray-500 text-sm mb-2">© 2026 Luis Gordillo Rodríguez. Gestión Deportiva.</p>
-        <div className="flex justify-center gap-4 text-xs text-gray-600">
-           <a href="#" className="hover:text-brand-lime transition-colors">Política de Privacidad</a>
-           <span>•</span>
-           <a href="#" className="hover:text-brand-lime transition-colors">Términos de Uso</a>
+      {/* ══════════════════════════════════════════
+          FUNCIONES
+      ══════════════════════════════════════════ */}
+      <section id="funciones" className="relative px-6 py-32 bg-gradient-to-b from-[#13131F] to-[#0F0F1A] border-t border-white/5">
+        <GlowOrb className="w-[500px] h-[500px] bg-brand-lime/8 top-1/2 right-0 -translate-y-1/2" />
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <SectionLabel>¿Por qué KoreManager?</SectionLabel>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              Todo lo que necesitas,<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime to-emerald-400">nada más.</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {FEATURES.map(({ icon: Icon, title, desc, color, glow, border }) => (
+              <div
+                key={title}
+                className={`group relative p-7 rounded-3xl bg-[#1A1A2E] border border-white/5 ${border}
+                overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default`}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                <div className="relative z-10">
+                  <div className={`w-12 h-12 rounded-2xl bg-[#252538] flex items-center justify-center mb-5 ${color}
+                  group-hover:scale-110 transition-transform duration-300 border border-white/5 ${border}`}>
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          SOBRE NOSOTROS / CTA
+      ══════════════════════════════════════════ */}
+      <section id="sobre" className="relative px-6 py-32 border-t border-white/5 bg-[#0F0F1A]">
+        <GlowOrb className="w-[800px] h-[800px] bg-brand-purple/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+
+        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
+          <SectionLabel>Sobre el proyecto</SectionLabel>
+
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+            Creado para modernizar<br />
+            <span className="text-brand-lime">la gestión deportiva local.</span>
+          </h2>
+
+          <p className="text-gray-400 text-lg leading-relaxed">
+            KoreManager nació como un Trabajo de Fin de Grado con un objetivo claro: digitalizar
+            la reserva de instalaciones municipales. Adiós a las colas, los papeles y las llamadas.
+            Hola a la eficiencia, la transparencia y el deporte sin barreras.
+          </p>
+
+          {/* Testimonial placeholder */}
+          <div className="mt-4 p-6 rounded-2xl bg-[#1A1A2E] border border-white/8 text-left space-y-3">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={14} className="text-brand-lime fill-brand-lime" />
+              ))}
+            </div>
+            <p className="text-gray-300 text-sm italic leading-relaxed">
+              "Antes tardaba 15 minutos en reservar una pista por teléfono. Con KoreManager lo hago
+              en 30 segundos desde el móvil. Es un antes y un después."
+            </p>
+            <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider">— Socio del Club, Sevilla</p>
+          </div>
+
+          {/* CTA final */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Link
+              to="/login"
+              className="w-full sm:w-auto px-10 py-4 bg-brand-lime text-black rounded-full font-bold text-base
+              shadow-[0_0_20px_rgba(204,255,0,0.35)]
+              hover:scale-105 hover:shadow-[0_0_40px_rgba(204,255,0,0.65)]
+              transition-all duration-300 flex items-center justify-center gap-2 group"
+            >
+              Empezar gratis
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          FOOTER
+      ══════════════════════════════════════════ */}
+      <footer className="border-t border-white/5 bg-[#0A0A12] px-8 py-14">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
+
+          {/* Marca */}
+          <div className="space-y-3">
+            <div className="text-2xl font-extrabold tracking-tighter cursor-default">
+              KORE<span className="text-brand-lime">MANAGER</span>
+            </div>
+            <p className="text-gray-600 text-sm max-w-xs">
+              Gestión deportiva moderna para instalaciones municipales y clubes.
+            </p>
+          </div>
+
+          {/* Links */}
+          <div className="grid grid-cols-2 gap-x-16 gap-y-3 text-sm text-gray-500">
+            <a href="#deportes" className="hover:text-brand-lime transition-colors duration-200">Instalaciones</a>
+            <a href="#funciones" className="hover:text-brand-lime transition-colors duration-200">Funciones</a>
+            <a href="#sobre" className="hover:text-brand-lime transition-colors duration-200">Sobre nosotros</a>
+            <Link to="/login" className="hover:text-brand-lime transition-colors duration-200">Acceso usuarios</Link>
+            <a href="#" className="hover:text-brand-lime transition-colors duration-200">Política de privacidad</a>
+            <a href="#" className="hover:text-brand-lime transition-colors duration-200">Términos de uso</a>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 flex items-center justify-center gap-3 text-xs text-gray-600">
+          <p>© 2026 Luis Gordillo Rodríguez · Proyecto de Fin de Grado</p>
         </div>
       </footer>
 

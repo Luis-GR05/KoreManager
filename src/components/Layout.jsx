@@ -1,84 +1,105 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, User, History, Bell, LogOut } from 'lucide-react';
+// src/components/Layout.jsx
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2 } from 'lucide-react';
 
 export default function Layout({ children }) {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  // Función para determinar si el link está activo
-  const isActive = (path) => location.pathname === path;
-
-  const handleLogout = () => {
-    navigate('/login');
-  };
+  const { roleName, signOut } = useAuth();
 
   const menuItems = [
-    { icon: Home, label: 'Inicio / Reservas', path: '/dashboard' },
-    { icon: User, label: 'Mis Datos', path: '/profile' },
-    { icon: History, label: 'Historial', path: '/history' },
-    { icon: Bell, label: 'Notificaciones', path: '/notifications' },
+    { icon: Home,       label: 'Inicio',        path: '/dashboard',    allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: User,       label: 'Mi Perfil',     path: '/profile',      allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: Calendar,   label: 'Reservar',      path: '/reservar',     allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: Clock,      label: 'Historial',     path: '/historial',    allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: BarChart2,  label: 'Estadísticas',  path: '/estadisticas', allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: Package,    label: 'Inventario',    path: '/inventario',   allowed: ['conserje', 'admin'] },
+    { icon: ShieldAlert,label: 'Panel Admin',   path: '/admin',        allowed: ['admin'] },
   ];
 
+  const visibleMenu = menuItems.filter(item => item.allowed.includes(roleName));
+
   return (
-    <div className="flex h-screen w-full bg-[#0F0F1A] overflow-hidden">
-      
-      {/* --- SIDEBAR --- */}
-      <aside className="w-64 flex-shrink-0 border-r border-white/5 bg-[#1A1A2E] flex flex-col relative z-20">
-        
-        {/* Logo Sidebar */}
-        <div className="p-8">
-          <h1 className="text-2xl font-bold text-white leading-none tracking-tight">
-            KORE<br />
-            <span className="text-brand-lime">MANAGER</span>
+    <div className="flex min-h-screen bg-[#0F0F1A] text-white">
+
+      {/* SIDEBAR — escritorio */}
+      <aside className="w-64 bg-[#1A1A2E] border-r border-white/5 flex-col hidden md:flex shrink-0">
+        <div className="h-20 flex items-center px-8 border-b border-white/5">
+          <h1 className="text-2xl font-bold tracking-tighter">
+            KORE<span className="text-brand-lime">MANAGER</span>
           </h1>
         </div>
 
-        {/* Menú de Navegación */}
-        <nav className="flex-1 px-4 space-y-3 mt-4">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                isActive(item.path)
-                  ? 'bg-brand-purple text-white shadow-[0_0_15px_rgba(123,44,191,0.5)]' 
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <item.icon 
-                size={20} 
-                className={isActive(item.path) ? 'text-white' : 'text-gray-400 group-hover:text-brand-lime transition-colors'} 
-              />
-              <span className="font-medium text-sm">{item.label}</span>
-              
-              {/* Indicador activo */}
-              {isActive(item.path) && (
-                <div className="absolute left-0 w-1 h-8 bg-brand-lime rounded-r-full shadow-[0_0_10px_#CCFF00]"></div>
-              )}
-            </Link>
-          ))}
+        {/* Indicador de rol */}
+        <div className="p-4 text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+          {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
+          {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+          {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-lime" />}
+          Modo: {roleName.toUpperCase()}
+        </div>
+
+        <nav className="flex-1 px-4 py-4 space-y-1">
+          {visibleMenu.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                  isActive
+                    ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.2)]'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Icon size={20} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Botón Cerrar Sesión */}
-        <div className="p-4 border-t border-white/5 bg-[#151525]">
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 text-brand-red hover:bg-brand-red/10 w-full rounded-lg transition-colors group"
+        <div className="p-4 border-t border-white/5">
+          <button
+            onClick={signOut}
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-medium"
           >
-            <LogOut size={20} className="group-hover:scale-110 transition-transform"/>
-            <span className="font-medium text-sm">Cerrar Sesión</span>
+            <LogOut size={20} /> Cerrar Sesión
           </button>
         </div>
       </aside>
 
-      {/* --- CONTENIDO PRINCIPAL --- */}
-      <main className="flex-1 overflow-y-auto relative">
-         <div className="absolute top-0 left-0 w-full h-96 bg-brand-purple/5 blur-[100px] pointer-events-none"></div>
-        
-        <div className="max-w-7xl mx-auto p-8 relative z-10">
-          {children}
-        </div>
+      {/* MAIN */}
+      <main className="flex-1 relative overflow-y-auto">
+        <div className="p-6 md:p-8 pb-24 md:pb-8">{children}</div>
       </main>
+
+      {/* BOTTOM NAV — móvil */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#1A1A2E]/95 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 py-3 z-50">
+        {visibleMenu.map((item) => {
+          const isActive = location.pathname === item.path;
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
+                isActive ? 'text-brand-lime' : 'text-gray-500 hover:text-white'
+              }`}
+            >
+              <Icon size={22} />
+              <span className="text-[10px] font-bold">{item.label}</span>
+            </Link>
+          );
+        })}
+        <button
+          onClick={signOut}
+          className="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-gray-500 hover:text-brand-red transition-all"
+        >
+          <LogOut size={22} />
+          <span className="text-[10px] font-bold">Salir</span>
+        </button>
+      </nav>
     </div>
   );
 }
