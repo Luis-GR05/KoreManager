@@ -3,8 +3,18 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2 } from 'lucide-react';
+import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+// Determina el nivel del jugador según partidos completados
+function getNivel(total) {
+  if (total >= 50) return { nombre: 'Leyenda',   emoji: '🏆', color: 'text-brand-lime',   next: null,  threshold: 50 };
+  if (total >= 25) return { nombre: 'Veterano',   emoji: '⭐', color: 'text-yellow-400',   next: 50,   threshold: 25 };
+  if (total >= 10) return { nombre: 'Habitual',   emoji: '🔥', color: 'text-orange-400',   next: 25,   threshold: 10 };
+  if (total >= 5)  return { nombre: 'En Forma',   emoji: '💪', color: 'text-blue-400',     next: 10,   threshold: 5  };
+  if (total >= 1)  return { nombre: 'Novato',     emoji: '🎾', color: 'text-gray-300',     next: 5,    threshold: 1  };
+  return                  { nombre: 'Nuevo',      emoji: '👤', color: 'text-gray-500',     next: 1,    threshold: 0  };
+}
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -14,8 +24,10 @@ export default function Dashboard() {
   const [avisos, setAvisos]               = useState([]);
   const [loading, setLoading]             = useState(true);
   const [partidosMes, setPartidosMes]     = useState(0);
+  const [totalJugados, setTotalJugados]   = useState(0); // partidos completados (pasados)
 
   const META_PARTIDOS = 5;
+  const hoy = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +39,6 @@ export default function Dashboard() {
       if (dataInst) setInstalaciones(dataInst);
 
       // Mis próximas reservas (solo futuras)
-      const hoy = new Date().toISOString().split('T')[0];
       const { data: dataReservas } = await supabase
         .from('reservas')
         .select(`id, fecha, hora, instalaciones ( nombre )`)
@@ -36,15 +47,23 @@ export default function Dashboard() {
         .order('fecha', { ascending: true });
       if (dataReservas) setMisReservas(dataReservas);
 
-      // Partidos del mes actual (para barra de progreso)
+      // Partidos del mes actual
       const primerDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
         .toISOString().split('T')[0];
-      const { count } = await supabase
+      const { count: countMes } = await supabase
         .from('reservas')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profile?.id)
         .gte('fecha', primerDiaMes);
-      setPartidosMes(count || 0);
+      setPartidosMes(countMes || 0);
+
+      // Total de partidos completados (fecha pasada)
+      const { count: countTotal } = await supabase
+        .from('reservas')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile?.id)
+        .lt('fecha', hoy);
+      setTotalJugados(countTotal || 0);
 
       // Avisos activos
       const { data: dataAvisos } = await supabase
@@ -61,8 +80,6 @@ export default function Dashboard() {
   }, [profile]);
 
   const cancelarReserva = async (id) => {
-    if (!confirm('¿Seguro que quieres cancelar este partido?')) return;
-
     const { error } = await supabase.from('reservas').delete().eq('id', id);
     if (error) {
       toast.error('No se pudo cancelar la reserva.');
@@ -79,7 +96,12 @@ export default function Dashboard() {
     </div>
   );
 
-  const progreso = Math.min(Math.round((partidosMes / META_PARTIDOS) * 100), 100);
+  const progreso   = Math.min(Math.round((partidosMes / META_PARTIDOS) * 100), 100);
+  const nivel      = getNivel(totalJugados);
+  const sigNivel   = nivel.next;
+  const progrNivel = sigNivel
+    ? Math.min(Math.round((totalJugados / sigNivel) * 100), 100)
+    : 100;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -161,14 +183,14 @@ export default function Dashboard() {
               {instalaciones.map((item) => (
                 <div key={item.id} className="bg-[#1A1A2E] p-4 rounded-2xl border border-white/5 flex items-center gap-4">
                   <div className={`w-3 h-10 rounded-full shrink-0 ${
-                    item.estado === 'disponible'   ? 'bg-brand-lime' :
-                    item.estado === 'mantenimiento'? 'bg-yellow-500' : 'bg-red-500'
+                    item.estado === 'disponible'    ? 'bg-brand-lime' :
+                    item.estado === 'mantenimiento' ? 'bg-yellow-500' : 'bg-red-500'
                   }`} />
                   <div>
                     <h4 className="font-bold text-white">{item.nombre}</h4>
                     <p className={`text-xs uppercase font-bold mt-1 ${
-                      item.estado === 'disponible'   ? 'text-brand-lime' :
-                      item.estado === 'mantenimiento'? 'text-yellow-500' : 'text-red-500'
+                      item.estado === 'disponible'    ? 'text-brand-lime' :
+                      item.estado === 'mantenimiento' ? 'text-yellow-500' : 'text-red-500'
                     }`}>
                       {item.estado}
                     </p>
@@ -181,38 +203,72 @@ export default function Dashboard() {
 
         {/* COLUMNA DERECHA */}
         <div className="space-y-6">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <AlertTriangle className="text-brand-red" /> Avisos
-          </h3>
-          {avisos.length === 0 ? (
-            <p className="text-gray-500 text-sm">No hay avisos activos.</p>
-          ) : (
-            avisos.map((aviso) => (
-              <div key={aviso.id} className="bg-brand-purple/5 border border-brand-purple/20 p-5 rounded-2xl">
-                <h5 className="font-bold text-brand-purple mb-1">{aviso.titulo}</h5>
-                <p className="text-xs text-gray-400 leading-relaxed">{aviso.mensaje}</p>
-              </div>
-            ))
-          )}
 
-          {/* Widget de progreso mensual (datos reales) */}
-          <div className="bg-gradient-to-br from-brand-lime/20 to-transparent p-6 rounded-3xl border border-brand-lime/20 text-center">
-            <h4 className="font-bold text-brand-lime text-lg mb-2">¡Sube de Nivel!</h4>
-            <p className="text-xs text-gray-300 mb-4">
-              Completa {META_PARTIDOS} partidos este mes para entrar en el ranking.
+          {/* AVISOS */}
+          <div>
+            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+              <AlertTriangle className="text-brand-red" /> Avisos
+            </h3>
+            {avisos.length === 0 ? (
+              <p className="text-gray-500 text-sm">No hay avisos activos.</p>
+            ) : (
+              avisos.map((aviso) => (
+                <div key={aviso.id} className="bg-brand-purple/5 border border-brand-purple/20 p-5 rounded-2xl mb-3">
+                  <h5 className="font-bold text-brand-purple mb-1">{aviso.titulo}</h5>
+                  <p className="text-xs text-gray-400 leading-relaxed">{aviso.mensaje}</p>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* NIVEL DEL JUGADOR (mejorado) */}
+          <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-brand-lime/10 rounded-xl flex items-center justify-center text-xl">
+                {nivel.emoji}
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Tu nivel</p>
+                <p className={`text-lg font-black ${nivel.color}`}>{nivel.nombre}</p>
+              </div>
+              <Link to="/estadisticas" className="ml-auto text-gray-500 hover:text-brand-lime transition-colors" title="Ver estadísticas completas">
+                <BarChart2 size={18} />
+              </Link>
+            </div>
+
+            <p className="text-xs text-gray-500 mb-3">
+              {sigNivel
+                ? `${totalJugados} / ${sigNivel} partidos para subir de nivel`
+                : '¡Has alcanzado el nivel máximo!'}
             </p>
-            <div className="w-full bg-black/30 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-black/40 h-2.5 rounded-full overflow-hidden">
+              <div
+                className="bg-brand-lime h-full rounded-full transition-all duration-700 shadow-[0_0_6px_rgba(204,255,0,0.4)]"
+                style={{ width: `${progrNivel}%` }}
+              />
+            </div>
+          </div>
+
+          {/* META MENSUAL */}
+          <div className="bg-gradient-to-br from-brand-lime/20 to-transparent p-6 rounded-3xl border border-brand-lime/20 text-center">
+            <h4 className="font-bold text-brand-lime text-lg mb-1">Meta del Mes</h4>
+            <p className="text-xs text-gray-300 mb-4">
+              {partidosMes} de {META_PARTIDOS} partidos reservados
+            </p>
+            <div className="w-full bg-black/30 h-2 rounded-full overflow-hidden mb-2">
               <div
                 className="bg-brand-lime h-full rounded-full transition-all duration-700"
                 style={{ width: `${progreso}%` }}
               />
             </div>
-            <p className="text-[10px] text-gray-500 mt-2 text-right">
-              {partidosMes}/{META_PARTIDOS} Completados
-            </p>
+            <div className="flex justify-between text-[10px] text-gray-500">
+              <span>0</span>
+              <span className="text-brand-lime font-bold">{progreso}%</span>
+              <span>{META_PARTIDOS}</span>
+            </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );

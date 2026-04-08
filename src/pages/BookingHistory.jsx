@@ -1,121 +1,282 @@
 // src/pages/BookingHistory.jsx
-import { Calendar, Clock, MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
+// ─── Modal de confirmación (reemplaza el confirm() nativo) ──────────────────
+function ConfirmModal({ onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+        <h3 className="text-xl font-bold text-white mb-2">¿Cancelar reserva?</h3>
+        <p className="text-gray-400 text-sm mb-6">
+          Esta acción no se puede deshacer. La franja horaria quedará libre para otros usuarios.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 font-bold hover:bg-white/5 transition-colors"
+          >
+            Volver
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-bold hover:bg-red-500/30 transition-colors"
+          >
+            Sí, cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function getStatus(fecha, hora) {
+  const reservaDate = new Date(`${fecha}T${hora}`);
+  const now = new Date();
+  return reservaDate >= now ? 'upcoming' : 'completed';
+}
+
+function StatusBadge({ status }) {
+  if (status === 'upcoming') {
+    return (
+      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-lime/20 text-brand-lime border border-brand-lime/30">
+        <Clock size={12} /> Próxima
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-purple/20 text-brand-purple border border-brand-purple/30">
+      <CheckCircle size={12} /> Completada
+    </span>
+  );
+}
+
+// ─── Página ───────────────────────────────────────────────────────────────────
 export default function BookingHistory() {
-  // Simulamos datos de reservas
-  const bookings = [
-    {
-      id: 1,
-      sport: 'Pádel',
-      court: 'Pista Principal',
-      date: '2026-03-30',
-      time: '18:00 - 19:30',
-      status: 'upcoming',
-      price: '15.00€'
-    },
-    {
-      id: 2,
-      sport: 'Tenis',
-      court: 'Pista 2',
-      date: '2026-03-25',
-      time: '10:00 - 11:30',
-      status: 'completed',
-      price: '12.00€'
-    },
-    {
-      id: 3,
-      sport: 'Baloncesto',
-      court: 'Pabellón Interior',
-      date: '2026-03-20',
-      time: '19:00 - 20:30',
-      status: 'cancelled',
-      price: '20.00€'
-    }
-  ];
+  const { profile } = useAuth();
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'upcoming':
-        return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-lime/20 text-brand-lime border border-brand-lime/30">
-            <Clock size={14} /> Próxima
-          </span>
-        );
-      case 'completed':
-        return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-purple/20 text-brand-purple border border-brand-purple/30">
-            <CheckCircle size={14} /> Completada
-          </span>
-        );
-      case 'cancelled':
-        return (
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-500 border border-red-500/30">
-            <XCircle size={14} /> Cancelada
-          </span>
-        );
-      default:
-        return null;
+  const [reservas, setReservas]       = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [filtro, setFiltro]           = useState('todas'); // 'todas' | 'proximas' | 'pasadas'
+  const [confirmId, setConfirmId]     = useState(null);   // id de la reserva a cancelar
+  const [cancelling, setCancelling]   = useState(false);
+
+  // ── Carga todas las reservas del usuario ──────────────────────────────────
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchReservas = async () => {
+      const { data, error } = await supabase
+        .from('reservas')
+        .select(`id, fecha, hora, instalaciones ( nombre, tipo )`)
+        .eq('user_id', profile.id)
+        .order('fecha', { ascending: false })
+        .order('hora',  { ascending: false });
+
+      if (error) {
+        toast.error('No se pudieron cargar las reservas.');
+      } else {
+        setReservas(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchReservas();
+  }, [profile]);
+
+  // ── Cancelar reserva ─────────────────────────────────────────────────────
+  const handleCancel = async () => {
+    if (!confirmId) return;
+    setCancelling(true);
+
+    const { error } = await supabase
+      .from('reservas')
+      .delete()
+      .eq('id', confirmId);
+
+    if (error) {
+      toast.error('Error al cancelar la reserva.');
+    } else {
+      toast.success('Reserva cancelada correctamente.');
+      setReservas(prev => prev.filter(r => r.id !== confirmId));
     }
+
+    setConfirmId(null);
+    setCancelling(false);
   };
 
+  // ── Filtrado ─────────────────────────────────────────────────────────────
+  const reservasFiltradas = reservas.filter(r => {
+    const status = getStatus(r.fecha, r.hora);
+    if (filtro === 'proximas') return status === 'upcoming';
+    if (filtro === 'pasadas')  return status === 'completed';
+    return true;
+  });
+
+  const proximas = reservas.filter(r => getStatus(r.fecha, r.hora) === 'upcoming').length;
+  const pasadas  = reservas.filter(r => getStatus(r.fecha, r.hora) === 'completed').length;
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold text-white tracking-tight">
-          Historial de <span className="text-brand-lime">Reservas</span>
-        </h1>
-        <p className="text-gray-400 mt-2">
-          Consulta tus reservas pasadas y próximas.
-        </p>
-      </header>
-
-      <div className="grid gap-4">
-        {bookings.map((booking) => (
-          <div
-            key={booking.id}
-            className="bg-dark-surface border border-white/5 rounded-2xl p-5 hover:border-brand-lime/30 transition-all duration-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-bold text-white">{booking.sport}</h3>
-                {getStatusBadge(booking.status)}
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 text-sm text-gray-400">
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-brand-purple" />
-                  <span>{booking.court}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} className="text-brand-lime" />
-                  <span>{booking.date}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-gray-500" />
-                  <span>{booking.time}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
-              <span className="text-xl font-bold text-white">{booking.price}</span>
-              {booking.status === 'upcoming' && (
-                <button className="text-sm text-red-400 hover:text-red-300 transition-colors underline decoration-transparent hover:decoration-red-300 underline-offset-4">
-                  Cancelar
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {bookings.length === 0 && (
-        <div className="text-center py-12 bg-dark-surface border border-white/5 rounded-2xl">
-          <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
-          <h3 className="text-xl text-white font-medium mb-2">No tienes reservas</h3>
-          <p className="text-gray-400">Aún no has realizado ninguna reserva en las instalaciones.</p>
-        </div>
+    <>
+      {/* Modal */}
+      {confirmId && (
+        <ConfirmModal
+          onConfirm={handleCancel}
+          onCancel={() => setConfirmId(null)}
+        />
       )}
-    </div>
+
+      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+
+        {/* Cabecera */}
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
+              Mis <span className="text-brand-lime">Reservas</span>
+            </h1>
+            <p className="text-gray-400 text-sm mt-1">
+              Historial completo de tus reservas en las instalaciones.
+            </p>
+          </div>
+          <Link
+            to="/reservar"
+            className="flex items-center gap-2 px-5 py-3 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(204,255,0,0.2)]"
+          >
+            <PlusCircle size={18} /> Nueva reserva
+          </Link>
+        </header>
+
+        {/* Stats rápidas */}
+        {!loading && reservas.length > 0 && (
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { label: 'Total',    value: reservas.length, color: 'text-white',        bg: 'bg-white/5' },
+              { label: 'Próximas', value: proximas,        color: 'text-brand-lime',   bg: 'bg-brand-lime/10' },
+              { label: 'Pasadas',  value: pasadas,         color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
+            ].map(({ label, value, color, bg }) => (
+              <div key={label} className={`${bg} rounded-2xl p-4 text-center border border-white/5`}>
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1">{label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Filtros */}
+        {!loading && reservas.length > 0 && (
+          <div className="flex gap-2 bg-[#1A1A2E] p-1 rounded-2xl border border-white/5 w-fit">
+            {[
+              { id: 'todas',    label: 'Todas' },
+              { id: 'proximas', label: 'Próximas' },
+              { id: 'pasadas',  label: 'Pasadas' },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setFiltro(id)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                  filtro === id
+                    ? 'bg-brand-lime text-black'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Contenido */}
+        {loading ? (
+          <div className="flex items-center justify-center h-48">
+            <p className="text-brand-lime animate-pulse">Cargando reservas...</p>
+          </div>
+        ) : reservasFiltradas.length === 0 ? (
+          <div className="text-center py-16 bg-[#1A1A2E] border border-white/5 rounded-3xl">
+            <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
+            {reservas.length === 0 ? (
+              <>
+                <h3 className="text-xl text-white font-bold mb-2">Aún no tienes reservas</h3>
+                <p className="text-gray-400 text-sm mb-6">Reserva una pista y empieza a jugar.</p>
+                <Link
+                  to="/reservar"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all"
+                >
+                  <PlusCircle size={16} /> Hacer mi primera reserva
+                </Link>
+              </>
+            ) : (
+              <>
+                <h3 className="text-xl text-white font-bold mb-2">Sin resultados</h3>
+                <p className="text-gray-400 text-sm">No hay reservas en este filtro.</p>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {reservasFiltradas.map((reserva) => {
+              const status = getStatus(reserva.fecha, reserva.hora);
+              const isUpcoming = status === 'upcoming';
+
+              return (
+                <div
+                  key={reserva.id}
+                  className={`bg-[#1A1A2E] border rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-200 ${
+                    isUpcoming
+                      ? 'border-brand-lime/20 hover:border-brand-lime/40'
+                      : 'border-white/5 hover:border-white/10 opacity-75 hover:opacity-100'
+                  }`}
+                >
+                  {/* Info */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h3 className="text-base font-bold text-white">
+                        {reserva.instalaciones?.nombre || 'Pista Deportiva'}
+                      </h3>
+                      <StatusBadge status={status} />
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={14} className="text-brand-lime" />
+                        {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES', {
+                          weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+                        })}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock size={14} className="text-brand-purple" />
+                        {reserva.hora?.slice(0, 5)}h
+                      </span>
+                      {reserva.instalaciones?.tipo && (
+                        <span className="flex items-center gap-1.5">
+                          <MapPin size={14} className="text-gray-500" />
+                          {reserva.instalaciones.tipo}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Acción */}
+                  {isUpcoming && (
+                    <button
+                      onClick={() => setConfirmId(reserva.id)}
+                      disabled={cancelling}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 transition-colors disabled:opacity-40 shrink-0"
+                    >
+                      <Trash2 size={15} /> Cancelar
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+      </div>
+    </>
   );
 }

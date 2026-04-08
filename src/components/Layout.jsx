@@ -1,19 +1,20 @@
 // src/components/Layout.jsx
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock } from 'lucide-react';
+import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2 } from 'lucide-react';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const { roleName, signOut } = useAuth();
 
   const menuItems = [
-    { icon: Home,       label: 'Inicio',       path: '/dashboard', allowed: ['ciudadano', 'conserje', 'admin'] },
-    { icon: User,       label: 'Mi Perfil',    path: '/profile',   allowed: ['ciudadano', 'conserje', 'admin'] },
-    { icon: Calendar,   label: 'Reservar',     path: '/reservar',  allowed: ['ciudadano', 'conserje', 'admin'] },
-    { icon: Clock,      label: 'Historial',    path: '/historial', allowed: ['ciudadano', 'conserje', 'admin'] },
-    { icon: Package,    label: 'Inventario',   path: '/inventario',allowed: ['conserje', 'admin'] },
-    { icon: ShieldAlert,label: 'Panel Admin',  path: '/admin',     allowed: ['admin'] },
+    { icon: Home,       label: 'Inicio',        path: '/dashboard',    allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: User,       label: 'Mi Perfil',     path: '/profile',      allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: Calendar,   label: 'Reservar',      path: '/reservar',     allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: Clock,      label: 'Historial',     path: '/historial',    allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: BarChart2,  label: 'Estadísticas',  path: '/estadisticas', allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: Package,    label: 'Inventario',    path: '/inventario',   allowed: ['conserje', 'admin'] },
+    { icon: ShieldAlert,label: 'Panel Admin',   path: '/admin',        allowed: ['admin'] },
   ];
 
   const visibleMenu = menuItems.filter(item => item.allowed.includes(roleName));
@@ -31,13 +32,13 @@ export default function Layout({ children }) {
 
         {/* Indicador de rol */}
         <div className="p-4 text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-          {roleName === 'admin'    && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
-          {roleName === 'conserje' && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-          {roleName === 'ciudadano'&& <div className="w-2 h-2 rounded-full bg-brand-lime" />}
+          {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
+          {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+          {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-lime" />}
           Modo: {roleName.toUpperCase()}
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-2">
+        <nav className="flex-1 px-4 py-4 space-y-1">
           {visibleMenu.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;

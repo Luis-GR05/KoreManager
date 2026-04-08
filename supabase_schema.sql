@@ -204,3 +204,78 @@ CREATE INDEX IF NOT EXISTS idx_reservas_user_id         ON reservas(user_id);
 CREATE INDEX IF NOT EXISTS idx_reservas_fecha           ON reservas(fecha);
 CREATE INDEX IF NOT EXISTS idx_reservas_installation_id ON reservas(installation_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_rol_id          ON profiles(rol_id);
+
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, telefono)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    NEW.raw_user_meta_data ->> 'full_name',
+    NEW.raw_user_meta_data ->> 'phone'
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ─────────────────────────────────────────────
+-- 10. LOGROS (sistema de gamificación)
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS logros (
+  id          SERIAL PRIMARY KEY,
+  codigo      TEXT UNIQUE NOT NULL,  -- 'primer_partido', 'diez_partidos' ...
+  titulo      TEXT NOT NULL,
+  descripcion TEXT,
+  icono       TEXT,                  -- emoji representativo
+  threshold   INT NOT NULL DEFAULT 1 -- nº de partidos necesarios
+);
+
+INSERT INTO logros (codigo, titulo, descripcion, icono, threshold) VALUES
+  ('primer_partido',       '¡Primer Saque!', 'Completa tu primera reserva',   '🎾',  1),
+  ('cinco_partidos',       'En Forma',        'Completa 5 reservas',           '💪',  5),
+  ('diez_partidos',        'Habitual',        'Completa 10 reservas',          '🔥', 10),
+  ('veinticinco_partidos', 'Veterano',        'Completa 25 reservas',          '⭐', 25),
+  ('cincuenta_partidos',   'Leyenda',         'Completa 50 reservas',          '🏆', 50)
+ON CONFLICT (codigo) DO NOTHING;
+
+
+-- ─────────────────────────────────────────────
+-- 11. RELACIÓN USUARIO ↔ LOGROS
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS user_logros (
+  user_id     UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  logro_id    INT  REFERENCES logros(id)     ON DELETE CASCADE,
+  unlocked_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id, logro_id)
+);
+
+-- RLS
+ALTER TABLE logros      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_logros ENABLE ROW LEVEL SECURITY;
+
+-- Todos los autenticados pueden ver el catálogo de logros
+DROP POLICY IF EXISTS "all_see_logros" ON logros;
+CREATE POLICY "all_see_logros" ON logros
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+-- El usuario solo ve sus propios logros; admin ve todos
+DROP POLICY IF EXISTS "own_logros_select" ON user_logros;
+DROP POLICY IF EXISTS "own_logros_insert" ON user_logros;
+DROP POLICY IF EXISTS "admin_all_logros"  ON user_logros;
+
+CREATE POLICY "own_logros_select" ON user_logros
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "own_logros_insert" ON user_logros
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "admin_all_logros" ON user_logros
+  FOR ALL USING (public.user_role() = 'admin');
+
+-- Índice de rendimiento
+CREATE INDEX IF NOT EXISTS idx_user_logros_user_id  ON user_logros(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_logros_logro_id ON user_logros(logro_id);

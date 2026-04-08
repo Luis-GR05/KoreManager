@@ -3,14 +3,17 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import {
   ShieldAlert, Users, Activity, Search, Bell, MapPin,
-  Trash2, PlusCircle, CheckCircle2, XCircle, Edit3, Save
+  Trash2, PlusCircle, CheckCircle2, XCircle, Edit3, Save,
+  Calendar, Clock, Filter, BarChart2, TrendingUp, Trophy
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const TABS = [
   { id: 'usuarios',      label: 'Usuarios',      icon: Users },
+  { id: 'reservas',      label: 'Reservas',       icon: Calendar },
   { id: 'instalaciones', label: 'Instalaciones',  icon: MapPin },
   { id: 'avisos',        label: 'Avisos',         icon: Bell },
+  { id: 'estadisticas',  label: 'Estadísticas',   icon: BarChart2 },
 ];
 
 // ─────────────────────────────────────────────
@@ -371,6 +374,484 @@ function TabAvisos() {
 }
 
 // ─────────────────────────────────────────────
+// TAB 4: Reservas (vista global del sistema)
+// ─────────────────────────────────────────────
+function TabReservas() {
+  const [reservas, setReservas]         = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [searchTerm, setSearchTerm]     = useState('');
+  const [filtroFecha, setFiltroFecha]   = useState('proximas'); // 'proximas' | 'pasadas' | 'todas'
+  const [confirmId, setConfirmId]       = useState(null);
+  const [cancelling, setCancelling]     = useState(false);
+
+  const fetchReservas = async () => {
+    const { data, error } = await supabase
+      .from('reservas')
+      .select(`
+        id, fecha, hora, created_at,
+        instalaciones ( nombre, tipo ),
+        profiles ( full_name, email, telefono )
+      `)
+      .order('fecha', { ascending: true })
+      .order('hora',  { ascending: true });
+
+    if (error) {
+      toast.error('Error cargando reservas: ' + error.message);
+    } else {
+      setReservas(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchReservas(); }, []);
+
+  const handleCancel = async () => {
+    if (!confirmId) return;
+    setCancelling(true);
+    const { error } = await supabase.from('reservas').delete().eq('id', confirmId);
+    if (error) {
+      toast.error('Error al cancelar: ' + error.message);
+    } else {
+      toast.success('Reserva cancelada.');
+      setReservas(prev => prev.filter(r => r.id !== confirmId));
+    }
+    setConfirmId(null);
+    setCancelling(false);
+  };
+
+  const hoy = new Date().toISOString().split('T')[0];
+
+  const filtradas = reservas
+    .filter(r => {
+      if (filtroFecha === 'proximas') return r.fecha >= hoy;
+      if (filtroFecha === 'pasadas')  return r.fecha <  hoy;
+      return true;
+    })
+    .filter(r => {
+      const term = searchTerm.toLowerCase();
+      if (!term) return true;
+      return (
+        r.profiles?.full_name?.toLowerCase().includes(term) ||
+        r.profiles?.email?.toLowerCase().includes(term)     ||
+        r.instalaciones?.nombre?.toLowerCase().includes(term)
+      );
+    });
+
+  const total    = reservas.length;
+  const proximas = reservas.filter(r => r.fecha >= hoy).length;
+  const pasadas  = reservas.filter(r => r.fecha <  hoy).length;
+
+  if (loading) return <p className="text-brand-lime animate-pulse">Cargando reservas del sistema...</p>;
+
+  return (
+    <div className="space-y-6">
+
+      {/* Modal de confirmación */}
+      {confirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-2">¿Cancelar esta reserva?</h3>
+            <p className="text-gray-400 text-sm mb-6">
+              Se eliminará permanentemente y el usuario perderá su franja horaria.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmId(null)}
+                className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 font-bold hover:bg-white/5 transition-colors"
+              >
+                Volver
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-bold hover:bg-red-500/30 transition-colors disabled:opacity-40"
+              >
+                {cancelling ? 'Cancelando...' : 'Sí, cancelar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Métricas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { label: 'Total reservas',   value: total,    color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
+          { label: 'Próximas',         value: proximas, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
+          { label: 'Completadas',      value: pasadas,  color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+        ].map(({ label, value, color, bg, icon: Icon }) => (
+          <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
+            <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
+            <div>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+              <p className="text-2xl font-bold text-white">{value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Controles: búsqueda + filtro fecha */}
+      <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+          <input
+            type="text"
+            placeholder="Buscar usuario o pista..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full bg-[#1A1A2E] border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white focus:border-brand-lime outline-none text-sm"
+          />
+        </div>
+
+        <div className="flex gap-2 bg-[#1A1A2E] p-1 rounded-2xl border border-white/5">
+          {[
+            { id: 'proximas', label: 'Próximas' },
+            { id: 'pasadas',  label: 'Pasadas'  },
+            { id: 'todas',    label: 'Todas'    },
+          ].map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setFiltroFecha(id)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                filtroFecha === id
+                  ? 'bg-brand-lime text-black'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-[#1A1A2E] rounded-3xl border border-white/5 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#0F0F1A] text-xs uppercase tracking-wider text-gray-500 border-b border-white/5">
+                <th className="p-4">Usuario</th>
+                <th className="p-4">Instalación</th>
+                <th className="p-4">Fecha</th>
+                <th className="p-4">Hora</th>
+                <th className="p-4">Estado</th>
+                <th className="p-4"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filtradas.map(r => {
+                const isUpcoming = r.fecha >= hoy;
+                return (
+                  <tr key={r.id} className="hover:bg-white/5 transition-colors">
+
+                    {/* Usuario */}
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                          {(r.profiles?.full_name || r.profiles?.email || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-white">
+                            {r.profiles?.full_name || 'Sin nombre'}
+                          </p>
+                          <p className="text-xs text-gray-500">{r.profiles?.email}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Instalación */}
+                    <td className="p-4">
+                      <p className="text-sm text-white">{r.instalaciones?.nombre || '—'}</p>
+                      <p className="text-xs text-gray-500 capitalize">{r.instalaciones?.tipo || ''}</p>
+                    </td>
+
+                    {/* Fecha */}
+                    <td className="p-4 text-sm text-gray-300">
+                      {new Date(r.fecha + 'T00:00:00').toLocaleDateString('es-ES', {
+                        weekday: 'short', day: 'numeric', month: 'short'
+                      })}
+                    </td>
+
+                    {/* Hora */}
+                    <td className="p-4">
+                      <span className="flex items-center gap-1.5 text-sm text-gray-300">
+                        <Clock size={14} className="text-brand-purple" />
+                        {r.hora?.slice(0, 5)}h
+                      </span>
+                    </td>
+
+                    {/* Estado */}
+                    <td className="p-4">
+                      {isUpcoming ? (
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-brand-lime/10 text-brand-lime border border-brand-lime/20">
+                          Próxima
+                        </span>
+                      ) : (
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 text-gray-500 border border-white/10">
+                          Completada
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Acción */}
+                    <td className="p-4">
+                      {isUpcoming && (
+                        <button
+                          onClick={() => setConfirmId(r.id)}
+                          className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          title="Cancelar reserva"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {filtradas.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="p-10 text-center text-gray-500 text-sm">
+                    {searchTerm ? 'No se encontraron reservas con ese criterio.' : 'No hay reservas en este período.'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer con conteo */}
+        {filtradas.length > 0 && (
+          <div className="px-4 py-3 border-t border-white/5 text-xs text-gray-600">
+            Mostrando {filtradas.length} de {total} reservas
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// TAB 5: Estadísticas Globales del sistema
+// ─────────────────────────────────────────────
+function TabEstadisticasAdmin() {
+  const [loading, setLoading]   = useState(true);
+  const [reservas, setReservas] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const [{ data: rData }, { data: uData }] = await Promise.all([
+        supabase
+          .from('reservas')
+          .select('id, fecha, hora, instalaciones ( nombre, tipo ), profiles ( full_name, email )'),
+        supabase
+          .from('profiles')
+          .select('id, full_name, email'),
+      ]);
+      setReservas(rData || []);
+      setUsuarios(uData || []);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) return <p className="text-brand-lime animate-pulse">Cargando estadísticas...</p>;
+
+  const hoy = new Date().toISOString().split('T')[0];
+  const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+  // Por día de la semana
+  const porDia = Array(7).fill(0);
+  reservas.forEach(r => {
+    const d = new Date(r.fecha + 'T00:00:00').getDay();
+    porDia[d]++;
+  });
+  const maxDia = Math.max(...porDia, 1);
+
+  // Instalación más reservada
+  const porInst = {};
+  reservas.forEach(r => {
+    const n = r.instalaciones?.nombre;
+    if (n) porInst[n] = (porInst[n] || 0) + 1;
+  });
+  const instRanking = Object.entries(porInst).sort((a, b) => b[1] - a[1]);
+  const maxInst = instRanking[0]?.[1] || 1;
+
+  // Por tipo de pista
+  const porTipo = {};
+  reservas.forEach(r => {
+    const t = r.instalaciones?.tipo || 'otro';
+    porTipo[t] = (porTipo[t] || 0) + 1;
+  });
+
+  // Top 5 usuarios más activos
+  const actividadUser = {};
+  reservas.forEach(r => {
+    const email = r.profiles?.email || 'desconocido';
+    const name  = r.profiles?.full_name || email;
+    if (!actividadUser[email]) actividadUser[email] = { name, count: 0 };
+    actividadUser[email].count++;
+  });
+  const topUsers = Object.values(actividadUser).sort((a, b) => b.count - a.count).slice(0, 5);
+  const maxUser  = topUsers[0]?.count || 1;
+
+  // Métricas rápidas
+  const proximas = reservas.filter(r => r.fecha >= hoy).length;
+  const pasadas  = reservas.filter(r => r.fecha <  hoy).length;
+  const mediaOcupacion = usuarios.length > 0
+    ? (pasadas / usuarios.length).toFixed(1)
+    : '0';
+
+  return (
+    <div className="space-y-8">
+
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Reservas',      value: reservas.length, color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
+          { label: 'Próximas',            value: proximas,        color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
+          { label: 'Completadas',         value: pasadas,         color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+          { label: 'Media por usuario',   value: mediaOcupacion,  color: 'text-blue-400',     bg: 'bg-blue-400/10',      icon: TrendingUp },
+        ].map(({ label, value, color, bg, icon: Icon }) => (
+          <div key={label} className="bg-[#1A1A2E] p-5 rounded-3xl border border-white/5 flex items-center gap-3">
+            <div className={`p-3 ${bg} rounded-xl ${color}`}><Icon size={20} /></div>
+            <div>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+              <p className="text-2xl font-bold text-white">{value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {/* Reservas por día de la semana */}
+        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
+          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <BarChart2 size={18} className="text-brand-lime" />
+            Reservas por día de la semana
+          </h3>
+          <div className="flex items-end gap-2 h-40">
+            {DIAS.map((dia, i) => {
+              const val = porDia[i];
+              const pct = Math.round((val / maxDia) * 100);
+              return (
+                <div key={dia} className="flex-1 flex flex-col items-center gap-1">
+                  <span className="text-[10px] text-gray-500 font-bold">{val > 0 ? val : ''}</span>
+                  <div className="w-full flex items-end" style={{ height: '112px' }}>
+                    <div className="w-full relative" style={{ height: '112px' }}>
+                      <div
+                        className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-lime/80 hover:bg-brand-lime transition-colors duration-300"
+                        style={{ height: `${Math.max(pct, val > 0 ? 4 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-gray-600 font-medium">{dia}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Instalación más reservada */}
+        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
+          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <MapPin size={18} className="text-brand-purple" /> Ranking de instalaciones
+          </h3>
+          <div className="space-y-4">
+            {instRanking.length === 0 && <p className="text-gray-500 text-sm">Sin datos aún.</p>}
+            {instRanking.map(([nombre, count], idx) => {
+              const pct = Math.round((count / maxInst) * 100);
+              return (
+                <div key={nombre}>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="text-white font-medium flex items-center gap-2">
+                      {idx === 0 && <Trophy size={12} className="text-brand-lime" />}
+                      {nombre}
+                    </span>
+                    <span className="text-gray-500">{count} reservas</span>
+                  </div>
+                  <div className="h-2 bg-black/30 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-brand-purple transition-all duration-700"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Top usuarios más activos */}
+        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
+          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <Trophy size={18} className="text-yellow-400" /> Top 5 Usuarios Activos
+          </h3>
+          {topUsers.length === 0 && <p className="text-gray-500 text-sm">Sin actividad aún.</p>}
+          <div className="space-y-3">
+            {topUsers.map(({ name, count }, idx) => {
+              const pct = Math.round((count / maxUser) * 100);
+              const medals = ['🥇', '🥈', '🥉', '4º', '5º'];
+              return (
+                <div key={name} className="flex items-center gap-3">
+                  <span className="text-xl w-8 text-center">{medals[idx]}</span>
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-white font-medium truncate max-w-[140px]">{name}</span>
+                      <span className="text-gray-500 shrink-0">{count} partidos</span>
+                    </div>
+                    <div className="h-1.5 bg-black/30 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-brand-lime transition-all duration-700"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Distribución por tipo de pista */}
+        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
+          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+            <TrendingUp size={18} className="text-blue-400" /> Distribución por tipo
+          </h3>
+          {Object.keys(porTipo).length === 0 && <p className="text-gray-500 text-sm">Sin datos aún.</p>}
+          <div className="space-y-4">
+            {Object.entries(porTipo)
+              .sort((a, b) => b[1] - a[1])
+              .map(([tipo, count]) => {
+                const pct = Math.round((count / (reservas.length || 1)) * 100);
+                const COLORES = { padel: 'bg-brand-lime', futbol: 'bg-blue-400', baloncesto: 'bg-orange-400' };
+                const color = COLORES[tipo] || 'bg-brand-purple';
+                return (
+                  <div key={tipo}>
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-white capitalize font-medium">{tipo}</span>
+                      <span className="text-gray-500">{pct}% — {count} reservas</span>
+                    </div>
+                    <div className="h-2.5 bg-black/30 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${color} transition-all duration-700`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // PANEL PRINCIPAL
 // ─────────────────────────────────────────────
 export default function AdminPanel() {
@@ -410,8 +891,10 @@ export default function AdminPanel() {
 
       {/* Contenido */}
       {activeTab === 'usuarios'      && <TabUsuarios />}
+      {activeTab === 'reservas'      && <TabReservas />}
       {activeTab === 'instalaciones' && <TabInstalaciones />}
       {activeTab === 'avisos'        && <TabAvisos />}
+      {activeTab === 'estadisticas'  && <TabEstadisticasAdmin />}
     </div>
   );
 }

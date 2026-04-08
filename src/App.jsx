@@ -14,6 +14,7 @@ import NewBooking from './pages/NewBooking';
 import BookingHistory from './pages/BookingHistory';
 import Inventory from './pages/Inventory';
 import AdminPanel from './pages/AdminPanel';
+import Estadisticas from './pages/Estadisticas';
 import Layout from './components/Layout';
 
 export default function App() {
@@ -59,6 +60,11 @@ export default function App() {
           <Route path="/historial" element={
             <ProtectedRoute>
               <Layout><BookingHistory /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/estadisticas" element={
+            <ProtectedRoute>
+              <Layout><Estadisticas /></Layout>
             </ProtectedRoute>
           } />
 
