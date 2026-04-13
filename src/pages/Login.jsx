@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
@@ -9,64 +9,54 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
 export default function Login() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const location  = useLocation();
   const { user, loading: authLoading } = useAuth();
 
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [submitting,    setSubmitting]    = useState(false);
+  const [showPassword,  setShowPassword]  = useState(false);
+  const [formData,      setFormData]      = useState({ email: '', password: '' });
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  // Ruta destino tras login (guardada por ProtectedRoute, o /dashboard por defecto)
+  const from = location.state?.from?.pathname ?? '/dashboard';
 
-  // Si ya hay sesión activa → ir al dashboard directamente
+  // Si ya hay sesión → redirigir (ej: usuario llega a /login estando ya autenticado)
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/dashboard', { replace: true });
+      navigate(from, { replace: true });
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, from]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleAuth = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return;
-    setLoading(true);
-    console.log('--- Iniciando login ---');
+    if (submitting) return;
+    setSubmitting(true);
 
     try {
-      const loginPromise = supabase.auth.signInWithPassword({
-        email: formData.email,
+      const { error } = await supabase.auth.signInWithPassword({
+        email:    formData.email.trim(),
         password: formData.password,
       });
 
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('TIMEOUT_ERROR: Supabase no responde después de 8 segundos.')), 8000)
-      );
+      if (error) throw error;
 
-      const { data, error } = await Promise.race([loginPromise, timeoutPromise]);
+      // No llamamos a navigate() aquí.
+      // El useEffect de arriba reacciona al cambio de `user` en AuthContext
+      // (disparado por onAuthStateChange → SIGNED_IN) y navega automáticamente.
+      // Esto evita condiciones de carrera y dobles navegaciones.
+      toast.success('¡Sesión iniciada!', { duration: 2000 });
 
-      if (error) {
-        console.error('Error de Supabase (Login):', error);
-        throw error;
-      }
-
-      console.log('Login exitoso. Data recuperada:', data);
-      toast.success('Sesión iniciada. Entrando...', { duration: 3000 });
-
-      // Forzamos la navegación tras un breve delay si el useEffect fallara
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 800);
     } catch (error) {
-      console.error('Catch handler:', error.message);
       const msg = error.message === 'Invalid login credentials'
         ? 'Email o contraseña incorrectos.'
         : error.message;
       toast.error(msg);
     } finally {
-      setLoading(false);
-      console.log('--- Fin login, loading=false ---');
+      setSubmitting(false);
     }
   };
 
@@ -83,12 +73,10 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
             KORE <span className="text-brand-lime">MANAGER</span>
           </h1>
-          <p className="text-gray-400 text-sm">
-            Bienvenido de nuevo
-          </p>
+          <p className="text-gray-400 text-sm">Bienvenido de nuevo</p>
         </div>
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             icon={Mail}
             name="email"
@@ -99,7 +87,6 @@ export default function Login() {
             required
           />
 
-          {/* Input de contraseña con toggle de visibilidad */}
           <div className="relative group">
             <Input
               icon={Lock}
@@ -113,7 +100,7 @@ export default function Login() {
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowPassword(v => !v)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
               tabIndex={-1}
             >
@@ -121,19 +108,16 @@ export default function Login() {
             </button>
           </div>
 
-          <Button type="submit" variant="primary" isLoading={loading} className="w-full mt-2">
+          <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
             Iniciar Sesión
-            {!loading && <ArrowRight size={20} />}
+            {!submitting && <ArrowRight size={20} />}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-500 text-sm">
             ¿No tienes cuenta?
-            <Link
-              to="/register"
-              className="ml-2 text-white font-bold hover:text-brand-lime transition-colors"
-            >
+            <Link to="/register" className="ml-2 text-white font-bold hover:text-brand-lime transition-colors">
               Regístrate Gratis
             </Link>
           </p>

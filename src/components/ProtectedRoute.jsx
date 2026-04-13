@@ -1,18 +1,17 @@
 // src/components/ProtectedRoute.jsx
-import { Navigate } from 'react-router-dom';
+// ─────────────────────────────────────────────────────────────
+// Guarda de ruta. Reglas:
+//   • loading=true   → spinner (nunca redirige en falso)
+//   • !user          → redirige a /login (guarda la ruta original)
+//   • rol insuficiente → redirige a /dashboard
+// ─────────────────────────────────────────────────────────────
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
-/**
- * Guarda de ruta que:
- * - Si no hay sesión → redirige a /login
- * - Si allowedRoles no incluye el rol del usuario → redirige a /dashboard
- * - Mientras carga → muestra spinner
- * 
- * @param {string[]} allowedRoles - roles que pueden acceder (ej: ['admin', 'conserje'])
- */
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const { user, roleName, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -22,12 +21,11 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     );
   }
 
-  // No autenticado → login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Guardamos la ruta actual para redirigir de vuelta tras el login
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Rol insuficiente → dashboard
   if (allowedRoles.length > 0 && !allowedRoles.includes(roleName)) {
     return <Navigate to="/dashboard" replace />;
   }
