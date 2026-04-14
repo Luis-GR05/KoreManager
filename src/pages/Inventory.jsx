@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { Package, Plus, Minus, Box, Search, PlusCircle, AlertTriangle } from 'lucide-react';
+import { Package, Plus, Minus, Box, Search, PlusCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Inventory() {
@@ -13,6 +13,7 @@ export default function Inventory() {
   const [loading, setLoading]       = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadError, setLoadError]   = useState(null);
+  const [hasTipoPista, setHasTipoPista] = useState(true);
 
   // Formulario para nuevo artículo (solo admin)
   const [showForm, setShowForm]     = useState(false);
@@ -22,39 +23,77 @@ export default function Inventory() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data, error } = await supabase
+      // Intento 1: esquema nuevo (con tipo_pista)
+      let res = await supabase
         .from('inventario')
-        .select('*')
+        .select('id, nombre, cantidad, estado, tipo_pista')
         .order('id', { ascending: true });
 
+      // Fallback: si la BD aún no tiene tipo_pista, reintentar sin esa columna
+      if (res?.error && String(res.error.message || '').toLowerCase().includes('tipo_pista')) {
+        setHasTipoPista(false);
+        res = await supabase
+          .from('inventario')
+          .select('id, nombre, cantidad, estado')
+          .order('id', { ascending: true });
+      } else {
+        setHasTipoPista(true);
+      }
+
       if (!alive) return;
-      if (error) {
-        setLoadError(error.message);
-        toast.error('Error al cargar inventario: ' + error.message);
+      if (res?.error) {
+        setLoadError(res.error.message);
+        toast.error('Error al cargar inventario: ' + res.error.message);
       } else {
         setLoadError(null);
       }
-      setItems(data || []);
+      setItems(res?.data || []);
       setLoading(false);
     })();
     return () => { alive = false; };
   }, []);
 
   const fetchInventory = async () => {
-    const { data, error } = await supabase
+    setLoading(true);
+    let res = await supabase
       .from('inventario')
-      .select('*')
+      .select('id, nombre, cantidad, estado, tipo_pista')
       .order('id', { ascending: true });
 
-    if (error) {
-      setLoadError(error.message);
-      toast.error('Error al cargar inventario: ' + error.message);
+    if (res?.error && String(res.error.message || '').toLowerCase().includes('tipo_pista')) {
+      setHasTipoPista(false);
+      res = await supabase
+        .from('inventario')
+        .select('id, nombre, cantidad, estado')
+        .order('id', { ascending: true });
+    } else {
+      setHasTipoPista(true);
+    }
+
+    if (res?.error) {
+      setLoadError(res.error.message);
+      toast.error('Error al cargar inventario: ' + res.error.message);
     } else {
       setLoadError(null);
     }
-    setItems(data || []);
+    setItems(res?.data || []);
     setLoading(false);
   };
+
+  // Refrescar al volver a la pestaña (evita “se queda viejo”)
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchInventory();
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('focus', onVis);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('focus', onVis);
+    };
+  }, []);
 
   const updateStock = async (id, currentQty, change) => {
     const newQty = Math.max(0, currentQty + change);
@@ -78,13 +117,14 @@ export default function Inventory() {
     if (!newItem.tipo_pista) { toast.error('Selecciona un tipo de pista.'); return; }
     setSaving(true);
 
-    const { error } = await supabase
-      .from('inventario')
-      .insert([{
-        nombre: newItem.nombre.trim(),
-        tipo_pista: String(newItem.tipo_pista).toLowerCase(),
-        cantidad: Number(newItem.cantidad),
-      }]);
+    const payload = {
+      nombre: newItem.nombre.trim(),
+      cantidad: Number(newItem.cantidad),
+      estado: 'activo',
+      ...(hasTipoPista ? { tipo_pista: String(newItem.tipo_pista).toLowerCase() } : {}),
+    };
+
+    const { error } = await supabase.from('inventario').insert([payload]);
 
     if (error) {
       toast.error('Error al añadir artículo: ' + error.message);
@@ -128,6 +168,13 @@ export default function Inventory() {
               className="w-full bg-[#1A1A2E] border border-white/10 rounded-full py-2 pl-10 pr-4 text-white focus:border-brand-lime outline-none text-sm"
             />
           </div>
+          <button
+            onClick={fetchInventory}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#1A1A2E] border border-white/10 text-white rounded-full font-bold text-sm hover:bg-white/5 hover:border-white/20 transition-colors"
+            title="Actualizar inventario"
+          >
+            <RefreshCw size={16} /> Actualizar
+          </button>
           {isAdmin && (
             <button
               onClick={() => setShowForm(!showForm)}
@@ -223,7 +270,7 @@ export default function Inventory() {
                 <div>
                   <h3 className="text-lg font-bold text-white">{item.nombre}</h3>
                   <p className="text-xs text-gray-500">
-                    {(item.tipo_pista || 'general')} • {item.estado || 'activo'}
+                    {(hasTipoPista ? (item.tipo_pista || 'general') : 'sin-tipo')} • {item.estado || 'activo'}
                   </p>
                 </div>
               </div>

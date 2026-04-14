@@ -399,6 +399,83 @@ ON reserva_material(reserva_id, inventario_id);
 CREATE INDEX IF NOT EXISTS idx_reserva_material_reserva_id ON reserva_material(reserva_id);
 CREATE INDEX IF NOT EXISTS idx_reserva_material_inventario_id ON reserva_material(inventario_id);
 
+-- Bajar stock de inventario al crear material de una reserva (reserva activa).
+-- Si no hay stock suficiente, lanza error y NO modifica nada.
+CREATE OR REPLACE FUNCTION public.reserve_inventory_for_reserva(reserva_id_in BIGINT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  rec RECORD;
+BEGIN
+  FOR rec IN
+    SELECT inventario_id, SUM(cantidad)::INT AS qty
+    FROM reserva_material
+    WHERE reserva_id = reserva_id_in
+    GROUP BY inventario_id
+  LOOP
+    -- Lock row + validar stock
+    PERFORM 1
+    FROM inventario i
+    WHERE i.id = rec.inventario_id
+    FOR UPDATE;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM inventario i
+      WHERE i.id = rec.inventario_id
+        AND COALESCE(i.cantidad, 0) >= rec.qty
+    ) THEN
+      RAISE EXCEPTION 'insufficient_stock';
+    END IF;
+
+    UPDATE inventario
+    SET cantidad = GREATEST(0, COALESCE(cantidad, 0) - rec.qty)
+    WHERE id = rec.inventario_id;
+  END LOOP;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.reserve_inventory_for_reserva(BIGINT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.reserve_inventory_for_reserva(BIGINT) TO authenticated;
+
+-- Restaurar stock si se elimina una reserva (cancelación)
+CREATE OR REPLACE FUNCTION public.restore_inventory_for_reserva(reserva_id_in BIGINT)
+RETURNS VOID
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  UPDATE inventario i
+  SET cantidad = COALESCE(i.cantidad, 0) + rm.qty
+  FROM (
+    SELECT inventario_id, SUM(cantidad)::INT AS qty
+    FROM reserva_material
+    WHERE reserva_id = reserva_id_in
+    GROUP BY inventario_id
+  ) rm
+  WHERE i.id = rm.inventario_id;
+$$;
+
+REVOKE ALL ON FUNCTION public.restore_inventory_for_reserva(BIGINT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.restore_inventory_for_reserva(BIGINT) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.trg_restore_inventory_on_reserva_delete()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  PERFORM public.restore_inventory_for_reserva(OLD.id);
+  RETURN OLD;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS reservas_restore_inventory_before_delete ON reservas;
+CREATE TRIGGER reservas_restore_inventory_before_delete
+BEFORE DELETE ON reservas
+FOR EACH ROW
+EXECUTE FUNCTION public.trg_restore_inventory_on_reserva_delete();
+
 
 -- ─────────────────────────────────────────────
 -- 7. AVISOS

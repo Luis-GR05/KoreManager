@@ -237,19 +237,25 @@ export default function NewBooking() {
         setLoadingInventory(false);
         return;
       }
-      const { data, error } = await supabase
+      // Intento 1: esquema nuevo con tipo_pista
+      let res = await supabase
         .from('inventario')
         .select('id, nombre, cantidad, tipo_pista')
-        // Solo material del tipo de pista seleccionado
         .eq('tipo_pista', tipo)
         .order('nombre', { ascending: true });
 
+      // Fallback: si la BD aún no tiene tipo_pista, no podemos filtrar por tipo.
+      // Devolvemos vacío y mostramos mensaje (evitamos “todos para todos”).
+      if (res?.error && String(res.error.message || '').toLowerCase().includes('tipo_pista')) {
+        res = { data: [], error: null };
+      }
+
       if (!alive) return;
-      if (error) {
-        console.warn('[Booking] inventario error:', error.message);
+      if (res?.error) {
+        console.warn('[Booking] inventario error:', res.error.message);
         setInventory([]);
       } else {
-        setInventory(data || []);
+        setInventory(res?.data || []);
       }
       setLoadingInventory(false);
     })();
@@ -356,7 +362,7 @@ export default function NewBooking() {
         toast.error('Error al reservar: ' + error.message);
       }
     } else {
-      // Recuperar ID insertado y lanzar pago (Stripe Checkout)
+      // Recuperar ID insertado y gestionar material + pago (Stripe Checkout)
       const reservaId = inserted?.id;
       if (!reservaId) {
         toast.success('Reserva creada. Ve al historial para pagar.');
@@ -375,6 +381,16 @@ export default function NewBooking() {
             // rollback de reserva para evitar reservas sin material guardado (consistencia UI)
             await supabase.from('reservas').delete().eq('id', reservaId);
             toast.error('No se pudo guardar el material solicitado: ' + matErr.message);
+            setLoading(false);
+            return;
+          }
+
+          // Bajar stock mientras la reserva esté activa (upcoming/in_progress).
+          // Esto lo hace la BD de forma segura (con locks y validación).
+          const { error: stockErr } = await supabase.rpc('reserve_inventory_for_reserva', { reserva_id_in: reservaId });
+          if (stockErr) {
+            await supabase.from('reservas').delete().eq('id', reservaId);
+            toast.error('No hay stock suficiente para el material solicitado.');
             setLoading(false);
             return;
           }
@@ -481,7 +497,9 @@ export default function NewBooking() {
           {loadingInventory ? (
             <p className="text-brand-lime animate-pulse text-sm">Cargando inventario...</p>
           ) : inventory.length === 0 ? (
-            <p className="text-gray-500 text-sm">No hay material disponible.</p>
+            <p className="text-gray-500 text-sm">
+              No hay material disponible para este tipo de pista (o falta aplicar la migración de <span className="text-gray-300 font-bold">tipo_pista</span> en la BD).
+            </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {inventory.map((it) => {
