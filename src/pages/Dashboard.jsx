@@ -17,7 +17,7 @@ function getNivel(total) {
 }
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   const [instalaciones, setInstalaciones] = useState([]);
   const [misReservas, setMisReservas]     = useState([]);
@@ -30,7 +30,14 @@ export default function Dashboard() {
   const hoy = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
+    // Usamos user.id (disponible desde el primer render del contexto)
+    // en lugar de profile.id (que requiere un fetch adicional a la BD).
+    // Así el panel carga inmediatamente sin depender del perfil.
+    if (!user?.id) return;
+
     const fetchData = async () => {
+      const userId = user.id;
+
       // Instalaciones
       const { data: dataInst } = await supabase
         .from('instalaciones')
@@ -42,7 +49,7 @@ export default function Dashboard() {
       const { data: dataReservas } = await supabase
         .from('reservas')
         .select(`id, fecha, hora, instalaciones ( nombre )`)
-        .eq('user_id', profile?.id)
+        .eq('user_id', userId)
         .gte('fecha', hoy)
         .order('fecha', { ascending: true });
       if (dataReservas) setMisReservas(dataReservas);
@@ -53,7 +60,7 @@ export default function Dashboard() {
       const { count: countMes } = await supabase
         .from('reservas')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile?.id)
+        .eq('user_id', userId)
         .gte('fecha', primerDiaMes);
       setPartidosMes(countMes || 0);
 
@@ -61,7 +68,7 @@ export default function Dashboard() {
       const { count: countTotal } = await supabase
         .from('reservas')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile?.id)
+        .eq('user_id', userId)
         .lt('fecha', hoy);
       setTotalJugados(countTotal || 0);
 
@@ -76,8 +83,8 @@ export default function Dashboard() {
       setLoading(false);
     };
 
-    if (profile) fetchData();
-  }, [profile]);
+    fetchData();
+  }, [user?.id]);
 
   const cancelarReserva = async (id) => {
     const { error } = await supabase.from('reservas').delete().eq('id', id);

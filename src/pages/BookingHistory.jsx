@@ -58,7 +58,7 @@ function StatusBadge({ status }) {
 
 // ─── Página ───────────────────────────────────────────────────────────────────
 export default function BookingHistory() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
 
   const [reservas, setReservas]       = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -68,13 +68,13 @@ export default function BookingHistory() {
 
   // ── Carga todas las reservas del usuario ──────────────────────────────────
   useEffect(() => {
-    if (!profile) return;
+    if (!user?.id) return;
 
     const fetchReservas = async () => {
       const { data, error } = await supabase
         .from('reservas')
         .select(`id, fecha, hora, instalaciones ( nombre, tipo )`)
-        .eq('user_id', profile.id)
+        .eq('user_id', user.id)
         .order('fecha', { ascending: false })
         .order('hora',  { ascending: false });
 
@@ -87,7 +87,7 @@ export default function BookingHistory() {
     };
 
     fetchReservas();
-  }, [profile]);
+  }, [user?.id]);
 
   // ── Cancelar reserva ─────────────────────────────────────────────────────
   const handleCancel = async () => {
