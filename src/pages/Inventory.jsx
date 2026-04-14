@@ -1,7 +1,7 @@
 // src/pages/Inventory.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Package, Plus, Minus, Box, Search, PlusCircle, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -18,6 +18,22 @@ export default function Inventory() {
   const [newItem, setNewItem]       = useState({ nombre: '', cantidad: 0 });
   const [saving, setSaving]         = useState(false);
 
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error } = await supabase
+        .from('inventario')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (!alive) return;
+      if (error) toast.error('Error al cargar inventario.');
+      setItems(data || []);
+      setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, []);
+
   const fetchInventory = async () => {
     const { data, error } = await supabase
       .from('inventario')
@@ -28,8 +44,6 @@ export default function Inventory() {
     setItems(data || []);
     setLoading(false);
   };
-
-  useEffect(() => { fetchInventory(); }, []);
 
   const updateStock = async (id, currentQty, change) => {
     const newQty = Math.max(0, currentQty + change);

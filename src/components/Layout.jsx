@@ -1,11 +1,11 @@
 // src/components/Layout.jsx
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2 } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
+import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon } from 'lucide-react';
 
 export default function Layout({ children }) {
   const location = useLocation();
-  const { roleName, signOut } = useAuth();
+  const { roleName, signOut, profile } = useAuth();
 
   const menuItems = [
     { icon: Home,       label: 'Inicio',        path: '/dashboard',    allowed: ['ciudadano', 'conserje', 'admin'] },
@@ -18,24 +18,55 @@ export default function Layout({ children }) {
   ];
 
   const visibleMenu = menuItems.filter(item => item.allowed.includes(roleName));
+  const activeItem = visibleMenu.find(i => i.path === location.pathname);
+  const displayName =
+    profile?.full_name?.trim() ||
+    profile?.email?.split('@')?.[0] ||
+    'Usuario';
 
   return (
     <div className="flex min-h-screen bg-[#0F0F1A] text-white">
 
       {/* SIDEBAR — escritorio */}
-      <aside className="w-64 bg-[#1A1A2E] border-r border-white/5 flex-col hidden md:flex shrink-0">
-        <div className="h-20 flex items-center px-8 border-b border-white/5">
-          <h1 className="text-2xl font-bold tracking-tighter">
-            KORE<span className="text-brand-lime">MANAGER</span>
-          </h1>
+      <aside className="w-72 bg-[#121222] border-r border-white/5 flex-col hidden md:flex shrink-0">
+        <div className="h-20 flex items-center px-6 border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-16 h-16 rounded-3xl bg-[#0F0F1A] border border-white/0 flex items-center justify-center overflow-hidden">
+              <img
+                src="/images/logo.png"
+                alt="Kore Manager"
+                className="w-full h-full object-contain p-2"
+                style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.22)) drop-shadow(0 0 18px rgba(138,43,226,.12)) brightness(1.08)' }}
+              />
+            </div>
+            <div className="leading-tight">
+              <h1 className="text-xl font-black tracking-tight">
+                KORE<span className="text-brand-lime">MANAGER</span>
+              </h1>
+              <p className="text-[11px] text-gray-500 font-semibold tracking-wider uppercase">
+                Gestión deportiva
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Indicador de rol */}
-        <div className="p-4 text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-          {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
-          {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-          {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-lime" />}
-          Modo: {roleName.toUpperCase()}
+        <div className="px-6 py-5 border-b border-white/5">
+          <div className="flex items-center gap-3">
+            {/* Slot de avatar (pon aquí tu imagen más adelante) */}
+            <div className="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-500">
+              <ImageIcon size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-white truncate">{displayName}</p>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
+                {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-lime" />}
+                {roleName}
+              </div>
+            </div>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-1">
@@ -46,14 +77,15 @@ export default function Layout({ children }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
-                    ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.2)]'
+                    ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.22)]'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
                 <Icon size={20} />
                 {item.label}
+                {isActive && <ChevronRight className="ml-auto" size={18} />}
               </Link>
             );
           })}
@@ -62,7 +94,7 @@ export default function Layout({ children }) {
         <div className="p-4 border-t border-white/5">
           <button
             onClick={signOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-medium"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-semibold"
           >
             <LogOut size={20} /> Cerrar Sesión
           </button>
@@ -71,7 +103,39 @@ export default function Layout({ children }) {
 
       {/* MAIN */}
       <main className="flex-1 relative overflow-y-auto">
-        <div className="p-6 md:p-8 pb-24 md:pb-8">{children}</div>
+        {/* Topbar (sticky) */}
+        <div className="sticky top-0 z-40 bg-[#0F0F1A]/75 backdrop-blur-xl border-b border-white/5">
+          <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">
+                Kore Manager
+              </p>
+              <p className="text-base md:text-lg font-black text-white truncate">
+                {activeItem?.label || 'Panel'}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Slot imagen/escudo municipal */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl bg-[#0F0F1A] border border-white/0 text-gray-400 overflow-hidden">
+                <img
+                  src="/images/logo.png"
+                  alt="Logo"
+                  className="w-9 h-9 object-contain"
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.18)) brightness(1.06)' }}
+                />
+                <span className="text-xs font-bold">Kore</span>
+              </div>
+              <button
+                onClick={signOut}
+                className="px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-gray-300 hover:text-brand-red hover:border-brand-red/40 hover:bg-brand-red/10 transition-all font-bold"
+              >
+                Salir
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 md:p-8 pb-24 md:pb-8 anim-popin">{children}</div>
       </main>
 
       {/* BOTTOM NAV — móvil */}

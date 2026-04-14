@@ -1,10 +1,11 @@
 // src/pages/BookingHistory.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getReservaStatus } from '../lib/reservaStatus';
 
 // ─── Modal de confirmación (reemplaza el confirm() nativo) ──────────────────
 function ConfirmModal({ onConfirm, onCancel }) {
@@ -36,9 +37,7 @@ function ConfirmModal({ onConfirm, onCancel }) {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function getStatus(fecha, hora) {
-  const reservaDate = new Date(`${fecha}T${hora}`);
-  const now = new Date();
-  return reservaDate >= now ? 'upcoming' : 'completed';
+  return getReservaStatus(fecha, hora, 60);
 }
 
 function StatusBadge({ status }) {
@@ -46,6 +45,13 @@ function StatusBadge({ status }) {
     return (
       <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-lime/20 text-brand-lime border border-brand-lime/30">
         <Clock size={12} /> Próxima
+      </span>
+    );
+  }
+  if (status === 'in_progress') {
+    return (
+      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-300 border border-blue-400/25">
+        <Clock size={12} /> En curso
       </span>
     );
   }
@@ -113,12 +119,15 @@ export default function BookingHistory() {
   // ── Filtrado ─────────────────────────────────────────────────────────────
   const reservasFiltradas = reservas.filter(r => {
     const status = getStatus(r.fecha, r.hora);
-    if (filtro === 'proximas') return status === 'upcoming';
+    if (filtro === 'proximas') return status === 'upcoming' || status === 'in_progress';
     if (filtro === 'pasadas')  return status === 'completed';
     return true;
   });
 
-  const proximas = reservas.filter(r => getStatus(r.fecha, r.hora) === 'upcoming').length;
+  const proximas = reservas.filter(r => {
+    const s = getStatus(r.fecha, r.hora);
+    return s === 'upcoming' || s === 'in_progress';
+  }).length;
   const pasadas  = reservas.filter(r => getStatus(r.fecha, r.hora) === 'completed').length;
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -132,35 +141,44 @@ export default function BookingHistory() {
         />
       )}
 
-      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+      <div className="max-w-5xl mx-auto space-y-6">
 
         {/* Cabecera */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              Mis <span className="text-brand-lime">Reservas</span>
-            </h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Historial completo de tus reservas en las instalaciones.
-            </p>
+        <header className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-brand-lime/10 via-white/0 to-brand-purple/10 p-6 md:p-8 anim-shine">
+          <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400">
+                <ImageIcon size={18} />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                  Mis <span className="text-brand-lime">Reservas</span>
+                </h1>
+                <p className="text-gray-400 text-sm mt-1">
+                  Historial completo de tus reservas en las instalaciones.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/reservar"
+              className="flex items-center gap-2 px-5 py-3 bg-brand-lime text-black rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-[0.99] transition-all shadow-[0_0_18px_rgba(204,255,0,0.22)]"
+            >
+              <PlusCircle size={18} /> Nueva reserva
+            </Link>
           </div>
-          <Link
-            to="/reservar"
-            className="flex items-center gap-2 px-5 py-3 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all shadow-[0_0_15px_rgba(204,255,0,0.2)]"
-          >
-            <PlusCircle size={18} /> Nueva reserva
-          </Link>
         </header>
 
         {/* Stats rápidas */}
         {!loading && reservas.length > 0 && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { label: 'Total',    value: reservas.length, color: 'text-white',        bg: 'bg-white/5' },
               { label: 'Próximas', value: proximas,        color: 'text-brand-lime',   bg: 'bg-brand-lime/10' },
               { label: 'Pasadas',  value: pasadas,         color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
             ].map(({ label, value, color, bg }) => (
-              <div key={label} className={`${bg} rounded-2xl p-4 text-center border border-white/5`}>
+              <div key={label} className={`${bg} rounded-3xl p-5 text-center border border-white/5 hover:border-white/10 transition-colors`}>
                 <p className={`text-2xl font-bold ${color}`}>{value}</p>
                 <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1">{label}</p>
               </div>

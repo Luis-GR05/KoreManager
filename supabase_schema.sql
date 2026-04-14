@@ -23,12 +23,104 @@ ON CONFLICT DO NOTHING;
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS profiles (
   id         UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email      TEXT,
-  full_name  TEXT,
-  telefono   TEXT,
+  email      TEXT NOT NULL,
+  full_name  TEXT NOT NULL,
+  telefono   TEXT NOT NULL,
+  dni               TEXT NOT NULL,
+  fecha_nacimiento  DATE NOT NULL,
+  direccion         TEXT NOT NULL,
+  codigo_postal     TEXT NOT NULL,
+  municipio         TEXT NOT NULL,
+  provincia         TEXT NOT NULL,
   rol_id     INT REFERENCES roles(id) DEFAULT 3, -- 3 = ciudadano
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migración si `profiles` ya existe (añade columnas, rellena y endurece constraints)
+ALTER TABLE profiles
+  ADD COLUMN IF NOT EXISTS dni              TEXT,
+  ADD COLUMN IF NOT EXISTS fecha_nacimiento DATE,
+  ADD COLUMN IF NOT EXISTS direccion        TEXT,
+  ADD COLUMN IF NOT EXISTS codigo_postal    TEXT,
+  ADD COLUMN IF NOT EXISTS municipio        TEXT,
+  ADD COLUMN IF NOT EXISTS provincia        TEXT;
+
+-- Backfill desde auth.users metadata (si existe)
+UPDATE profiles p
+SET
+  email = COALESCE(p.email, u.email, ''),
+  full_name = COALESCE(NULLIF(p.full_name, ''), u.raw_user_meta_data ->> 'full_name', ''),
+  telefono = COALESCE(NULLIF(p.telefono, ''), u.raw_user_meta_data ->> 'phone', ''),
+  dni = COALESCE(NULLIF(p.dni, ''), u.raw_user_meta_data ->> 'dni', '00000000T'),
+  fecha_nacimiento = COALESCE(p.fecha_nacimiento, NULLIF(u.raw_user_meta_data ->> 'fecha_nacimiento', '')::date, DATE '1900-01-01'),
+  direccion = COALESCE(NULLIF(p.direccion, ''), u.raw_user_meta_data ->> 'direccion', ''),
+  codigo_postal = COALESCE(NULLIF(p.codigo_postal, ''), u.raw_user_meta_data ->> 'codigo_postal', '00000'),
+  municipio = COALESCE(NULLIF(p.municipio, ''), u.raw_user_meta_data ->> 'municipio', ''),
+  provincia = COALESCE(NULLIF(p.provincia, ''), u.raw_user_meta_data ->> 'provincia', '')
+FROM auth.users u
+WHERE u.id = p.id;
+
+-- Limpieza: asegurar que los datos cumplen los CHECK antes de crearlos
+-- (evita errores al ejecutar migraciones en proyectos ya poblados)
+UPDATE profiles
+SET codigo_postal = '00000'
+WHERE codigo_postal IS NULL OR codigo_postal !~ '^[0-9]{5}$';
+
+UPDATE profiles
+SET dni = '00000000T'
+WHERE dni IS NULL OR upper(trim(dni)) !~ '^([0-9]{8}[A-Z]|[XYZ][0-9]{7}[A-Z])$';
+
+-- Limpieza de campos no vacíos (si hay usuarios antiguos sin datos)
+UPDATE profiles
+SET full_name = 'Pendiente'
+WHERE full_name IS NULL OR length(trim(full_name)) = 0;
+
+UPDATE profiles
+SET telefono = '000000000'
+WHERE telefono IS NULL OR length(trim(telefono)) = 0;
+
+UPDATE profiles
+SET direccion = 'Pendiente'
+WHERE direccion IS NULL OR length(trim(direccion)) = 0;
+
+UPDATE profiles
+SET municipio = 'Pendiente'
+WHERE municipio IS NULL OR length(trim(municipio)) = 0;
+
+UPDATE profiles
+SET provincia = 'Pendiente'
+WHERE provincia IS NULL OR length(trim(provincia)) = 0;
+
+-- Endurecer NOT NULL (obligatorios)
+ALTER TABLE profiles
+  ALTER COLUMN email SET NOT NULL,
+  ALTER COLUMN full_name SET NOT NULL,
+  ALTER COLUMN telefono SET NOT NULL,
+  ALTER COLUMN dni SET NOT NULL,
+  ALTER COLUMN fecha_nacimiento SET NOT NULL,
+  ALTER COLUMN direccion SET NOT NULL,
+  ALTER COLUMN codigo_postal SET NOT NULL,
+  ALTER COLUMN municipio SET NOT NULL,
+  ALTER COLUMN provincia SET NOT NULL;
+
+-- Validaciones básicas (España)
+ALTER TABLE profiles
+  DROP CONSTRAINT IF EXISTS profiles_codigo_postal_chk,
+  DROP CONSTRAINT IF EXISTS profiles_dni_chk,
+  DROP CONSTRAINT IF EXISTS profiles_fecha_nacimiento_chk,
+  DROP CONSTRAINT IF EXISTS profiles_nonempty_chk;
+
+ALTER TABLE profiles
+  ADD CONSTRAINT profiles_codigo_postal_chk CHECK (codigo_postal ~ '^[0-9]{5}$'),
+  ADD CONSTRAINT profiles_dni_chk CHECK (upper(trim(dni)) ~ '^([0-9]{8}[A-Z]|[XYZ][0-9]{7}[A-Z])$'),
+  ADD CONSTRAINT profiles_fecha_nacimiento_chk CHECK (fecha_nacimiento <= CURRENT_DATE),
+  ADD CONSTRAINT profiles_nonempty_chk CHECK (
+    length(trim(full_name)) > 0 AND
+    length(trim(telefono)) > 0 AND
+    length(trim(direccion)) > 0 AND
+    length(trim(municipio)) > 0 AND
+    length(trim(provincia)) > 0
+  );
 
 
 -- ─────────────────────────────────────────────
@@ -37,11 +129,21 @@ CREATE TABLE IF NOT EXISTS profiles (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, full_name)
+  INSERT INTO public.profiles (
+    id, email, full_name, telefono,
+    dni, fecha_nacimiento, direccion, codigo_postal, municipio, provincia
+  )
   VALUES (
     NEW.id,
     NEW.email,
-    NEW.raw_user_meta_data ->> 'full_name'
+    COALESCE(NEW.raw_user_meta_data ->> 'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'phone', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'dni', ''),
+    COALESCE(NULLIF(NEW.raw_user_meta_data ->> 'fecha_nacimiento', '')::date, DATE '1900-01-01'),
+    COALESCE(NEW.raw_user_meta_data ->> 'direccion', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'codigo_postal', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'municipio', ''),
+    COALESCE(NEW.raw_user_meta_data ->> 'provincia', '')
   )
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
@@ -82,9 +184,73 @@ CREATE TABLE IF NOT EXISTS reservas (
   installation_id  INT  REFERENCES instalaciones(id) ON DELETE CASCADE,
   fecha            DATE NOT NULL,
   hora             TIME NOT NULL,
+  -- Pagos (Stripe)
+  precio_cents     INT  NOT NULL DEFAULT 0,
+  currency         TEXT NOT NULL DEFAULT 'eur',
+  payment_status   TEXT NOT NULL DEFAULT 'pending', -- 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled'
+  paid_at          TIMESTAMPTZ,
+  stripe_checkout_session_id TEXT,
+  stripe_payment_intent_id   TEXT,
   created_at       TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE (installation_id, fecha, hora) -- evita doble reserva
 );
+
+-- Migración: si la tabla ya existe
+ALTER TABLE reservas
+  ADD COLUMN IF NOT EXISTS precio_cents INT,
+  ADD COLUMN IF NOT EXISTS currency TEXT,
+  ADD COLUMN IF NOT EXISTS payment_status TEXT,
+  ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT,
+  ADD COLUMN IF NOT EXISTS stripe_payment_intent_id TEXT;
+
+-- Defaults / backfill
+UPDATE reservas
+SET
+  precio_cents = COALESCE(precio_cents, 0),
+  currency = COALESCE(currency, 'eur'),
+  payment_status = COALESCE(payment_status, 'pending')
+WHERE precio_cents IS NULL OR currency IS NULL OR payment_status IS NULL;
+
+ALTER TABLE reservas
+  ALTER COLUMN precio_cents SET NOT NULL,
+  ALTER COLUMN precio_cents SET DEFAULT 0,
+  ALTER COLUMN currency SET NOT NULL,
+  ALTER COLUMN currency SET DEFAULT 'eur',
+  ALTER COLUMN payment_status SET NOT NULL,
+  ALTER COLUMN payment_status SET DEFAULT 'pending';
+
+ALTER TABLE reservas
+  DROP CONSTRAINT IF EXISTS reservas_payment_status_chk;
+ALTER TABLE reservas
+  ADD CONSTRAINT reservas_payment_status_chk CHECK (payment_status IN ('pending','paid','failed','refunded','cancelled'));
+
+-- ─────────────────────────────────────────────
+-- 5b. PAYMENTS (registro de cobros)
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS payments (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  reserva_id    INT NOT NULL REFERENCES reservas(id) ON DELETE CASCADE,
+  user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  provider      TEXT NOT NULL DEFAULT 'stripe',
+  amount_cents  INT  NOT NULL,
+  currency      TEXT NOT NULL DEFAULT 'eur',
+  status        TEXT NOT NULL DEFAULT 'created', -- 'created' | 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled'
+  checkout_session_id TEXT,
+  payment_intent_id   TEXT,
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE payments
+  DROP CONSTRAINT IF EXISTS payments_status_chk;
+ALTER TABLE payments
+  ADD CONSTRAINT payments_status_chk CHECK (status IN ('created','pending','paid','failed','refunded','cancelled'));
+
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_payments_reserva_id ON payments(reserva_id);
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_reservas_payment_status ON reservas(payment_status);
 
 
 -- ─────────────────────────────────────────────
@@ -123,6 +289,7 @@ CREATE TABLE IF NOT EXISTS avisos (
 -- ─────────────────────────────────────────────
 ALTER TABLE profiles     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reservas     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inventario   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE instalaciones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE avisos       ENABLE ROW LEVEL SECURITY;
@@ -161,6 +328,16 @@ CREATE POLICY "own_reservas" ON reservas
   FOR ALL USING (auth.uid() = user_id);
 
 CREATE POLICY "staff_view_reservas" ON reservas
+  FOR SELECT USING (public.user_role() IN ('admin', 'conserje'));
+
+-- PAYMENTS
+DROP POLICY IF EXISTS "own_payments"        ON payments;
+DROP POLICY IF EXISTS "staff_view_payments" ON payments;
+
+CREATE POLICY "own_payments" ON payments
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "staff_view_payments" ON payments
   FOR SELECT USING (public.user_role() IN ('admin', 'conserje'));
 
 
@@ -206,20 +383,7 @@ CREATE INDEX IF NOT EXISTS idx_reservas_installation_id ON reservas(installation
 CREATE INDEX IF NOT EXISTS idx_profiles_rol_id          ON profiles(rol_id);
 
 
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, email, full_name, telefono)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    NEW.raw_user_meta_data ->> 'full_name',
-    NEW.raw_user_meta_data ->> 'phone'
-  )
-  ON CONFLICT (id) DO NOTHING;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Nota: `handle_new_user()` ya está definida arriba con todos los campos obligatorios.
 
 
 -- ─────────────────────────────────────────────

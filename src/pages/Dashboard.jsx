@@ -1,9 +1,9 @@
 // src/pages/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star } from 'lucide-react';
+import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star, Image as ImageIcon, ArrowUpRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // Determina el nivel del jugador según partidos completados
@@ -27,13 +27,12 @@ export default function Dashboard() {
   const [totalJugados, setTotalJugados]   = useState(0); // partidos completados (pasados)
 
   const META_PARTIDOS = 5;
-  const hoy = new Date().toISOString().split('T')[0];
-
   useEffect(() => {
     // Usamos user.id (disponible desde el primer render del contexto)
     // en lugar de profile.id (que requiere un fetch adicional a la BD).
     // Así el panel carga inmediatamente sin depender del perfil.
     if (!user?.id) return;
+    const hoy = new Date().toISOString().split('T')[0];
 
     const fetchData = async () => {
       const userId = user.id;
@@ -98,8 +97,22 @@ export default function Dashboard() {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <p className="text-brand-lime animate-pulse text-lg font-medium">Cargando tu panel...</p>
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-[#1A1A2E] border border-white/5 rounded-3xl p-6">
+          <div className="h-6 w-56 bg-white/5 rounded-xl mb-4" />
+          <div className="h-10 w-80 bg-white/5 rounded-2xl mb-6" />
+          <div className="flex gap-3">
+            <div className="h-11 w-36 bg-white/5 rounded-2xl" />
+            <div className="h-11 w-44 bg-white/5 rounded-2xl" />
+          </div>
+        </div>
+        <div className="bg-[#1A1A2E] border border-white/5 rounded-3xl p-6">
+          <div className="h-6 w-40 bg-white/5 rounded-xl mb-4" />
+          <div className="h-24 w-full bg-white/5 rounded-3xl" />
+        </div>
+      </div>
+      <p className="text-brand-lime/80 text-sm font-bold animate-pulse">Cargando tu panel…</p>
     </div>
   );
 
@@ -110,24 +123,73 @@ export default function Dashboard() {
     ? Math.min(Math.round((totalJugados / sigNivel) * 100), 100)
     : 100;
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+  const firstName = profile?.full_name?.trim()?.split(' ')?.[0] || profile?.email?.split('@')?.[0] || 'jugador';
 
-      {/* HEADER */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white">
-            Hola, <span className="text-brand-lime">{profile?.full_name?.split(' ')[0] || profile?.email?.split('@')[0]}</span>
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">Bienvenido a tu panel de control.</p>
+  return (
+    <div className="max-w-6xl mx-auto space-y-8">
+
+      {/* HERO */}
+      <header className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-brand-lime/12 via-white/0 to-brand-purple/10 p-6 md:p-8 anim-shine">
+        <div className="absolute -top-20 -right-20 w-72 h-72 bg-brand-lime/10 rounded-full blur-3xl anim-floaty pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
+          <div className="flex items-start gap-4">
+            {/* Slot de imagen/escudo */}
+            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
+              <ImageIcon size={22} />
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                Panel principal
+              </p>
+              <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
+                Hola, <span className="text-brand-lime">{firstName}</span>
+              </h1>
+              <p className="text-gray-400 text-sm mt-1 max-w-2xl">
+                Gestiona reservas, consulta avisos y controla el estado de las instalaciones en tiempo real.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  to="/reservar"
+                  className="px-5 py-3 bg-brand-lime text-black rounded-2xl font-black hover:scale-[1.02] active:scale-[0.99] transition-all flex items-center gap-2 shadow-[0_0_18px_rgba(204,255,0,0.28)]"
+                >
+                  <PlusCircle size={18} />
+                  Nueva reserva
+                  <ArrowUpRight size={18} />
+                </Link>
+                <Link
+                  to="/historial"
+                  className="px-5 py-3 bg-white/5 border border-white/10 text-gray-200 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2"
+                >
+                  <Clock size={18} />
+                  Ver historial
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* KPI mini */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 w-full lg:w-[360px]">
+            {[
+              { label: 'Este mes', value: partidosMes, icon: Calendar, color: 'text-brand-lime', bg: 'bg-brand-lime/10' },
+              { label: 'Completados', value: totalJugados, icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+              { label: 'Próximos', value: misReservas.length, icon: Clock, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
+              { label: 'Avisos', value: avisos.length, icon: AlertTriangle, color: 'text-brand-red', bg: 'bg-brand-red/10' },
+            ].map(({ label, value, icon, color, bg }) => {
+              const Icon = icon;
+              return (
+                <div key={label} className="rounded-3xl border border-white/5 bg-[#0F0F1A]/55 p-4">
+                  <div className={`w-10 h-10 rounded-2xl ${bg} ${color} flex items-center justify-center mb-3`}>
+                    <Icon size={18} />
+                  </div>
+                  <p className="text-2xl font-black text-white leading-none">{value}</p>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{label}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <Link
-          to="/reservar"
-          className="px-6 py-3 bg-brand-lime text-black rounded-full font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(204,255,0,0.3)]"
-        >
-          <PlusCircle size={20} />
-          Nueva Reserva
-        </Link>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -141,18 +203,28 @@ export default function Dashboard() {
               <Calendar className="text-brand-purple" /> Mis Próximos Partidos
             </h3>
             {misReservas.length === 0 ? (
-              <div className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 text-center">
-                <p className="text-gray-500 mb-4">No tienes partidos programados.</p>
-                <Link to="/reservar" className="text-brand-lime underline hover:text-white">
-                  ¡Reserva uno ahora!
-                </Link>
+              <div className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-lime/10 to-transparent opacity-60 pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 mx-auto mb-4">
+                    <Calendar size={20} />
+                  </div>
+                  <p className="text-gray-300 font-bold mb-1">No tienes reservas próximas</p>
+                  <p className="text-gray-500 text-sm mb-5">Elige pista y horario en menos de 30 segundos.</p>
+                  <Link
+                    to="/reservar"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-brand-lime text-black rounded-2xl font-black hover:scale-[1.02] transition-all"
+                  >
+                    <PlusCircle size={16} /> Reservar ahora
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="grid gap-4">
                 {misReservas.map(reserva => (
                   <div
                     key={reserva.id}
-                    className="bg-[#1F1F2E] p-4 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-brand-lime/30 transition-all"
+                    className="bg-[#1F1F2E] p-4 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-brand-lime/30 hover:shadow-[0_0_18px_rgba(204,255,0,0.10)] transition-all"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-brand-lime/10 rounded-xl flex items-center justify-center text-brand-lime font-bold text-lg">
@@ -170,7 +242,7 @@ export default function Dashboard() {
                     </div>
                     <button
                       onClick={() => cancelarReserva(reserva.id)}
-                      className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
                       title="Cancelar Reserva"
                     >
                       <Trash2 size={18} />
@@ -188,7 +260,7 @@ export default function Dashboard() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {instalaciones.map((item) => (
-                <div key={item.id} className="bg-[#1A1A2E] p-4 rounded-2xl border border-white/5 flex items-center gap-4">
+                <div key={item.id} className="bg-[#1A1A2E] p-4 rounded-2xl border border-white/5 flex items-center gap-4 hover:border-white/10 transition-colors">
                   <div className={`w-3 h-10 rounded-full shrink-0 ${
                     item.estado === 'disponible'    ? 'bg-brand-lime' :
                     item.estado === 'mantenimiento' ? 'bg-yellow-500' : 'bg-red-500'
@@ -217,10 +289,12 @@ export default function Dashboard() {
               <AlertTriangle className="text-brand-red" /> Avisos
             </h3>
             {avisos.length === 0 ? (
-              <p className="text-gray-500 text-sm">No hay avisos activos.</p>
+              <div className="bg-[#1A1A2E] border border-white/5 rounded-3xl p-6 text-sm text-gray-500">
+                No hay avisos activos.
+              </div>
             ) : (
               avisos.map((aviso) => (
-                <div key={aviso.id} className="bg-brand-purple/5 border border-brand-purple/20 p-5 rounded-2xl mb-3">
+                <div key={aviso.id} className="bg-brand-purple/5 border border-brand-purple/20 p-5 rounded-2xl mb-3 hover:border-brand-purple/35 transition-colors">
                   <h5 className="font-bold text-brand-purple mb-1">{aviso.titulo}</h5>
                   <p className="text-xs text-gray-400 leading-relaxed">{aviso.mensaje}</p>
                 </div>
