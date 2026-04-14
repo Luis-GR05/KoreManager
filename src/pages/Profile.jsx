@@ -4,7 +4,7 @@ import { User, Mail, Phone, Save, Trophy, Calendar, MapPin, TrendingUp, Image as
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { useProfile } from '../hooks/useProfile';
+import { useProfile } from '../hooks/useprofile';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 
