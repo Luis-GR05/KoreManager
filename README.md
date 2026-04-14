@@ -1,4 +1,4 @@
-# 🏟️ KORE MANAGER - Gestor de Instalaciones Deportivas
+# KORE MANAGER - Gestor de Instalaciones Deportivas
 
 <div align="center">
   <a href="https://github.com/Luis-GR05/kore-manager">
@@ -30,38 +30,29 @@
 
 ---
 
-## 📋 Sobre el Proyecto
+## Sobre el Proyecto
 
 **KORE MANAGER** nace como respuesta a la necesidad de digitalizar el sistema deportivo municipal. El objetivo es eliminar la burocracia, optimizar la ocupación de pistas y mejorar la comunicación entre el ayuntamiento y los ciudadanos.
 
-El proyecto destaca por su **Interfaz "Dark Mode"** moderna con acentos en *Acid Lime* y *Cyber Purple*, ofreciendo una experiencia de usuario ágil y visualmente impactante.
+El proyecto destaca no solo por su **Interfaz "Dark Mode"** moderna (acentos en *Acid Lime* y *Cyber Purple*), sino por su **arquitectura limpia** orientada a la escalabilidad y la seguridad de los datos.
 
-## ✨ Características Principales
+## Documentación Oficial del Proyecto
 
-* 🔐 **Autenticación Segura:** Login robusto conectado con Supabase Auth.
-* 📅 **Gestión de Reservas:** Sistema visual para reservar pistas (Pádel, Fútbol, Tenis) en tiempo real.
-* 📦 **Inventario Deportivo:** Control de stock de material (balones, redes, petos) para los conserjes.
-* 📢 **Notificaciones y Avisos:** Panel de incidencias y comunicados municipales.
-* 📊 **Dashboard Interactivo:** Panel de control personalizado para cada usuario.
+Toda la documentación técnica y operativa requerida para la evaluación se encuentra centralizada en la carpeta `/docs`:
 
-## 🎨 Galería del Proyecto
+* 📖 **[A) Manual de Usuario](./docs/A_Manual_Usuario.md):** Guía visual y operativa. Pantallas, flujos de navegación y uso del aplicativo por perfiles.
+* ⚙️ **[B) Manual Técnico](./docs/B_Manual_Tecnico.md):** Arquitectura del sistema, diseño de la base de datos (PostgreSQL), Custom Hooks y decisiones de UI/UX.
+* 🚀 **[C) Manual de Despliegue](./docs/C_Manual_Despliegue.md):** Requisitos y pasos exactos para la instalación y ejecución del entorno.
+* 📅 **[D) Manual del Proyecto](./docs/D_Manual_Proyecto.md):** Memoria evolutiva, registro de bloqueos técnicos superados y trabajo realizado durante los trimestres.
 
-Aquí puedes ver el diseño y la implementación actual de la interfaz:
+## Características Técnicas Principales
 
-| **Login Premium** | **Dashboard Principal** |
-|:---:|:---:|
-| <img src="src/assets/ImagenesGestorDeportivo/2Login.png" width="400" alt="Pantalla de Login"> | <img src="src/assets/ImagenesGestorDeportivo/3PagPrinc.png" width="400" alt="Panel Principal"> |
-| *Acceso seguro con animaciones neón* | *Vista general de reservas y avisos* |
+* 🔐 **Seguridad y Accesos (RBAC):** Sistema de roles estricto (Admin, Conserje, Ciudadano) respaldado por **Row Level Security (RLS)** en la base de datos para evitar accesos no autorizados.
+* 🧩 **Arquitectura DRY:** Desarrollo basado en componentes de UI globales y *Custom Hooks* para separar la lógica de negocio de las vistas.
+* 📦 **Inventario y Panel Admin:** Control de stock en tiempo real y directorio de gestión global de usuarios.
+* 📢 **Sistema de Incidencias:** Reporte y seguimiento de problemas en las instalaciones con restricciones asimétricas de lectura/escritura.
 
-## 🛠️ Tecnologías Utilizadas
-
-* **Frontend:** React.js + Vite
-* **Estilos:** Tailwind CSS (Custom Design System)
-* **Backend & Base de Datos:** Supabase (PostgreSQL)
-* **Iconografía:** Lucide React
-* **Control de Versiones:** Git & GitHub
-
-## 🚀 Instalación y Despliegue
+## Roadmap y Estado Actual
 
 Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
