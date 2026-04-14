@@ -76,18 +76,21 @@ function TabUsuarios() {
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: 'Total Usuarios',      value: usuarios.length,                                        color: 'text-brand-lime',  bg: 'bg-brand-lime/10',   icon: Users },
-          { label: 'Conserjes Activos',   value: usuarios.filter(u => u.rol_id === 2).length,           color: 'text-blue-400',    bg: 'bg-blue-500/10',    icon: Activity },
-          { label: 'Reservas Activas',    value: reservasCount,                                         color: 'text-brand-purple',bg: 'bg-brand-purple/10', icon: CheckCircle2 },
-        ].map(({ label, value, color, bg, icon: Icon }) => (
-          <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
-            <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
-            <div>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
-              <p className="text-2xl font-bold text-white">{value}</p>
+          { label: 'Total Usuarios',      value: usuarios.length,                              color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Users },
+          { label: 'Conserjes Activos',   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-400',     bg: 'bg-blue-500/10',     icon: Activity },
+          { label: 'Reservas Activas',    value: reservasCount,                               color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+        ].map(({ label, value, color, bg, icon }) => {
+          const Icon = icon;
+          return (
+            <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
+              <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-bold text-white">{value}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Tabla */}
@@ -251,13 +254,16 @@ function TabAvisos() {
   const [form, setForm]       = useState({ titulo: '', mensaje: '' });
   const [saving, setSaving]   = useState(false);
 
-  const fetchAvisos = async () => {
-    const { data } = await supabase.from('avisos').select('*').order('created_at', { ascending: false });
-    setAvisos(data || []);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchAvisos(); }, []);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.from('avisos').select('*').order('created_at', { ascending: false });
+      if (!alive) return;
+      setAvisos(data || []);
+      setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, []);
 
   const toggleAviso = async (id, activo) => {
     const { error } = await supabase.from('avisos').update({ activo: !activo }).eq('id', id);
@@ -282,7 +288,9 @@ function TabAvisos() {
     } else {
       toast.success('Aviso publicado.');
       setForm({ titulo: '', mensaje: '' });
-      fetchAvisos();
+      // refrescar lista
+      const { data } = await supabase.from('avisos').select('*').order('created_at', { ascending: false });
+      setAvisos(data || []);
     }
     setSaving(false);
   };
@@ -384,26 +392,29 @@ function TabReservas() {
   const [confirmId, setConfirmId]       = useState(null);
   const [cancelling, setCancelling]     = useState(false);
 
-  const fetchReservas = async () => {
-    const { data, error } = await supabase
-      .from('reservas')
-      .select(`
-        id, fecha, hora, created_at,
-        instalaciones ( nombre, tipo ),
-        profiles ( full_name, email, telefono )
-      `)
-      .order('fecha', { ascending: true })
-      .order('hora',  { ascending: true });
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error } = await supabase
+        .from('reservas')
+        .select(`
+          id, fecha, hora, created_at,
+          instalaciones ( nombre, tipo ),
+          profiles ( full_name, email, telefono )
+        `)
+        .order('fecha', { ascending: true })
+        .order('hora',  { ascending: true });
 
-    if (error) {
-      toast.error('Error cargando reservas: ' + error.message);
-    } else {
-      setReservas(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchReservas(); }, []);
+      if (!alive) return;
+      if (error) {
+        toast.error('Error cargando reservas: ' + error.message);
+      } else {
+        setReservas(data || []);
+      }
+      setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, []);
 
   const handleCancel = async () => {
     if (!confirmId) return;
@@ -479,15 +490,18 @@ function TabReservas() {
           { label: 'Total reservas',   value: total,    color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
           { label: 'Próximas',         value: proximas, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
           { label: 'Completadas',      value: pasadas,  color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
-        ].map(({ label, value, color, bg, icon: Icon }) => (
-          <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
-            <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
-            <div>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
-              <p className="text-2xl font-bold text-white">{value}</p>
+        ].map(({ label, value, color, bg, icon }) => {
+          const Icon = icon;
+          return (
+            <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
+              <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-bold text-white">{value}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Controles: búsqueda + filtro fecha */}
@@ -713,15 +727,18 @@ function TabEstadisticasAdmin() {
           { label: 'Próximas',            value: proximas,        color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
           { label: 'Completadas',         value: pasadas,         color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
           { label: 'Media por usuario',   value: mediaOcupacion,  color: 'text-blue-400',     bg: 'bg-blue-400/10',      icon: TrendingUp },
-        ].map(({ label, value, color, bg, icon: Icon }) => (
-          <div key={label} className="bg-[#1A1A2E] p-5 rounded-3xl border border-white/5 flex items-center gap-3">
-            <div className={`p-3 ${bg} rounded-xl ${color}`}><Icon size={20} /></div>
-            <div>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
-              <p className="text-2xl font-bold text-white">{value}</p>
+        ].map(({ label, value, color, bg, icon }) => {
+          const Icon = icon;
+          return (
+            <div key={label} className="bg-[#1A1A2E] p-5 rounded-3xl border border-white/5 flex items-center gap-3">
+              <div className={`p-3 ${bg} rounded-xl ${color}`}><Icon size={20} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-bold text-white">{value}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -873,20 +890,23 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="flex gap-2 bg-[#1A1A2E] p-1 rounded-2xl border border-white/5 w-fit">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              activeTab === id
-                ? 'bg-brand-lime text-black shadow-sm'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <Icon size={16} />
-            {label}
-          </button>
-        ))}
+        {TABS.map(({ id, label, icon }) => {
+          const Icon = icon;
+          return (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                activeTab === id
+                  ? 'bg-brand-lime text-black shadow-sm'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Icon size={16} />
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Contenido */}

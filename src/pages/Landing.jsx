@@ -118,8 +118,18 @@ export default function Landing() {
           NAVBAR
       ══════════════════════════════════════════ */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 backdrop-blur-xl bg-[#0F0F1A]/70 border-b border-white/5">
-        <div className="text-2xl font-extrabold tracking-tighter cursor-default select-none">
-          KORE<span className="text-brand-lime">MANAGER</span>
+        <div className="flex items-center gap-3 cursor-default select-none">
+          <div className="w-12 h-12 rounded-3xl bg-[#0F0F1A] flex items-center justify-center overflow-hidden">
+            <img
+              src="/images/logo.png"
+              alt="Kore Manager"
+              className="w-full h-full object-contain p-2"
+              style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.18)) drop-shadow(0 0 18px rgba(138,43,226,.10)) brightness(1.08)' }}
+            />
+          </div>
+          <div className="text-2xl font-extrabold tracking-tighter">
+            KORE<span className="text-brand-lime">MANAGER</span>
+          </div>
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
@@ -299,24 +309,27 @@ export default function Landing() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map(({ icon: Icon, title, desc, color, glow, border }) => (
-              <div
-                key={title}
-                className={`group relative p-7 rounded-3xl bg-[#1A1A2E] border border-white/5 ${border}
-                overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            {FEATURES.map(({ icon, title, desc, color, glow, border }) => {
+              const Icon = icon;
+              return (
+                <div
+                  key={title}
+                  className={`group relative p-7 rounded-3xl bg-[#1A1A2E] border border-white/5 ${border}
+                  overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
-                <div className="relative z-10">
-                  <div className={`w-12 h-12 rounded-2xl bg-[#252538] flex items-center justify-center mb-5 ${color}
-                  group-hover:scale-110 transition-transform duration-300 border border-white/5 ${border}`}>
-                    <Icon size={22} />
+                  <div className="relative z-10">
+                    <div className={`w-12 h-12 rounded-2xl bg-[#252538] flex items-center justify-center mb-5 ${color}
+                    group-hover:scale-110 transition-transform duration-300 border border-white/5 ${border}`}>
+                      <Icon size={22} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -379,8 +392,18 @@ export default function Landing() {
 
           {/* Marca */}
           <div className="space-y-3">
-            <div className="text-2xl font-extrabold tracking-tighter cursor-default">
-              KORE<span className="text-brand-lime">MANAGER</span>
+            <div className="flex items-center gap-3 text-2xl font-extrabold tracking-tighter cursor-default">
+              <div className="w-12 h-12 rounded-3xl bg-[#0F0F1A] flex items-center justify-center overflow-hidden">
+                <img
+                  src="/images/logo.png"
+                  alt="Kore Manager"
+                  className="w-full h-full object-contain p-2"
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.14)) brightness(1.06)' }}
+                />
+              </div>
+              <div>
+                KORE<span className="text-brand-lime">MANAGER</span>
+              </div>
             </div>
             <p className="text-gray-600 text-sm max-w-xs">
               Gestión deportiva moderna para instalaciones municipales y clubes.
@@ -393,8 +416,10 @@ export default function Landing() {
             <a href="#funciones" className="hover:text-brand-lime transition-colors duration-200">Funciones</a>
             <a href="#sobre" className="hover:text-brand-lime transition-colors duration-200">Sobre nosotros</a>
             <Link to="/login" className="hover:text-brand-lime transition-colors duration-200">Acceso usuarios</Link>
-            <a href="#" className="hover:text-brand-lime transition-colors duration-200">Política de privacidad</a>
-            <a href="#" className="hover:text-brand-lime transition-colors duration-200">Términos de uso</a>
+            <Link to="/legal/privacidad" className="hover:text-brand-lime transition-colors duration-200">Política de privacidad</Link>
+            <Link to="/legal/terminos" className="hover:text-brand-lime transition-colors duration-200">Términos de uso</Link>
+            <Link to="/legal/aviso-legal" className="hover:text-brand-lime transition-colors duration-200">Aviso legal</Link>
+            <Link to="/legal/cookies" className="hover:text-brand-lime transition-colors duration-200">Política de cookies</Link>
           </div>
         </div>
 

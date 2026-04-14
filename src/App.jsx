@@ -8,6 +8,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AvisoLegal from './pages/legal/AvisoLegal';
+import Privacidad from './pages/legal/Privacidad';
+import Cookies from './pages/legal/Cookies';
+import Terminos from './pages/legal/Terminos';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import NewBooking from './pages/NewBooking';
@@ -40,6 +44,10 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/legal/aviso-legal" element={<AvisoLegal />} />
+          <Route path="/legal/privacidad" element={<Privacidad />} />
+          <Route path="/legal/cookies" element={<Cookies />} />
+          <Route path="/legal/terminos" element={<Terminos />} />
 
           {/* RUTAS PRIVADAS - todos los usuarios autenticados */}
           <Route path="/dashboard" element={

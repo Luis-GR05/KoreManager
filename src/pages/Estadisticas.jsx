@@ -7,6 +7,7 @@ import {
   BarChart2, Trophy, Calendar, Clock, MapPin,
   Zap, Star, Target, TrendingUp, Award, PlusCircle
 } from 'lucide-react';
+import { getReservaStatus } from '../lib/reservaStatus';
 
 // ─── Definición de Logros ─────────────────────────────────────────────────────
 const LOGROS = [
@@ -76,7 +77,8 @@ function getNivel(total) {
 }
 
 // ─── Componentes internos ─────────────────────────────────────────────────────
-function StatCard({ icon: Icon, label, value, color, bg, isText = false }) {
+function StatCard({ icon, label, value, color, bg, isText = false }) {
+  const Icon = icon;
   return (
     <div className="bg-[#1A1A2E] rounded-2xl p-5 border border-white/5 flex items-center gap-4">
       <div className={`p-3 rounded-xl ${bg} ${color} shrink-0`}>
@@ -154,24 +156,44 @@ export default function Estadisticas() {
   const [reservas, setReservas]   = useState([]);
 
   useEffect(() => {
-    if (!user) return;
-    const fetch = async () => {
+    if (!user?.id) return;
+
+    const cacheKey = `kore_estadisticas_reservas_v1:${user.id}`;
+    const cached = (() => {
+      try { return JSON.parse(sessionStorage.getItem(cacheKey) || 'null'); } catch { return null; }
+    })();
+
+    // Pintar instantáneo si hay caché (y refrescar en background)
+    if (cached?.data && Array.isArray(cached.data)) {
+      setReservas(cached.data);
+      setLoading(false);
+    }
+
+    let alive = true;
+    (async () => {
       const { data } = await supabase
         .from('reservas')
         .select('id, fecha, hora, instalaciones ( nombre, tipo )')
         .eq('user_id', user.id)
         .order('fecha', { ascending: false });
 
-      setReservas(data || []);
+      if (!alive) return;
+      const next = data || [];
+      setReservas(next);
       setLoading(false);
-    };
-    fetch();
-  }, [user]);
+      try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: next })); } catch { /* ignore */ }
+    })();
+
+    return () => { alive = false; };
+  }, [user?.id]);
 
   // ── Cálculos derivados ────────────────────────────────────────────────────
-  const hoy = new Date().toISOString().split('T')[0];
-  const pasadas = reservas.filter(r => r.fecha < hoy);
-  const proximas = reservas.filter(r => r.fecha >= hoy);
+  const now = new Date();
+  const pasadas = reservas.filter(r => getReservaStatus(r.fecha, r.hora, 60, now) === 'completed');
+  const proximas = reservas.filter(r => {
+    const s = getReservaStatus(r.fecha, r.hora, 60, now);
+    return s === 'upcoming' || s === 'in_progress';
+  });
 
   // Desglose por tipo de instalación (completadas)
   const porTipo = {};
@@ -207,7 +229,7 @@ export default function Estadisticas() {
   });
   const instFavorita = Object.entries(porInst).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
-  // Nivel
+  // Nivel (por partidos completados)
   const nivel = getNivel(pasadas.length);
   const sigNivel = nivel.next;
   const progresoNivel = sigNivel
