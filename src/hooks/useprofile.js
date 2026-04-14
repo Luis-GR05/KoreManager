@@ -1,4 +1,3 @@
-// src/hooks/useProfile.js
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
@@ -27,17 +26,13 @@ export function useProfile() {
       provincia: next.provincia || null,
     };
 
-    // 1) Intentar guardar en tabla profiles (si el esquema tiene esas columnas).
     let error = null;
     const attempt1 = await supabase.from('profiles').update(extendedUpdate).eq('id', profile.id);
     if (attempt1.error) {
-      // Si el esquema no tiene columnas extra, reintentamos con lo básico.
       const attempt2 = await supabase.from('profiles').update(baseUpdate).eq('id', profile.id);
       error = attempt2.error || attempt1.error;
     }
 
-    // 2) Guardar también en metadata del usuario (siempre disponible).
-    // Esto permite persistir más datos sin romper si falta migración en profiles.
     if (user) {
       await supabase.auth.updateUser({
         data: {
@@ -57,7 +52,7 @@ export function useProfile() {
       toast.error('Error al guardar: ' + error.message);
     } else {
       toast.success('¡Perfil actualizado correctamente!');
-      await refreshProfile(); // Sincroniza el contexto global
+      await refreshProfile();
     }
 
     setUpdating(false);
