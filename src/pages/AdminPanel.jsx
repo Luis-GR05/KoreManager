@@ -387,30 +387,57 @@ function TabAvisos() {
 function TabReservas() {
   const [reservas, setReservas]         = useState([]);
   const [loading, setLoading]           = useState(true);
+  const [loadingMore, setLoadingMore]   = useState(false);
+  const [totalCount, setTotalCount]     = useState(null);
+  const [hasMore, setHasMore]           = useState(true);
   const [searchTerm, setSearchTerm]     = useState('');
   const [filtroFecha, setFiltroFecha]   = useState('proximas'); // 'proximas' | 'pasadas' | 'todas'
   const [confirmId, setConfirmId]       = useState(null);
   const [cancelling, setCancelling]     = useState(false);
 
+  const PAGE_SIZE = 500;
+
+  const fetchPage = async ({ reset = false } = {}) => {
+    const offset = reset ? 0 : reservas.length;
+    const limit = PAGE_SIZE;
+
+    const { data, error, count } = await supabase
+      .from('reservas')
+      .select(
+        `
+          id, fecha, hora, created_at,
+          instalaciones ( nombre, tipo ),
+          profiles ( full_name, email, telefono ),
+          reserva_material (
+            cantidad,
+            inventario ( nombre )
+          )
+        `,
+        { count: 'exact' }
+      )
+      .order('fecha', { ascending: true })
+      .order('hora', { ascending: true })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      toast.error('Error cargando reservas: ' + error.message);
+      return;
+    }
+
+    const next = data || [];
+    setTotalCount(typeof count === 'number' ? count : null);
+    setReservas(prev => (reset ? next : [...prev, ...next]));
+
+    const loaded = (reset ? next.length : reservas.length + next.length);
+    const total = typeof count === 'number' ? count : null;
+    setHasMore(total == null ? next.length === limit : loaded < total);
+  };
+
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data, error } = await supabase
-        .from('reservas')
-        .select(`
-          id, fecha, hora, created_at,
-          instalaciones ( nombre, tipo ),
-          profiles ( full_name, email, telefono )
-        `)
-        .order('fecha', { ascending: true })
-        .order('hora',  { ascending: true });
-
       if (!alive) return;
-      if (error) {
-        toast.error('Error cargando reservas: ' + error.message);
-      } else {
-        setReservas(data || []);
-      }
+      await fetchPage({ reset: true });
       setLoading(false);
     })();
     return () => { alive = false; };
@@ -448,7 +475,7 @@ function TabReservas() {
       );
     });
 
-  const total    = reservas.length;
+  const total    = totalCount ?? reservas.length;
   const proximas = reservas.filter(r => r.fecha >= hoy).length;
   const pasadas  = reservas.filter(r => r.fecha <  hoy).length;
 
@@ -548,6 +575,7 @@ function TabReservas() {
                 <th className="p-4">Instalación</th>
                 <th className="p-4">Fecha</th>
                 <th className="p-4">Hora</th>
+                <th className="p-4">Material</th>
                 <th className="p-4">Estado</th>
                 <th className="p-4"></th>
               </tr>
@@ -555,6 +583,7 @@ function TabReservas() {
             <tbody className="divide-y divide-white/5">
               {filtradas.map(r => {
                 const isUpcoming = r.fecha >= hoy;
+                const mat = Array.isArray(r.reserva_material) ? r.reserva_material : [];
                 return (
                   <tr key={r.id} className="hover:bg-white/5 transition-colors">
 
@@ -594,6 +623,27 @@ function TabReservas() {
                       </span>
                     </td>
 
+                    {/* Material */}
+                    <td className="p-4 text-sm text-gray-400">
+                      {mat.length === 0 ? (
+                        <span className="text-gray-600">—</span>
+                      ) : (
+                        <div className="space-y-1">
+                          {mat.slice(0, 3).map((m, idx) => (
+                            <div key={idx} className="text-xs">
+                              <span className="text-gray-300 font-bold">{m.cantidad}×</span>{' '}
+                              <span className="text-gray-400">{m.inventario?.nombre || 'Material'}</span>
+                            </div>
+                          ))}
+                          {mat.length > 3 && (
+                            <div className="text-[11px] text-gray-600">
+                              +{mat.length - 3} más
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </td>
+
                     {/* Estado */}
                     <td className="p-4">
                       {isUpcoming ? (
@@ -625,7 +675,7 @@ function TabReservas() {
 
               {filtradas.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="p-10 text-center text-gray-500 text-sm">
+                  <td colSpan="7" className="p-10 text-center text-gray-500 text-sm">
                     {searchTerm ? 'No se encontraron reservas con ese criterio.' : 'No hay reservas en este período.'}
                   </td>
                 </tr>
@@ -636,8 +686,28 @@ function TabReservas() {
 
         {/* Footer con conteo */}
         {filtradas.length > 0 && (
-          <div className="px-4 py-3 border-t border-white/5 text-xs text-gray-600">
-            Mostrando {filtradas.length} de {total} reservas
+          <div className="px-4 py-3 border-t border-white/5 text-xs text-gray-600 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <span>
+              Mostrando {filtradas.length} de {total} reservas
+              {totalCount != null && reservas.length < totalCount ? ` (cargadas ${reservas.length})` : ''}
+            </span>
+
+            {hasMore && (
+              <button
+                onClick={async () => {
+                  setLoadingMore(true);
+                  try {
+                    await fetchPage({ reset: false });
+                  } finally {
+                    setLoadingMore(false);
+                  }
+                }}
+                disabled={loadingMore}
+                className="px-4 py-2 rounded-xl bg-[#0F0F1A] border border-white/10 text-gray-300 font-bold hover:bg-white/5 hover:border-white/20 transition-colors disabled:opacity-50 w-fit"
+              >
+                {loadingMore ? 'Cargando...' : 'Cargar más'}
+              </button>
+            )}
           </div>
         )}
       </div>

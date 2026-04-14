@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   codigo_postal     TEXT NOT NULL,
   municipio         TEXT NOT NULL,
   provincia         TEXT NOT NULL,
+  avatar_url        TEXT,
   rol_id     INT REFERENCES roles(id) DEFAULT 3, -- 3 = ciudadano
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -43,7 +44,8 @@ ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS direccion        TEXT,
   ADD COLUMN IF NOT EXISTS codigo_postal    TEXT,
   ADD COLUMN IF NOT EXISTS municipio        TEXT,
-  ADD COLUMN IF NOT EXISTS provincia        TEXT;
+  ADD COLUMN IF NOT EXISTS provincia        TEXT,
+  ADD COLUMN IF NOT EXISTS avatar_url       TEXT;
 
 -- Backfill desde auth.users metadata (si existe)
 UPDATE profiles p
@@ -167,6 +169,44 @@ CREATE TABLE IF NOT EXISTS instalaciones (
   estado TEXT DEFAULT 'disponible'
 );
 
+-- Limpieza de duplicados (por nombre) + constraint UNIQUE para evitar repeticiones
+-- 1) Normaliza nombres (trim)
+UPDATE instalaciones SET nombre = trim(nombre) WHERE nombre IS NOT NULL;
+
+-- 2) Reasigna reservas al ID "principal" (el menor id por nombre)
+WITH canon AS (
+  SELECT nombre, MIN(id) AS keep_id
+  FROM instalaciones
+  GROUP BY nombre
+),
+dups AS (
+  SELECT i.id AS dup_id, c.keep_id
+  FROM instalaciones i
+  JOIN canon c ON c.nombre = i.nombre
+  WHERE i.id <> c.keep_id
+)
+UPDATE reservas r
+SET installation_id = d.keep_id
+FROM dups d
+WHERE r.installation_id = d.dup_id;
+
+-- 3) Borra instalaciones duplicadas (ya sin reservas apuntando a ellas)
+WITH canon AS (
+  SELECT nombre, MIN(id) AS keep_id
+  FROM instalaciones
+  GROUP BY nombre
+)
+DELETE FROM instalaciones i
+USING canon c
+WHERE i.nombre = c.nombre
+  AND i.id <> c.keep_id;
+
+-- 4) Aplica UNIQUE(nombre) para que no vuelvan a aparecer duplicados
+ALTER TABLE instalaciones
+  DROP CONSTRAINT IF EXISTS instalaciones_nombre_uniq;
+ALTER TABLE instalaciones
+  ADD CONSTRAINT instalaciones_nombre_uniq UNIQUE (nombre);
+
 INSERT INTO instalaciones (nombre, tipo, estado) VALUES
   ('Pista 1 - Pádel',   'padel',       'disponible'),
   ('Pista 2 - Pádel',   'padel',       'disponible'),
@@ -194,6 +234,22 @@ CREATE TABLE IF NOT EXISTS reservas (
   created_at       TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE (installation_id, fecha, hora) -- evita doble reserva
 );
+
+-- RPC segura: devuelve horarios ocupados sin exponer datos personales
+CREATE OR REPLACE FUNCTION public.get_occupied_slots(inst_id INT, date_in DATE)
+RETURNS TABLE (hora TEXT)
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT to_char(r.hora, 'HH24:MI') AS hora
+  FROM reservas r
+  WHERE r.installation_id = inst_id
+    AND r.fecha = date_in;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_occupied_slots(INT, DATE) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_occupied_slots(INT, DATE) TO authenticated;
 
 -- Migración: si la tabla ya existe
 ALTER TABLE reservas
@@ -259,9 +315,64 @@ CREATE INDEX IF NOT EXISTS idx_reservas_payment_status ON reservas(payment_statu
 CREATE TABLE IF NOT EXISTS inventario (
   id       SERIAL PRIMARY KEY,
   nombre   TEXT NOT NULL,
+  tipo_pista TEXT NOT NULL DEFAULT 'general', -- coincide con instalaciones.tipo (padel/futbol/tenis/...)
   cantidad INT  DEFAULT 0,
   estado   TEXT DEFAULT 'activo'
 );
+
+-- Migración: si la tabla ya existía sin tipo_pista (debe ir ANTES de usar la columna)
+ALTER TABLE inventario
+  ADD COLUMN IF NOT EXISTS tipo_pista TEXT;
+
+UPDATE inventario
+SET tipo_pista = COALESCE(NULLIF(lower(trim(tipo_pista)), ''), 'general')
+WHERE tipo_pista IS NULL OR length(trim(tipo_pista)) = 0;
+
+ALTER TABLE inventario
+  ALTER COLUMN tipo_pista SET NOT NULL,
+  ALTER COLUMN tipo_pista SET DEFAULT 'general';
+
+-- Normalización + deduplicación (evita items repetidos por mayúsculas/espacios)
+UPDATE inventario
+SET nombre = trim(nombre)
+WHERE nombre IS NOT NULL AND nombre <> trim(nombre);
+
+UPDATE inventario
+SET tipo_pista = lower(trim(tipo_pista))
+WHERE tipo_pista IS NOT NULL AND tipo_pista <> lower(trim(tipo_pista));
+
+-- Consolidar duplicados: mantener el id menor y sumar cantidades (por nombre+tipo).
+-- (Si hay distintos estados, priorizamos 'activo' si alguno lo es; si no, cualquiera.)
+WITH dups AS (
+  SELECT
+    lower(trim(nombre)) AS k_nombre,
+    lower(trim(tipo_pista)) AS k_tipo,
+    min(id) AS keep_id,
+    array_agg(id ORDER BY id) AS ids,
+    sum(coalesce(cantidad, 0)) AS total_cantidad,
+    bool_or(estado = 'activo') AS any_activo
+  FROM inventario
+  GROUP BY lower(trim(nombre)), lower(trim(tipo_pista))
+  HAVING count(*) > 1
+),
+upd AS (
+  UPDATE inventario i
+  SET
+    cantidad = d.total_cantidad,
+    estado = CASE WHEN d.any_activo THEN 'activo' ELSE coalesce(i.estado, 'activo') END
+  FROM dups d
+  WHERE i.id = d.keep_id
+  RETURNING i.id
+)
+DELETE FROM inventario i
+USING dups d
+WHERE i.id <> d.keep_id
+  AND i.id = ANY(d.ids);
+
+-- Garantiza unicidad por (tipo_pista, nombre) normalizados (case-insensitive + trim)
+DROP INDEX IF EXISTS inventario_nombre_unique;
+CREATE UNIQUE INDEX IF NOT EXISTS inventario_tipo_nombre_unique
+ON inventario (lower(trim(tipo_pista)), lower(trim(nombre)));
 
 INSERT INTO inventario (nombre, cantidad) VALUES
   ('Pelotas de Pádel', 24),
@@ -270,6 +381,100 @@ INSERT INTO inventario (nombre, cantidad) VALUES
   ('Chalecos',         15),
   ('Pelotas de Fútbol', 8)
 ON CONFLICT DO NOTHING;
+
+-- ─────────────────────────────────────────────
+-- 6.1. MATERIAL SOLICITADO EN RESERVAS
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS reserva_material (
+  id            BIGSERIAL PRIMARY KEY,
+  reserva_id    BIGINT NOT NULL REFERENCES reservas(id) ON DELETE CASCADE,
+  inventario_id INT    NOT NULL REFERENCES inventario(id) ON DELETE RESTRICT,
+  cantidad      INT    NOT NULL DEFAULT 1 CHECK (cantidad > 0),
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS reserva_material_unique
+ON reserva_material(reserva_id, inventario_id);
+
+CREATE INDEX IF NOT EXISTS idx_reserva_material_reserva_id ON reserva_material(reserva_id);
+CREATE INDEX IF NOT EXISTS idx_reserva_material_inventario_id ON reserva_material(inventario_id);
+
+-- Bajar stock de inventario al crear material de una reserva (reserva activa).
+-- Si no hay stock suficiente, lanza error y NO modifica nada.
+CREATE OR REPLACE FUNCTION public.reserve_inventory_for_reserva(reserva_id_in BIGINT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  rec RECORD;
+BEGIN
+  FOR rec IN
+    SELECT inventario_id, SUM(cantidad)::INT AS qty
+    FROM reserva_material
+    WHERE reserva_id = reserva_id_in
+    GROUP BY inventario_id
+  LOOP
+    -- Lock row + validar stock
+    PERFORM 1
+    FROM inventario i
+    WHERE i.id = rec.inventario_id
+    FOR UPDATE;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM inventario i
+      WHERE i.id = rec.inventario_id
+        AND COALESCE(i.cantidad, 0) >= rec.qty
+    ) THEN
+      RAISE EXCEPTION 'insufficient_stock';
+    END IF;
+
+    UPDATE inventario
+    SET cantidad = GREATEST(0, COALESCE(cantidad, 0) - rec.qty)
+    WHERE id = rec.inventario_id;
+  END LOOP;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.reserve_inventory_for_reserva(BIGINT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.reserve_inventory_for_reserva(BIGINT) TO authenticated;
+
+-- Restaurar stock si se elimina una reserva (cancelación)
+CREATE OR REPLACE FUNCTION public.restore_inventory_for_reserva(reserva_id_in BIGINT)
+RETURNS VOID
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  UPDATE inventario i
+  SET cantidad = COALESCE(i.cantidad, 0) + rm.qty
+  FROM (
+    SELECT inventario_id, SUM(cantidad)::INT AS qty
+    FROM reserva_material
+    WHERE reserva_id = reserva_id_in
+    GROUP BY inventario_id
+  ) rm
+  WHERE i.id = rm.inventario_id;
+$$;
+
+REVOKE ALL ON FUNCTION public.restore_inventory_for_reserva(BIGINT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.restore_inventory_for_reserva(BIGINT) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.trg_restore_inventory_on_reserva_delete()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  PERFORM public.restore_inventory_for_reserva(OLD.id);
+  RETURN OLD;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS reservas_restore_inventory_before_delete ON reservas;
+CREATE TRIGGER reservas_restore_inventory_before_delete
+BEFORE DELETE ON reservas
+FOR EACH ROW
+EXECUTE FUNCTION public.trg_restore_inventory_on_reserva_delete();
 
 
 -- ─────────────────────────────────────────────
@@ -291,6 +496,7 @@ ALTER TABLE profiles     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reservas     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inventario   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reserva_material ENABLE ROW LEVEL SECURITY;
 ALTER TABLE instalaciones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE avisos       ENABLE ROW LEVEL SECURITY;
 
@@ -361,6 +567,24 @@ CREATE POLICY "all_see_inventario" ON inventario
 
 CREATE POLICY "staff_manage_inventario" ON inventario
   FOR ALL USING (public.user_role() IN ('admin', 'conserje'));
+
+-- RESERVA_MATERIAL
+DROP POLICY IF EXISTS "own_reserva_material"         ON reserva_material;
+DROP POLICY IF EXISTS "staff_view_reserva_material"  ON reserva_material;
+
+-- El usuario puede gestionar material solo de sus reservas
+CREATE POLICY "own_reserva_material" ON reserva_material
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM reservas r
+      WHERE r.id = reserva_material.reserva_id
+        AND r.user_id = auth.uid()
+    )
+  );
+
+-- Staff puede ver material de cualquier reserva
+CREATE POLICY "staff_view_reserva_material" ON reserva_material
+  FOR SELECT USING (public.user_role() IN ('admin', 'conserje'));
 
 
 -- AVISOS

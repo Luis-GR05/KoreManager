@@ -40,6 +40,41 @@ function getStatus(fecha, hora) {
   return getReservaStatus(fecha, hora, 60);
 }
 
+function reservaStartMs(r) {
+  const d = new Date(`${r.fecha}T${String(r.hora).slice(0, 8)}`);
+  return d.getTime();
+}
+
+function compareReservasByCercania(a, b) {
+  const now = Date.now();
+
+  const sa = getStatus(a.fecha, a.hora);
+  const sb = getStatus(b.fecha, b.hora);
+
+  const group = (s) => {
+    if (s === 'in_progress') return 0; // lo más cercano/urgente
+    if (s === 'upcoming') return 1;
+    if (s === 'completed') return 2;
+    return 3;
+  };
+
+  const ga = group(sa);
+  const gb = group(sb);
+  if (ga !== gb) return ga - gb;
+
+  const ta = reservaStartMs(a);
+  const tb = reservaStartMs(b);
+
+  // En próximas/en curso: más cercano primero (asc)
+  if (ga === 0 || ga === 1) return ta - tb;
+
+  // En completadas: más reciente primero (desc) => más "cercana" al presente
+  if (ga === 2) return tb - ta;
+
+  // fallback: ordenar por cercanía absoluta a ahora
+  return Math.abs(ta - now) - Math.abs(tb - now);
+}
+
 function StatusBadge({ status }) {
   if (status === 'upcoming') {
     return (
@@ -81,8 +116,8 @@ export default function BookingHistory() {
         .from('reservas')
         .select(`id, fecha, hora, instalaciones ( nombre, tipo )`)
         .eq('user_id', user.id)
-        .order('fecha', { ascending: false })
-        .order('hora',  { ascending: false });
+        .order('fecha', { ascending: true })
+        .order('hora',  { ascending: true });
 
       if (error) {
         toast.error('No se pudieron cargar las reservas.');
@@ -117,12 +152,15 @@ export default function BookingHistory() {
   };
 
   // ── Filtrado ─────────────────────────────────────────────────────────────
-  const reservasFiltradas = reservas.filter(r => {
+  const reservasFiltradas = reservas
+    .filter(r => {
     const status = getStatus(r.fecha, r.hora);
     if (filtro === 'proximas') return status === 'upcoming' || status === 'in_progress';
     if (filtro === 'pasadas')  return status === 'completed';
     return true;
-  });
+    })
+    .slice()
+    .sort(compareReservasByCercania);
 
   const proximas = reservas.filter(r => {
     const s = getStatus(r.fecha, r.hora);

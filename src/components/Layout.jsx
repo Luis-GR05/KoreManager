@@ -1,7 +1,9 @@
 // src/components/Layout.jsx
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../supabaseClient';
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -23,6 +25,61 @@ export default function Layout({ children }) {
     profile?.full_name?.trim() ||
     profile?.email?.split('@')?.[0] ||
     'Usuario';
+
+  const avatarUrl = profile?.avatar_url || null;
+  const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
+
+  const resolveAvatarUrl = useCallback(async () => {
+    if (!avatarUrl) {
+      return null;
+    }
+    if (String(avatarUrl).startsWith('http')) {
+      return avatarUrl;
+    }
+
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .createSignedUrl(String(avatarUrl), 60 * 60);
+
+    if (error) {
+      console.warn('[Avatar] signed url error:', error.message);
+      return null;
+    }
+
+    return data?.signedUrl ?? null;
+  }, [avatarUrl]);
+
+  useEffect(() => {
+    let alive = true;
+
+    const safeRefresh = async () => {
+      const nextUrl = await resolveAvatarUrl();
+      if (!alive) return;
+      setAvatarDisplayUrl(nextUrl);
+    };
+
+    void safeRefresh();
+
+    const intervalId = window.setInterval(() => {
+      void safeRefresh();
+    }, 45 * 60 * 1000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void safeRefresh();
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      alive = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [resolveAvatarUrl]);
 
   return (
     <div className="flex min-h-screen bg-[#0F0F1A] text-white">
@@ -54,8 +111,12 @@ export default function Layout({ children }) {
         <div className="px-6 py-5 border-b border-white/5">
           <div className="flex items-center gap-3">
             {/* Slot de avatar (pon aquí tu imagen más adelante) */}
-            <div className="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-500">
-              <ImageIcon size={18} />
+            <div className="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+              {avatarDisplayUrl ? (
+                <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-gray-500"><ImageIcon size={18} /></div>
+              )}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-bold text-white truncate">{displayName}</p>

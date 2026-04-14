@@ -1,7 +1,9 @@
 // src/pages/Landing.jsx
+import { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Calendar, Users, Shield, Star, Clock, ChevronDown } from 'lucide-react';
 import { GiPingPongBat, GiSoccerBall, GiTennisRacket } from 'react-icons/gi';
+import gsap from 'gsap';
 
 // ─── Datos ─────────────────────────────────────────────────────────────────
 const SPORTS = [
@@ -111,6 +113,80 @@ function GlowOrb({ className }) {
 
 // ─── Página principal ───────────────────────────────────────────────────────
 export default function Landing() {
+  const heroRef = useRef(null);
+  const statsRef = useRef(null);
+  const sportsRef = useRef(null);
+  const featuresRef = useRef(null);
+  const aboutRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const heroItems = heroRef.current?.querySelectorAll('[data-hero]') ?? [];
+      const statItems = statsRef.current?.querySelectorAll('[data-stat]') ?? [];
+      const sportCards = sportsRef.current?.querySelectorAll('[data-sport]') ?? [];
+      const featureCards = featuresRef.current?.querySelectorAll('[data-feature]') ?? [];
+      const aboutItems = aboutRef.current?.querySelectorAll('[data-about]') ?? [];
+
+      gsap.set([...heroItems, ...statItems, ...sportCards, ...featureCards, ...aboutItems], {
+        opacity: 0,
+        y: 32,
+      });
+
+      gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .fromTo(
+          heroRef.current,
+          { opacity: 0, scale: 0.985 },
+          { opacity: 1, scale: 1, duration: 0.8 }
+        )
+        .to(
+          heroItems,
+          { y: 0, opacity: 1, duration: 0.95, stagger: 0.12, clearProps: 'transform,opacity' },
+          '-=0.45'
+        );
+
+      const revealGroups = [
+        { nodes: statItems, y: 22 },
+        { nodes: sportCards, y: 34 },
+        { nodes: featureCards, y: 34 },
+        { nodes: aboutItems, y: 28 },
+      ];
+
+      const observers = revealGroups
+        .filter(({ nodes }) => nodes.length > 0)
+        .map(({ nodes, y }) => {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                gsap.to(nodes, {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.85,
+                  ease: 'power3.out',
+                  stagger: 0.1,
+                  clearProps: 'transform,opacity',
+                });
+                observer.disconnect();
+              });
+            },
+            { threshold: 0.18, rootMargin: '0px 0px -10% 0px' }
+          );
+
+          const target = nodes[0]?.closest('section');
+          if (target) {
+            gsap.set(nodes, { y });
+            observer.observe(target);
+          }
+          return observer;
+        });
+
+      return () => {
+        observers.forEach((observer) => observer.disconnect());
+      };
+    });
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0F0F1A] text-white overflow-x-hidden selection:bg-brand-lime selection:text-black font-sans">
 
@@ -151,7 +227,7 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <header className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
+      <header ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
 
         {/* Orbes de fondo */}
         <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -169,26 +245,26 @@ export default function Landing() {
         <div className="relative z-10 max-w-5xl mx-auto space-y-8">
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-lime/5 border border-brand-lime/20 text-brand-lime text-xs font-bold uppercase tracking-wider">
+          <div data-hero className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-lime/5 border border-brand-lime/20 text-brand-lime text-xs font-bold uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-brand-lime animate-pulse" />
             Sistema v1.0 — Ya disponible
           </div>
 
           {/* Título principal */}
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tight leading-[1.05]">
+          <h1 data-hero className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tight leading-[1.05]">
             El deporte<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime via-emerald-400 to-brand-lime drop-shadow-lg bg-[length:200%] animate-[shimmer_3s_linear_infinite]">
               ahora es digital.
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+          <p data-hero className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Olvídate de las llamadas y el papel. Reserva pistas de pádel, fútbol y tenis
             en segundos desde cualquier dispositivo.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          <div data-hero className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               to="/login"
               className="w-full sm:w-auto px-8 py-4 bg-brand-lime text-black rounded-full font-bold text-base
@@ -219,10 +295,10 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           STATS BAR
       ══════════════════════════════════════════ */}
-      <section className="border-y border-white/5 bg-[#13131F]">
+      <section ref={statsRef} className="border-y border-white/5 bg-[#13131F]">
         <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-px">
           {STATS.map((s, i) => (
-            <div key={i} className="flex flex-col items-center gap-1 px-4 py-2">
+            <div key={i} data-stat className="flex flex-col items-center gap-1 px-4 py-2">
               <span className="text-3xl md:text-4xl font-extrabold text-brand-lime tabular-nums">{s.value}</span>
               <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">{s.label}</span>
             </div>
@@ -233,7 +309,7 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           DEPORTES
       ══════════════════════════════════════════ */}
-      <section id="deportes" className="relative px-6 py-32 bg-[#0F0F1A]">
+      <section ref={sportsRef} id="deportes" className="relative px-6 py-32 bg-[#0F0F1A]">
         <GlowOrb className="w-[600px] h-[600px] bg-brand-purple/10 top-1/2 left-0 -translate-y-1/2" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
@@ -252,6 +328,7 @@ export default function Landing() {
             {SPORTS.map((sport) => (
               <div
                 key={sport.name}
+                data-sport
                 className={`group relative p-8 rounded-3xl bg-[#1A1A2E] border border-white/5 ${sport.border} overflow-hidden
                 transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl cursor-default`}
               >
@@ -296,7 +373,7 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           FUNCIONES
       ══════════════════════════════════════════ */}
-      <section id="funciones" className="relative px-6 py-32 bg-gradient-to-b from-[#13131F] to-[#0F0F1A] border-t border-white/5">
+      <section ref={featuresRef} id="funciones" className="relative px-6 py-32 bg-gradient-to-b from-[#13131F] to-[#0F0F1A] border-t border-white/5">
         <GlowOrb className="w-[500px] h-[500px] bg-brand-lime/8 top-1/2 right-0 -translate-y-1/2" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
@@ -314,6 +391,7 @@ export default function Landing() {
               return (
                 <div
                   key={title}
+                  data-feature
                   className={`group relative p-7 rounded-3xl bg-[#1A1A2E] border border-white/5 ${border}
                   overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default`}
                 >
@@ -337,25 +415,25 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           SOBRE NOSOTROS / CTA
       ══════════════════════════════════════════ */}
-      <section id="sobre" className="relative px-6 py-32 border-t border-white/5 bg-[#0F0F1A]">
+      <section ref={aboutRef} id="sobre" className="relative px-6 py-32 border-t border-white/5 bg-[#0F0F1A]">
         <GlowOrb className="w-[800px] h-[800px] bg-brand-purple/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
           <SectionLabel>Sobre el proyecto</SectionLabel>
 
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+          <h2 data-about className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
             Creado para modernizar<br />
             <span className="text-brand-lime">la gestión deportiva local.</span>
           </h2>
 
-          <p className="text-gray-400 text-lg leading-relaxed">
+          <p data-about className="text-gray-400 text-lg leading-relaxed">
             KoreManager nació como un Trabajo de Fin de Grado con un objetivo claro: digitalizar
             la reserva de instalaciones municipales. Adiós a las colas, los papeles y las llamadas.
             Hola a la eficiencia, la transparencia y el deporte sin barreras.
           </p>
 
           {/* Testimonial placeholder */}
-          <div className="mt-4 p-6 rounded-2xl bg-[#1A1A2E] border border-white/8 text-left space-y-3">
+          <div data-about className="mt-4 p-6 rounded-2xl bg-[#1A1A2E] border border-white/8 text-left space-y-3">
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} size={14} className="text-brand-lime fill-brand-lime" />
