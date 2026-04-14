@@ -1,10 +1,19 @@
-// src/components/Layout.jsx
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../supabaseClient';
+import LegalFooter from './LegalFooter';
 
+/**
+ * Layout autenticado:
+ * - sidebar + topbar responsive
+ * - menú filtrado por rol
+ * - avatar desde Storage (signed URL) con autorenovación
+ *
+ * @param {{children: import('react').ReactNode}} props
+ * @returns {import('react').JSX.Element}
+ */
 export default function Layout({ children }) {
   const location = useLocation();
   const { roleName, signOut, profile } = useAuth();
@@ -29,6 +38,13 @@ export default function Layout({ children }) {
   const avatarUrl = profile?.avatar_url || null;
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
 
+  /**
+   * Resuelve `profile.avatar_url` a URL utilizable:
+   * - si ya es http(s), se usa tal cual
+   * - si es un path de Storage privado, genera signed URL
+   *
+   * @returns {Promise<string|null>}
+   */
   const resolveAvatarUrl = useCallback(async () => {
     if (!avatarUrl) {
       return null;
@@ -82,10 +98,10 @@ export default function Layout({ children }) {
   }, [resolveAvatarUrl]);
 
   return (
-    <div className="flex min-h-screen bg-[#0F0F1A] text-white">
+    <div className="min-h-screen bg-[#0F0F1A] text-white">
 
       {/* SIDEBAR — escritorio */}
-      <aside className="w-72 bg-[#121222] border-r border-white/5 flex-col hidden md:flex shrink-0">
+      <aside className="w-72 bg-[#121222] border-r border-white/5 flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto">
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-16 h-16 rounded-3xl bg-[#0F0F1A] border border-white/0 flex items-center justify-center overflow-hidden">
@@ -163,7 +179,7 @@ export default function Layout({ children }) {
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 relative overflow-y-auto">
+      <main className="relative md:pl-72">
         {/* Topbar (sticky) */}
         <div className="sticky top-0 z-40 bg-[#0F0F1A]/75 backdrop-blur-xl border-b border-white/5">
           <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-4">
@@ -197,6 +213,9 @@ export default function Layout({ children }) {
         </div>
 
         <div className="p-6 md:p-8 pb-24 md:pb-8 anim-popin">{children}</div>
+        <div className="pb-24 md:pb-0">
+          <LegalFooter />
+        </div>
       </main>
 
       {/* BOTTOM NAV — móvil */}

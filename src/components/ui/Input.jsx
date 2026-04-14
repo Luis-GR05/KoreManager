@@ -1,8 +1,12 @@
-// src/components/ui/Input.jsx
+/**
+ * Input de UI con icono opcional y mensaje de error.
+ *
+ * @param {{icon?: any, error?: string, className?: string, [key: string]: any}} props
+ * @returns {import('react').JSX.Element}
+ */
 export default function Input({ icon: Icon, error, className = '', ...props }) {
     return (
         <div className="relative group w-full mb-4">
-            {/* Si le pasamos un icono, lo renderiza automáticamente */}
             {Icon && (
                 <Icon
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-lime transition-colors"
@@ -16,7 +20,6 @@ export default function Input({ icon: Icon, error, className = '', ...props }) {
                 {...props}
             />
 
-            {/* Si hay un error, lo pinta debajo en rojo semántico */}
             {error && (
                 <span className="text-xs font-medium text-semantic-danger mt-1 absolute -bottom-5 left-1">
                     {error}

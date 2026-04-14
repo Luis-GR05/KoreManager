@@ -1,4 +1,3 @@
-// src/pages/NewBooking.jsx
 import { useMemo, useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
@@ -6,11 +5,20 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, CheckCircle, AlertCircle, X, ChevronsUpDown, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+/**
+ * Lista de franjas horarias reservables (formato HH:mm).
+ * @type {string[]}
+ */
 const TIME_SLOTS = [
   '09:00', '10:00', '11:00', '12:00', '13:00',
   '16:00', '17:00', '18:00', '19:00', '20:00', '21:00',
 ];
 
+/**
+ * Convierte un Date a string ISO (YYYY-MM-DD) en hora local.
+ * @param {Date} d
+ * @returns {string}
+ */
 function toISODate(d) {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -18,6 +26,12 @@ function toISODate(d) {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Comprueba si dos fechas caen el mismo día (año/mes/día) en hora local.
+ * @param {Date} a
+ * @param {Date} b
+ * @returns {boolean}
+ */
 function isSameDay(a, b) {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -26,13 +40,24 @@ function isSameDay(a, b) {
   );
 }
 
+/**
+ * Devuelve la fecha truncada a inicio de día (00:00:00) en hora local.
+ * @param {Date} d
+ * @returns {Date}
+ */
 function startOfDay(d) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
+/**
+ * Construye una cuadrícula de calendario 6x7 (42 días) empezando en domingo.
+ * Incluye días del mes anterior/siguiente para completar semanas.
+ * @param {Date} monthDate Fecha dentro del mes objetivo.
+ * @returns {Date[]}
+ */
 function buildCalendarGrid(monthDate) {
   const firstOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-  const startWeekday = firstOfMonth.getDay(); // 0..6 (Dom..Sáb)
+  const startWeekday = firstOfMonth.getDay();
   const start = new Date(firstOfMonth);
   start.setDate(firstOfMonth.getDate() - startWeekday);
 
@@ -45,6 +70,11 @@ function buildCalendarGrid(monthDate) {
   return days;
 }
 
+/**
+ * Modal de selección de fecha con calendario mensual.
+ * @param {{value: string, minDate: string, onSelect: (next: string) => void, onClose: () => void}} props
+ * @returns {import('react').JSX.Element}
+ */
 function CalendarModal({ value, minDate, onSelect, onClose }) {
   const selected = value ? new Date(`${value}T00:00:00`) : null;
   const min = minDate ? new Date(`${minDate}T00:00:00`) : null;
@@ -160,7 +190,11 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
   );
 }
 
-// ─── Modal de confirmación custom (reemplaza window.confirm) ─────────────────
+/**
+ * Modal de confirmación de reserva.
+ * @param {{date: string, time: string, instalacion: string, onConfirm: () => void, onCancel: () => void}} props
+ * @returns {import('react').JSX.Element}
+ */
 function ConfirmBookingModal({ date, time, instalacion, onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
@@ -193,6 +227,14 @@ function ConfirmBookingModal({ date, time, instalacion, onConfirm, onCancel }) {
   );
 }
 
+/**
+ * Página de creación de reservas:
+ * - selección de instalación y fecha
+ * - disponibilidad por franja (RPC)
+ * - solicitud opcional de material (inventario por tipo de pista)
+ * - creación de reserva y redirección a pago (Stripe Checkout)
+ * @returns {import('react').JSX.Element}
+ */
 export default function NewBooking() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -206,11 +248,9 @@ export default function NewBooking() {
   const [inventory, setInventory]         = useState([]);
   const [loadingInventory, setLoadingInventory] = useState(true);
   const [materialReq, setMaterialReq]     = useState({}); // { [inventarioId]: qty }
-  // Estado del modal personalizado
-  const [pendingTime, setPendingTime]     = useState(null); // horario pendiente de confirmar
+  const [pendingTime, setPendingTime]     = useState(null);
   const [calendarOpen, setCalendarOpen]   = useState(false);
 
-  // Cargar instalaciones al montar
   useEffect(() => {
     supabase
       .from('instalaciones')
@@ -225,7 +265,6 @@ export default function NewBooking() {
       });
   }, []);
 
-  // Cargar inventario (material disponible) filtrado por tipo de pista
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -237,15 +276,12 @@ export default function NewBooking() {
         setLoadingInventory(false);
         return;
       }
-      // Intento 1: esquema nuevo con tipo_pista
       let res = await supabase
         .from('inventario')
         .select('id, nombre, cantidad, tipo_pista')
         .eq('tipo_pista', tipo)
         .order('nombre', { ascending: true });
 
-      // Fallback: si la BD aún no tiene tipo_pista, no podemos filtrar por tipo.
-      // Devolvemos vacío y mostramos mensaje (evitamos “todos para todos”).
       if (res?.error && String(res.error.message || '').toLowerCase().includes('tipo_pista')) {
         res = { data: [], error: null };
       }
@@ -262,7 +298,6 @@ export default function NewBooking() {
     return () => { alive = false; };
   }, [selectedInstData?.tipo]);
 
-  // Resetear solicitud de material al cambiar pista/fecha (para evitar confusiones)
   useEffect(() => {
     setMaterialReq({});
   }, [selectedInst, date]);
@@ -306,6 +341,11 @@ export default function NewBooking() {
   };
 
   // Valida y abre el modal (antes usaba window.confirm)
+  /**
+   * Valida la reserva (fecha/estado instalación/hora) y abre el modal de confirmación.
+   * @param {string} time HH:mm
+   * @returns {void}
+   */
   const requestBooking = (time) => {
     const hoy = new Date().toISOString().split('T')[0];
     if (date < hoy) {
@@ -326,7 +366,10 @@ export default function NewBooking() {
     setPendingTime(time);
   };
 
-  // Ejecuta la reserva tras confirmación en el modal
+  /**
+   * Crea la reserva, guarda material solicitado, reserva stock (DB) y redirige a pago.
+   * @returns {Promise<void>}
+   */
   const handleBooking = async () => {
     if (!pendingTime) return;
     const time = pendingTime;
@@ -362,13 +405,11 @@ export default function NewBooking() {
         toast.error('Error al reservar: ' + error.message);
       }
     } else {
-      // Recuperar ID insertado y gestionar material + pago (Stripe Checkout)
       const reservaId = inserted?.id;
       if (!reservaId) {
         toast.success('Reserva creada. Ve al historial para pagar.');
         navigate('/historial');
       } else {
-        // Guardar material solicitado (si aplica)
         if (requestedMaterialRows.length > 0) {
           const rows = requestedMaterialRows.map(r => ({
             reserva_id: reservaId,
@@ -385,8 +426,6 @@ export default function NewBooking() {
             return;
           }
 
-          // Bajar stock mientras la reserva esté activa (upcoming/in_progress).
-          // Esto lo hace la BD de forma segura (con locks y validación).
           const { error: stockErr } = await supabase.rpc('reserve_inventory_for_reserva', { reserva_id_in: reservaId });
           if (stockErr) {
             await supabase.from('reservas').delete().eq('id', reservaId);
@@ -440,11 +479,9 @@ export default function NewBooking() {
           <p className="text-gray-400 text-sm mt-1">Selecciona la pista, la fecha y el horario que prefieras.</p>
         </div>
 
-        {/* Selección de pista y fecha */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
           <div>
             <label className="text-gray-400 text-sm font-bold mb-3 block">Selecciona Pista</label>
-            {/* Select estilizado (mobile-friendly) */}
             <div className="relative">
               <ChevronsUpDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
               <select
@@ -484,7 +521,6 @@ export default function NewBooking() {
           </div>
         </div>
 
-        {/* Material */}
         <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
           <h3 className="text-white font-bold mb-1 flex items-center gap-2">
             <Package className="text-brand-purple" size={18} />
@@ -550,7 +586,6 @@ export default function NewBooking() {
           )}
         </div>
 
-        {/* Horarios */}
         <div>
           <h3 className="text-white font-bold mb-4 flex items-center gap-2">
             <Clock className="text-brand-lime" /> Horarios Disponibles

@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
@@ -8,6 +7,13 @@ import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
+/**
+ * Página de login:
+ * - autentica con Supabase (email/password)
+ * - redirige a la ruta original guardada por `ProtectedRoute`
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Login() {
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -17,20 +23,28 @@ export default function Login() {
   const [showPassword,  setShowPassword]  = useState(false);
   const [formData,      setFormData]      = useState({ email: '', password: '' });
 
-  // Ruta destino tras login (guardada por ProtectedRoute, o /dashboard por defecto)
   const from = location.state?.from?.pathname ?? '/dashboard';
 
-  // Si ya hay sesión → redirigir (ej: usuario llega a /login estando ya autenticado)
   useEffect(() => {
     if (!authLoading && user) {
       navigate(from, { replace: true });
     }
   }, [user, authLoading, navigate, from]);
 
+  /**
+   * Actualiza el estado del formulario.
+   * @param {import('react').ChangeEvent<HTMLInputElement>} e
+   * @returns {void}
+   */
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  /**
+   * Envía credenciales a Supabase y deja que el AuthContext gestione la navegación.
+   * @param {import('react').FormEvent} e
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
@@ -44,10 +58,6 @@ export default function Login() {
 
       if (error) throw error;
 
-      // No llamamos a navigate() aquí.
-      // El useEffect de arriba reacciona al cambio de `user` en AuthContext
-      // (disparado por onAuthStateChange → SIGNED_IN) y navega automáticamente.
-      // Esto evita condiciones de carrera y dobles navegaciones.
       toast.success('¡Sesión iniciada!', { duration: 2000 });
 
     } catch (error) {

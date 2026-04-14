@@ -1,6 +1,12 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 
+/**
+ * Página de confirmación de pago.
+ * Lee `session_id` desde query params para debugging/soporte.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function PaymentSuccess() {
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');

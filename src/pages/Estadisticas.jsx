@@ -1,4 +1,3 @@
-// src/pages/Estadisticas.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
@@ -9,7 +8,10 @@ import {
 } from 'lucide-react';
 import { getReservaStatus } from '../lib/reservaStatus';
 
-// ─── Definición de Logros ─────────────────────────────────────────────────────
+/**
+ * Definición de logros (desbloqueados por nº de reservas completadas).
+ * @type {Array<{id: string, titulo: string, desc: string, icon: string, threshold: number, color: string, bg: string, border: string}>}
+ */
 const LOGROS = [
   {
     id: 'primer_partido',
@@ -63,10 +65,14 @@ const LOGROS = [
   },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const HORAS_LABEL = ['09', '10', '11', '12', '13', '16', '17', '18', '19', '20', '21'];
 
+/**
+ * Calcula el nivel del jugador en base al número de reservas completadas.
+ * @param {number} total
+ * @returns {{nombre: string, color: string, bg: string, next: (number|null)}}
+ */
 function getNivel(total) {
   if (total >= 50) return { nombre: 'Leyenda', color: 'text-brand-lime', bg: 'bg-brand-lime/20', next: null };
   if (total >= 25) return { nombre: 'Veterano', color: 'text-yellow-400', bg: 'bg-yellow-400/20', next: 50 };
@@ -76,7 +82,11 @@ function getNivel(total) {
   return                  { nombre: 'Sin nivel', color: 'text-gray-500',   bg: 'bg-white/5',       next: 1  };
 }
 
-// ─── Componentes internos ─────────────────────────────────────────────────────
+/**
+ * Tarjeta KPI simple.
+ * @param {{icon: any, label: string, value: any, color: string, bg: string, isText?: boolean}} props
+ * @returns {import('react').JSX.Element}
+ */
 function StatCard({ icon, label, value, color, bg, isText = false }) {
   const Icon = icon;
   return (
@@ -92,6 +102,11 @@ function StatCard({ icon, label, value, color, bg, isText = false }) {
   );
 }
 
+/**
+ * Gráfico de barras minimalista.
+ * @param {{data: Array<{name: string, value: number}>, label: string}} props
+ * @returns {import('react').JSX.Element}
+ */
 function BarChartSimple({ data, label }) {
   const max = Math.max(...data.map(d => d.value), 1);
   return (
@@ -125,6 +140,11 @@ function BarChartSimple({ data, label }) {
   );
 }
 
+/**
+ * Tarjeta de logro.
+ * @param {{logro: any, unlocked: boolean}} props
+ * @returns {import('react').JSX.Element}
+ */
 function LogroCard({ logro, unlocked }) {
   return (
     <div
@@ -148,7 +168,12 @@ function LogroCard({ logro, unlocked }) {
   );
 }
 
-// ─── Página principal ─────────────────────────────────────────────────────────
+/**
+ * Página de estadísticas del usuario.
+ * Agrega reservas y calcula métricas (nivel, logros, gráficos) en cliente.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Estadisticas() {
   const { user, profile } = useAuth();
 

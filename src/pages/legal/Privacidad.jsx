@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
 
+/**
+ * Página legal: Política de privacidad.
+ * Contenido orientativo (España: RGPD + LOPDGDD); debe adaptarse al caso real.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Privacidad() {
   return (
     <div className="min-h-screen bg-dark-base text-white">
@@ -7,17 +13,14 @@ export default function Privacidad() {
         <header className="space-y-2">
           <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Legal</p>
           <h1 className="text-3xl md:text-4xl font-black">Política de privacidad</h1>
-          <p className="text-sm text-gray-400">
-            Documento orientativo para España (RGPD + LOPDGDD). Sustituye los campos entre corchetes.
-          </p>
         </header>
 
         <section className="space-y-4 bg-[#1A1A2E] border border-white/5 rounded-3xl p-6">
           <h2 className="text-lg font-black">1. Responsable del tratamiento</h2>
           <p className="text-sm text-gray-300">
-            Responsable: <strong>[Nombre / Razón social]</strong><br />
-            NIF/CIF: <strong>[NIF/CIF]</strong><br />
-            Contacto: <strong>[Email]</strong>
+            Responsable: <strong>Luis Gordillo Rodríguez</strong><br />
+            NIF/CIF: <strong>80243879F</strong><br />
+            Contacto: <strong>luisgordillor01@gmail.com</strong>
           </p>
         </section>
 

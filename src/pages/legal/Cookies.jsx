@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
 
+/**
+ * Página legal: Política de cookies.
+ * Contenido orientativo (España: LSSI); debe adaptarse a cookies/trackers reales.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Cookies() {
   return (
     <div className="min-h-screen bg-dark-base text-white">
@@ -7,9 +13,6 @@ export default function Cookies() {
         <header className="space-y-2">
           <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Legal</p>
           <h1 className="text-3xl md:text-4xl font-black">Política de cookies</h1>
-          <p className="text-sm text-gray-400">
-            Documento orientativo para España (LSSI). Ajusta según el uso real de cookies/trackers.
-          </p>
         </header>
 
         <section className="space-y-3 bg-[#1A1A2E] border border-white/5 rounded-3xl p-6">

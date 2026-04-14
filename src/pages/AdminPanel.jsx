@@ -1,4 +1,3 @@
-// src/pages/AdminPanel.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import {
@@ -16,9 +15,13 @@ const TABS = [
   { id: 'estadisticas',  label: 'Estadísticas',   icon: BarChart2 },
 ];
 
-// ─────────────────────────────────────────────
-// TAB 1: Usuarios
-// ─────────────────────────────────────────────
+/**
+ * Tab de gestión de usuarios:
+ * - listado de perfiles
+ * - edición de rol
+ * - métricas básicas
+ * @returns {import('react').JSX.Element}
+ */
 function TabUsuarios() {
   const [usuarios, setUsuarios]     = useState([]);
   const [roles, setRoles]           = useState([]);
@@ -164,9 +167,12 @@ function TabUsuarios() {
   );
 }
 
-// ─────────────────────────────────────────────
-// TAB 2: Instalaciones
-// ─────────────────────────────────────────────
+/**
+ * Tab de gestión de instalaciones:
+ * - listado de instalaciones
+ * - cambio de estado (staff)
+ * @returns {import('react').JSX.Element}
+ */
 function TabInstalaciones() {
   const [instalaciones, setInstalaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -245,9 +251,12 @@ function TabInstalaciones() {
   );
 }
 
-// ─────────────────────────────────────────────
-// TAB 3: Avisos
-// ─────────────────────────────────────────────
+/**
+ * Tab de avisos:
+ * - creación de avisos (admin)
+ * - listado y activación/desactivación
+ * @returns {import('react').JSX.Element}
+ */
 function TabAvisos() {
   const [avisos, setAvisos]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -381,9 +390,13 @@ function TabAvisos() {
   );
 }
 
-// ─────────────────────────────────────────────
-// TAB 4: Reservas (vista global del sistema)
-// ─────────────────────────────────────────────
+/**
+ * Tab de reservas globales:
+ * - listado paginado (evita límites PostgREST)
+ * - búsqueda y filtro por fecha
+ * - cancelación de reservas futuras
+ * @returns {import('react').JSX.Element}
+ */
 function TabReservas() {
   const [reservas, setReservas]         = useState([]);
   const [loading, setLoading]           = useState(true);
@@ -715,9 +728,10 @@ function TabReservas() {
   );
 }
 
-// ─────────────────────────────────────────────
-// TAB 5: Estadísticas Globales del sistema
-// ─────────────────────────────────────────────
+/**
+ * Tab de estadísticas globales del sistema (admin).
+ * @returns {import('react').JSX.Element}
+ */
 function TabEstadisticasAdmin() {
   const [loading, setLoading]   = useState(true);
   const [reservas, setReservas] = useState([]);

@@ -1,41 +1,51 @@
-// src/context/AuthContext.jsx
-// ─────────────────────────────────────────────────────────────
-// Solo exporta componentes React y un hook.
-// Funciones puras → src/lib/authHelpers.js  (regla Vite Fast Refresh)
-// ─────────────────────────────────────────────────────────────
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { fetchProfile, loadProfileCache, clearProfileCache } from '../lib/authHelpers';
 import { AuthContext } from './useAuth';
 
-// ── Timeout helper ────────────────────────────────────────────
+/**
+ * Ejecuta una promesa con timeout y devuelve un fallback si se supera el tiempo.
+ *
+ * @template T
+ * @param {Promise<T>} promise
+ * @param {number} ms
+ * @param {T} fallback
+ * @returns {Promise<T>}
+ */
 function withTimeout(promise, ms, fallback) {
   const timer = new Promise(resolve => setTimeout(() => resolve(fallback), ms));
   return Promise.race([promise, timer]);
 }
 
-// ─────────────────────────────────────────────────────────────
-// Provider
-// ─────────────────────────────────────────────────────────────
+/**
+ * Provider de autenticación:
+ * - hidrata sesión desde Supabase
+ * - gestiona perfil y rol (con caché local)
+ * - expone helpers: signIn/signOut/refreshProfile, etc.
+ *
+ * @param {{children: import('react').ReactNode}} props
+ * @returns {import('react').JSX.Element}
+ */
 export function AuthProvider({ children }) {
   const mountedRef = useRef(false);
   const profileReqIdRef = useRef(0);
   const sessionReqIdRef = useRef(0);
 
-  // Nota: el cache se invalida en `loadProfileCache()` por antigüedad (24h).
   const cached = useMemo(() => loadProfileCache(), []);
 
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
 
-  // Perfil/rol: pueden hidratarse desde caché para evitar parpadeos tras F5.
   const [profile, setProfile] = useState(cached?.profile ?? null);
   const [roleName, setRoleName] = useState(cached?.roleName ?? 'ciudadano');
 
-  // Cargas separadas: auth (sesión) y perfil (rol).
   const [authLoading, setAuthLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
 
+  /**
+   * Limpia el estado local (incluyendo caché) sin llamadas a red.
+   * @returns {void}
+   */
   const clearLocalAuthState = useCallback(() => {
     clearProfileCache();
     setSession(null);
@@ -44,16 +54,21 @@ export function AuthProvider({ children }) {
     setRoleName('ciudadano');
   }, []);
 
+  /**
+   * Carga el perfil/rol asociado a un usuario. Puede pintar primero desde caché y refrescar en background.
+   *
+   * @param {string} userId
+   * @param {{preferCache?: boolean}} [options]
+   * @returns {Promise<void>}
+   */
   const loadProfileForUser = useCallback(async (userId, { preferCache } = { preferCache: true }) => {
     if (!userId) return;
 
-    // Si hay caché válido para este user, lo usamos para pintar rápido (y refrescamos en background).
     if (preferCache) {
       const cacheNow = loadProfileCache();
       if (cacheNow?.profile?.id === userId) {
         setProfile(cacheNow.profile);
         setRoleName(cacheNow.roleName ?? 'ciudadano');
-        // refresco silencioso (sin bloquear) con control de concurrencia
         const reqId = ++profileReqIdRef.current;
         withTimeout(fetchProfile(userId), 10000, null).then(res => {
           if (!res) return;
@@ -66,7 +81,6 @@ export function AuthProvider({ children }) {
       }
     }
 
-    // Carga real de perfil (bloquea solo rutas con roles, no toda la app).
     const reqId = ++profileReqIdRef.current;
     setProfileLoading(true);
     try {
@@ -75,7 +89,6 @@ export function AuthProvider({ children }) {
         10000,
         null
       );
-      // Si hay timeout/fallo silencioso, NO degradamos el estado a "anónimo".
       if (!res) return;
       if (!mountedRef.current) return;
       if (profileReqIdRef.current !== reqId) return;

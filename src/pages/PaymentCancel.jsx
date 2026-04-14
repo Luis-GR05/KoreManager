@@ -1,6 +1,12 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { XCircle } from 'lucide-react';
 
+/**
+ * Página de cancelación de pago.
+ * Lee `reserva_id` desde query params para mostrar feedback contextual.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function PaymentCancel() {
   const [params] = useSearchParams();
   const reservaId = params.get('reserva_id');

@@ -1,6 +1,6 @@
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
 
 /**
  * StrictMode eliminado intencionadamente:
@@ -8,4 +8,4 @@ import App from './App.jsx'
  * dos suscripciones simultáneas a onAuthStateChange y provocaba estados
  * de sesión inconsistentes. Se puede volver a activar si Supabase lo soporta.
  */
-createRoot(document.getElementById('root')).render(<App />)
+createRoot(document.getElementById('root')).render(<App />);

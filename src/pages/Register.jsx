@@ -1,4 +1,3 @@
-// src/pages/Register.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
@@ -8,6 +7,13 @@ import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
+/**
+ * Página de registro:
+ * - valida campos obligatorios (incl. aceptación legal)
+ * - crea usuario en Supabase Auth y guarda metadatos
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Register() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -32,18 +38,27 @@ export default function Register() {
     acceptPrivacy: false,
   });
 
-  // Si ya hay sesión activa → ir al dashboard directamente
   useEffect(() => {
     if (!authLoading && user) {
       navigate('/dashboard', { replace: true });
     }
   }, [user, authLoading, navigate]);
 
+  /**
+   * Actualiza el estado del formulario (inputs + checkboxes).
+   * @param {import('react').ChangeEvent<HTMLInputElement|HTMLSelectElement>} e
+   * @returns {void}
+   */
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
+  /**
+   * Crea el usuario en Supabase Auth y persiste metadatos de perfil.
+   * @param {import('react').FormEvent} e
+   * @returns {Promise<void>}
+   */
   const handleRegister = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -64,7 +79,6 @@ export default function Register() {
     }
 
     setLoading(true);
-    console.log('Intentando registro...');
 
     try {
       const { data, error } = await supabase.auth.signUp({
