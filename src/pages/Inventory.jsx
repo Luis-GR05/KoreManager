@@ -12,10 +12,11 @@ export default function Inventory() {
   const [items, setItems]           = useState([]);
   const [loading, setLoading]       = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loadError, setLoadError]   = useState(null);
 
   // Formulario para nuevo artículo (solo admin)
   const [showForm, setShowForm]     = useState(false);
-  const [newItem, setNewItem]       = useState({ nombre: '', cantidad: 0 });
+  const [newItem, setNewItem]       = useState({ nombre: '', cantidad: 0, tipo_pista: 'padel' });
   const [saving, setSaving]         = useState(false);
 
   useEffect(() => {
@@ -27,7 +28,12 @@ export default function Inventory() {
         .order('id', { ascending: true });
 
       if (!alive) return;
-      if (error) toast.error('Error al cargar inventario.');
+      if (error) {
+        setLoadError(error.message);
+        toast.error('Error al cargar inventario: ' + error.message);
+      } else {
+        setLoadError(null);
+      }
       setItems(data || []);
       setLoading(false);
     })();
@@ -40,7 +46,12 @@ export default function Inventory() {
       .select('*')
       .order('id', { ascending: true });
 
-    if (error) toast.error('Error al cargar inventario.');
+    if (error) {
+      setLoadError(error.message);
+      toast.error('Error al cargar inventario: ' + error.message);
+    } else {
+      setLoadError(null);
+    }
     setItems(data || []);
     setLoading(false);
   };
@@ -64,26 +75,35 @@ export default function Inventory() {
   const addItem = async (e) => {
     e.preventDefault();
     if (!newItem.nombre.trim()) { toast.error('El nombre es obligatorio.'); return; }
+    if (!newItem.tipo_pista) { toast.error('Selecciona un tipo de pista.'); return; }
     setSaving(true);
 
     const { error } = await supabase
       .from('inventario')
-      .insert([{ nombre: newItem.nombre.trim(), cantidad: Number(newItem.cantidad) }]);
+      .insert([{
+        nombre: newItem.nombre.trim(),
+        tipo_pista: String(newItem.tipo_pista).toLowerCase(),
+        cantidad: Number(newItem.cantidad),
+      }]);
 
     if (error) {
       toast.error('Error al añadir artículo: ' + error.message);
     } else {
       toast.success('Artículo añadido al inventario.');
-      setNewItem({ nombre: '', cantidad: 0 });
+      setNewItem({ nombre: '', cantidad: 0, tipo_pista: 'padel' });
       setShowForm(false);
       fetchInventory();
     }
     setSaving(false);
   };
 
-  const filteredItems = items.filter(item =>
-    item.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = items.filter(item => {
+    const term = searchTerm.toLowerCase();
+    if (!term) return true;
+    const nombre = String(item?.nombre || '').toLowerCase();
+    const tipo = String(item?.tipo_pista || '').toLowerCase();
+    return nombre.includes(term) || tipo.includes(term);
+  });
 
   const isLowStock = (qty) => qty > 0 && qty < 5;
 
@@ -97,8 +117,8 @@ export default function Inventory() {
           </h1>
           <p className="text-gray-400 text-sm mt-1">Gestión de stock en tiempo real.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative w-56">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
+          <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
             <input
               type="text"
@@ -111,7 +131,7 @@ export default function Inventory() {
           {isAdmin && (
             <button
               onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all"
             >
               <PlusCircle size={18} /> Añadir
             </button>
@@ -132,15 +152,30 @@ export default function Inventory() {
               className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
             />
           </div>
-          <div>
-            <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Cantidad inicial</label>
-            <input
-              type="number"
-              min="0"
-              value={newItem.cantidad}
-              onChange={e => setNewItem({ ...newItem, cantidad: e.target.value })}
-              className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Tipo de pista</label>
+              <select
+                value={newItem.tipo_pista}
+                onChange={e => setNewItem({ ...newItem, tipo_pista: e.target.value })}
+                className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
+              >
+                <option value="padel">Pádel</option>
+                <option value="tenis">Tenis</option>
+                <option value="futbol">Fútbol</option>
+                <option value="baloncesto">Baloncesto</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Cantidad</label>
+              <input
+                type="number"
+                min="0"
+                value={newItem.cantidad}
+                onChange={e => setNewItem({ ...newItem, cantidad: e.target.value })}
+                className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
+              />
+            </div>
           </div>
           <div className="md:col-span-3 flex gap-3 justify-end">
             <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-gray-400 hover:text-white text-sm">Cancelar</button>
@@ -153,8 +188,19 @@ export default function Inventory() {
 
       {loading ? (
         <div className="text-brand-lime animate-pulse">Cargando inventario...</div>
+      ) : loadError ? (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-300 text-sm">
+          <p className="font-bold mb-1">No se pudo cargar el inventario</p>
+          <p className="text-xs text-red-200/80 break-words">{loadError}</p>
+          <button
+            onClick={fetchInventory}
+            className="mt-3 px-4 py-2 rounded-xl bg-[#0F0F1A] border border-white/10 text-gray-200 font-bold hover:bg-white/5 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="bg-[#1F1F2E] p-6 rounded-3xl border border-white/5 relative">
 
@@ -176,7 +222,9 @@ export default function Inventory() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">{item.nombre}</h3>
-                  <p className="text-xs text-gray-500">{item.estado || 'activo'}</p>
+                  <p className="text-xs text-gray-500">
+                    {(item.tipo_pista || 'general')} • {item.estado || 'activo'}
+                  </p>
                 </div>
               </div>
 
@@ -200,6 +248,11 @@ export default function Inventory() {
               </div>
             </div>
           ))}
+          {filteredItems.length === 0 && (
+            <div className="sm:col-span-2 lg:col-span-3 text-center py-12 text-gray-500">
+              No hay material con ese filtro.
+            </div>
+          )}
         </div>
       )}
     </div>

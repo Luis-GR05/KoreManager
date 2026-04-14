@@ -125,6 +125,15 @@ export default function Dashboard() {
 
   const firstName = profile?.full_name?.trim()?.split(' ')?.[0] || profile?.email?.split('@')?.[0] || 'jugador';
 
+  const instalacionesUnique = (() => {
+    const map = new Map();
+    for (const inst of instalaciones) {
+      const key = String(inst?.nombre ?? inst?.id ?? '');
+      if (!map.has(key)) map.set(key, inst);
+    }
+    return Array.from(map.values());
+  })();
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
 
@@ -259,7 +268,7 @@ export default function Dashboard() {
               <MapPin className="text-brand-lime" /> Estado de Pistas
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {instalaciones.map((item) => (
+              {instalacionesUnique.map((item) => (
                 <div key={item.id} className="bg-[#1A1A2E] p-4 rounded-2xl border border-white/5 flex items-center gap-4 hover:border-white/10 transition-colors">
                   <div className={`w-3 h-10 rounded-full shrink-0 ${
                     item.estado === 'disponible'    ? 'bg-brand-lime' :

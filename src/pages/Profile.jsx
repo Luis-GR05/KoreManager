@@ -1,16 +1,20 @@
 // src/pages/Profile.jsx
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, Save, Trophy, Calendar, MapPin, TrendingUp, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { useProfile } from '../hooks/useProfile';
+import { useProfile } from '../hooks/useprofile';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
+import toast from 'react-hot-toast';
 
 export default function Profile() {
   const { profile, roleName, loading, updating, updateProfile } = useProfile();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
+  const fileRef = useRef(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -45,6 +49,60 @@ export default function Profile() {
       return () => clearTimeout(id);
     }
   }, [profile, user?.user_metadata]);
+
+  const resolveAvatarUrl = useCallback(async () => {
+    const value = profile?.avatar_url;
+    if (!value) {
+      return null;
+    }
+    if (String(value).startsWith('http')) {
+      return value;
+    }
+
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .createSignedUrl(String(value), 60 * 60);
+
+    if (error) {
+      console.warn('[Avatar] signed url error:', error.message);
+      return null;
+    }
+
+    return data?.signedUrl ?? null;
+  }, [profile?.avatar_url]);
+
+  // Resolver avatar si el bucket es privado (signed URL) y renovarlo antes de expirar.
+  useEffect(() => {
+    let alive = true;
+
+    const safeRefresh = async () => {
+      const nextUrl = await resolveAvatarUrl();
+      if (!alive) return;
+      setAvatarDisplayUrl(nextUrl);
+    };
+
+    void safeRefresh();
+
+    const intervalId = window.setInterval(() => {
+      void safeRefresh();
+    }, 45 * 60 * 1000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void safeRefresh();
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      alive = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [resolveAvatarUrl]);
 
   // Cargar estadísticas rápidas del usuario
   useEffect(() => {
@@ -82,6 +140,42 @@ export default function Profile() {
     await updateProfile(formData);
   };
 
+  const handlePickAvatar = () => fileRef.current?.click();
+
+  const handleAvatarSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    setUploadingAvatar(true);
+    try {
+      // Bucket requerido en Supabase Storage: `avatars` (público o con policy de lectura para el propio usuario)
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const path = `${user.id}/avatar.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (upErr) throw upErr;
+
+      const { error: dbErr } = await supabase
+        .from('profiles')
+        // Guardamos el path (bucket privado). La UI lo resuelve con signed URL.
+        .update({ avatar_url: path })
+        .eq('id', user.id);
+
+      if (dbErr) throw dbErr;
+
+      toast.success('Foto de perfil actualizada.');
+      await refreshProfile();
+    } catch (err) {
+      toast.error(err?.message || 'No se pudo subir la imagen.');
+    } finally {
+      setUploadingAvatar(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">Cargando ficha de jugador...</div>;
 
   const statsCards = [
@@ -101,7 +195,11 @@ export default function Profile() {
           {/* Avatar slot */}
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
-              <ImageIcon size={26} />
+              {avatarDisplayUrl ? (
+                <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover rounded-3xl" />
+              ) : (
+                <ImageIcon size={26} />
+              )}
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Mi perfil</p>
@@ -121,8 +219,15 @@ export default function Profile() {
           </div>
 
           <div className="md:ml-auto flex gap-3">
-            <Button type="button" variant="secondary" className="anim-popin">
-              <ImageIcon size={18} /> Subir foto (placeholder)
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarSelected}
+            />
+            <Button type="button" variant="secondary" className="anim-popin" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
+              <ImageIcon size={18} /> Subir foto
             </Button>
           </div>
         </div>
@@ -157,20 +262,23 @@ export default function Profile() {
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10">
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Foto de perfil</p>
-              {/* Placeholder foto */}
-              <div className="w-44 h-44 rounded-3xl bg-white/5 border border-white/10 mx-auto flex items-center justify-center text-gray-400 mb-5 anim-shine">
-                <ImageIcon size={28} />
+              <div className="w-44 h-44 rounded-3xl bg-white/5 border border-white/10 mx-auto overflow-hidden flex items-center justify-center text-gray-400 mb-5 anim-shine">
+                {avatarDisplayUrl ? (
+                  <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon size={28} />
+                )}
               </div>
               <p className="text-sm font-bold text-white mb-1">Sube tu foto</p>
               <p className="text-xs text-gray-500 mb-5">
-                Placeholder: aquí conectaremos la subida de imagen (Supabase Storage) cuando quieras.
+                Se guardará en tu perfil y se verá en el menú lateral.
               </p>
               <div className="flex flex-col gap-3">
-                <Button type="button" variant="primary" className="w-full">
+                <Button type="button" variant="primary" className="w-full" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
                   <ImageIcon size={18} /> Cambiar foto
                 </Button>
-                <Button type="button" variant="secondary" className="w-full">
-                  <ImageIcon size={18} /> Añadir imagen (placeholder)
+                <Button type="button" variant="secondary" className="w-full" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
+                  <ImageIcon size={18} /> Añadir imagen
                 </Button>
               </div>
             </div>
