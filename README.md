@@ -26,6 +26,8 @@
 
 <br />
 
+<br />
+
 ---
 
 ## Sobre el Proyecto
@@ -52,12 +54,38 @@ Toda la documentación técnica y operativa requerida para la evaluación se enc
 
 ## Roadmap y Estado Actual
 
-- [x] **Semana 1:** Configuración de entorno, Tailwind, Diseño UI y Login funcional.
-- [x] **Semana 2:** Base de Datos (Tablas Reales) y Dashboard Dinámico.
-- [x] **Semana 3:** Sistema de Reservas y lógica de disponibilidad.
-- [x] **Semana 4:** Gestión de Inventario y Panel de Admin (RBAC implementado).
-- [x] **Semana 6:** Perfil de usuario, incidencias, refactorización de componentes y RLS.
-- [ ] **Semana 5:** *PENDIENTE* - Gestión de pagos y Panel de Compra (Pasarela).
+Sigue estos pasos para ejecutar el proyecto en tu entorno local:
+
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone [https://github.com/Luis-GR05/kore-manager.git](https://github.com/Luis-GR05/kore-manager.git)
+    ```
+
+2.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configurar Variables de Entorno:**
+    Crea un archivo `.env` en la raíz del proyecto y añade tus credenciales de Supabase:
+    ```env
+    VITE_SUPABASE_URL=tu_url_aqui
+    VITE_SUPABASE_ANON_KEY=tu_clave_anon_aqui
+    ```
+
+4.  **Ejecutar en desarrollo:**
+    ```bash
+    npm run dev
+    ```
+
+## 📅 Roadmap (Planificación)
+
+- [x] **Semana 1 (13/01/26):** Configuración de entorno, Tailwind, Diseño UI y Login funcional.
+- [x] **Semana 2 (20/01/26):** Base de Datos (Tablas Reales) y Dashboard Dinámico.
+- [x] **Semana 3 (27/01/26):** Sistema de Reservas y lógica de disponibilidad.
+- [ ] **Semana 4 (03/02/26):** Gestión de Inventario y Panel de Admin.
+- [ ] **Semana 5 (10/02/26):** Gestión de pagos y Panel de Compra.
+- [ ] **Semana 6 (17/02/26):** Perfil de usuario, incidencias y pulido final.
 
 ---
 

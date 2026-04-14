@@ -1,127 +1,164 @@
 // src/pages/Profile.jsx
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Phone, Save, Trophy, Calendar, MapPin, TrendingUp } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { useProfile } from '../hooks/useProfile';
 import { supabase } from '../supabaseClient';
-import { User, Mail, Phone, Trophy, AlertCircle, Clock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState(null);
+  const { profile, roleName, loading, updating, updateProfile } = useProfile();
+  const { user } = useAuth();
 
+  const [formData, setFormData] = useState({ full_name: '', telefono: '' });
+  const [stats, setStats] = useState({ total: 0, proximas: 0, favorita: '—' });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  // Sincronizar datos del perfil con el formulario
   useEffect(() => {
-    const getProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        // Obtenemos datos combinados (Auth + Tabla pública si existiera lógica extra)
-        // Por ahora usamos la sesión directa que es rapidísima
-        setProfile({
-            email: session.user.email,
-            id: session.user.id,
-            lastLogin: new Date(session.user.last_sign_in_at).toLocaleDateString(),
-            role: 'Deportista' // Esto vendría de la tabla roles en el futuro
-        });
-      }
-      setLoading(false);
+    if (profile) {
+      setFormData({ full_name: profile.full_name || '', telefono: profile.telefono || '' });
+    }
+  }, [profile]);
+
+  // Cargar estadísticas rápidas del usuario
+  useEffect(() => {
+    if (!user) return;
+    const hoy = new Date().toISOString().split('T')[0];
+
+    const fetchStats = async () => {
+      const { data } = await supabase
+        .from('reservas')
+        .select('fecha, instalaciones ( nombre )')
+        .eq('user_id', user.id)
+        .order('fecha', { ascending: false });
+
+      if (!data) { setLoadingStats(false); return; }
+
+      const proximas = data.filter(r => r.fecha >= hoy).length;
+
+      // Instalación más reservada
+      const counts = {};
+      data.forEach(r => {
+        const n = r.instalaciones?.nombre;
+        if (n) counts[n] = (counts[n] || 0) + 1;
+      });
+      const favorita = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+
+      setStats({ total: data.length, proximas, favorita });
+      setLoadingStats(false);
     };
 
-    getProfile();
-  }, []);
+    fetchStats();
+  }, [user]);
 
-  if (loading) {
-    return <div className="text-brand-lime animate-pulse p-8">Cargando ficha técnica...</div>;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await updateProfile(formData.full_name, formData.telefono);
+  };
+
+  if (loading) return <div className="p-8 text-brand-lime animate-pulse">Cargando ficha de jugador...</div>;
+
+  const statsCards = [
+    { label: 'Partidos Totales', value: stats.total,    icon: Trophy,   color: 'text-brand-lime',   bg: 'bg-brand-lime/10' },
+    { label: 'Próximos',         value: stats.proximas, icon: Calendar, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
+    { label: 'Pista Favorita',   value: stats.favorita, icon: MapPin,   color: 'text-blue-400',     bg: 'bg-blue-400/10', isText: true },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
-      <h1 className="text-3xl font-bold text-white mb-8 border-b border-white/10 pb-4">
-        Mi Perfil Deportivo
-      </h1>
+    <div className="max-w-4xl mx-auto animate-in fade-in duration-500 space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-1">Mi Perfil</h1>
+        <p className="text-gray-400 text-sm">Gestiona tus datos personales y consulta tus estadísticas.</p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-fit">
-        
-        {/* COLUMNA IZQUIERDA: Tarjeta de Identidad */}
-        <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 shadow-2xl h-full">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-brand-lime to-emerald-600 p-1 mb-4 shadow-[0_0_20px_rgba(204,255,0,0.3)]">
-              <div className="w-full h-full rounded-full bg-[#151525] flex items-center justify-center overflow-hidden">
-                <User size={64} className="text-gray-400" />
-              </div>
+      {/* Mini Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {statsCards.map(({ label, value, icon: Icon, color, bg, isText }) => (
+          <div key={label} className="bg-[#1A1A2E] rounded-2xl p-4 border border-white/5 flex items-center gap-3">
+            <div className={`p-2.5 rounded-xl ${bg} ${color} shrink-0`}>
+              <Icon size={18} />
             </div>
-            
-            <h2 className="text-xl font-bold text-white mb-1">
-                {profile?.email?.split('@')[0]}
-            </h2>
-            <span className="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold uppercase tracking-wider mb-6">
-              {profile?.role}
-            </span>
+            <div className="min-w-0">
+              <p className={`font-bold ${isText ? 'text-sm truncate' : 'text-2xl'} ${color}`}>
+                {loadingStats ? '—' : value}
+              </p>
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-            <div className="w-full space-y-4 text-left">
-              <div className="flex items-center gap-3 text-gray-400 text-sm p-3 bg-white/5 rounded-xl">
-                <Mail size={18} className="text-brand-lime"/>
-                <span className="truncate">{profile?.email}</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-400 text-sm p-3 bg-white/5 rounded-xl">
-                <Clock size={18} className="text-brand-lime"/>
-                <span>Acceso: {profile?.lastLogin}</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* COLUMNA IZQUIERDA — Avatar */}
+        <div className="md:col-span-1">
+          <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-white/5 text-center relative overflow-hidden">
+            {/* Glow decorativo */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="w-24 h-24 bg-gradient-to-br from-brand-lime to-green-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-black mb-4 shadow-[0_0_20px_rgba(204,255,0,0.3)] relative z-10">
+              {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : profile?.email?.charAt(0).toUpperCase()}
+            </div>
+            <h2 className="text-xl font-bold text-white relative z-10">
+              {profile?.full_name || 'Usuario Sin Nombre'}
+            </h2>
+            <span className="inline-block mt-2 px-3 py-1 bg-brand-lime/20 text-brand-lime text-xs font-bold rounded-full tracking-wider uppercase">
+              {roleName}
+            </span>
+            <div className="mt-4 pt-4 border-t border-white/5">
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                <TrendingUp size={12} />
+                <span>{stats.total} partidos en total</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: Estadísticas y Datos (Placeholder Visual) */}
-        <div className="md:col-span-2 space-y-6">
+        {/* COLUMNA DERECHA — Formulario */}
+        <div className="md:col-span-2">
+          <form onSubmit={handleSubmit} className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 space-y-6">
+            <h3 className="text-lg font-bold text-white">Datos personales</h3>
 
-          {/* Formulario de Datos Personales (Solo lectura por ahora) */}
-          <div className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5">
-            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <span className="w-1 h-5 bg-brand-lime rounded-full"></span>
-              Datos Personales
-            </h3>
-            
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Nombre</label>
-                  <input type="text" disabled value={profile?.email?.split('@')[0]} className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl p-3 text-gray-400 focus:outline-none cursor-not-allowed" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Apellidos</label>
-                  <input type="text" disabled placeholder="No registrado" className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl p-3 text-gray-400 focus:outline-none cursor-not-allowed" />
-                </div>
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">
+                Correo Electrónico
+              </label>
+              <div className="flex items-center gap-3 bg-[#0F0F1A] p-4 rounded-xl border border-white/5 opacity-70">
+                <Mail className="text-gray-400" size={20} />
+                <span className="text-gray-300 text-sm">{profile?.email}</span>
               </div>
-              
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase">Teléfono de Contacto</label>
-                <div className="relative">
-                    <Phone className="absolute left-3 top-3.5 text-gray-600" size={18} />
-                    <input type="text" disabled placeholder="+34 600 000 000" className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl p-3 pl-10 text-gray-400 focus:outline-none cursor-not-allowed" />
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-[#1F1F2E] p-5 rounded-2xl border border-white/5 hover:border-brand-lime/30 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-gray-400 text-sm">Reservas Totales</span>
-                <Trophy size={20} className="text-brand-lime" />
-              </div>
-              <div className="text-3xl font-bold text-white">0</div>
-              <div className="text-xs text-gray-500 mt-1">Nivel Principiante</div>
             </div>
 
-            <div className="bg-[#1F1F2E] p-5 rounded-2xl border border-white/5 hover:border-brand-red/30 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-gray-400 text-sm">Cancelaciones</span>
-                <AlertCircle size={20} className="text-brand-red" />
-              </div>
-              <div className="text-3xl font-bold text-white">0</div>
-              <div className="text-xs text-gray-500 mt-1">¡Buen compromiso!</div>
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">
+                Nombre Completo
+              </label>
+              <Input
+                icon={User}
+                type="text"
+                value={formData.full_name}
+                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                placeholder="Tu nombre real"
+              />
             </div>
-          </div>
 
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Teléfono</label>
+              <Input
+                icon={Phone}
+                type="tel"
+                value={formData.telefono}
+                onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                placeholder="+34 600 000 000"
+              />
+            </div>
+
+            <Button type="submit" variant="primary" isLoading={updating} className="w-full">
+              {!updating && <Save size={20} />}
+              {updating ? 'Guardando...' : 'Guardar Cambios'}
+            </Button>
+          </form>
         </div>
       </div>
     </div>
