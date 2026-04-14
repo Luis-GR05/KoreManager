@@ -1,7 +1,7 @@
 // src/pages/Inventory.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Package, Plus, Minus, Box, Search, PlusCircle, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 

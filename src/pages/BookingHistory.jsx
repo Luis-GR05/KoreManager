@@ -1,7 +1,7 @@
 // src/pages/BookingHistory.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';

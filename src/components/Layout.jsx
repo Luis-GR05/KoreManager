@@ -1,6 +1,6 @@
 // src/components/Layout.jsx
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2 } from 'lucide-react';
 
 export default function Layout({ children }) {

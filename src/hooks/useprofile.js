@@ -1,7 +1,7 @@
 // src/hooks/useProfile.js
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import toast from 'react-hot-toast';
 
 export function useProfile() {

@@ -1,7 +1,7 @@
 // src/pages/Estadisticas.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import {
   BarChart2, Trophy, Calendar, Clock, MapPin,

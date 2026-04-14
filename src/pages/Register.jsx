@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';

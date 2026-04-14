@@ -1,7 +1,7 @@
 // src/pages/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
