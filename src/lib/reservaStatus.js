@@ -1,5 +1,13 @@
+/**
+ * Calcula el estado temporal de una reserva según fecha/hora de inicio y duración.
+ *
+ * @param {string} fecha Fecha en formato `YYYY-MM-DD`.
+ * @param {string} hora Hora en formato `HH:MM` o `HH:MM:SS`.
+ * @param {number} [durationMinutes=60] Duración de la reserva en minutos.
+ * @param {Date} [now=new Date()] Momento de referencia para el cálculo (útil en tests).
+ * @returns {'upcoming'|'in_progress'|'completed'|'unknown'}
+ */
 export function getReservaStatus(fecha, hora, durationMinutes = 60, now = new Date()) {
-  // `fecha`: 'YYYY-MM-DD', `hora`: 'HH:MM:SS' o 'HH:MM'
   const start = new Date(`${fecha}T${String(hora).slice(0, 8)}`);
   if (Number.isNaN(start.getTime())) return 'unknown';
 

@@ -3,10 +3,36 @@ import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import toast from 'react-hot-toast';
 
+/**
+ * Hook de perfil (wrapper sobre AuthContext) con helper de actualización.
+ * @returns {{
+ *  profile: any,
+ *  roleName: string,
+ *  loading: boolean,
+ *  updating: boolean,
+ *  updateProfile: (next: any) => Promise<void>
+ * }}
+ */
 export function useProfile() {
   const { profile, roleName, loading, refreshProfile, user } = useAuth();
   const [updating, setUpdating] = useState(false);
 
+  /**
+   * Actualiza el perfil en tabla `profiles` y sincroniza metadatos en Supabase Auth.
+   * Intenta primero campos extendidos; si el esquema no existe, cae a campos básicos.
+   *
+   * @param {{
+   *  full_name: string,
+   *  telefono: string,
+   *  dni?: string,
+   *  fecha_nacimiento?: string,
+   *  direccion?: string,
+   *  codigo_postal?: string,
+   *  municipio?: string,
+   *  provincia?: string
+   * }} next
+   * @returns {Promise<void>}
+   */
   const updateProfile = async (next) => {
     if (!profile) return;
     setUpdating(true);
