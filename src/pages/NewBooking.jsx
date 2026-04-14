@@ -112,11 +112,17 @@ export default function NewBooking() {
     setLoading(true);
 
     const toastId = toast.loading('Confirmando reserva...');
-    const { error } = await supabase.from('reservas').insert([{
+    // Precio fijo por reserva (1h). Puedes moverlo a BD o settings más adelante.
+    const PRECIO_CENTS = 500; // 5,00€
+
+    const { data: inserted, error } = await supabase.from('reservas').insert([{
       user_id: user.id,
       installation_id: selectedInst,
       fecha: date,
       hora: time,
+      precio_cents: PRECIO_CENTS,
+      currency: 'eur',
+      payment_status: 'pending',
     }]);
 
     toast.dismiss(toastId);
@@ -132,8 +138,23 @@ export default function NewBooking() {
         toast.error('Error al reservar: ' + error.message);
       }
     } else {
-      toast.success('¡Reserva confirmada! 🎉');
-      navigate('/dashboard');
+      // Recuperar ID insertado y lanzar pago (Stripe Checkout)
+      const reservaId = inserted?.[0]?.id;
+      if (!reservaId) {
+        toast.success('Reserva creada. Ve al historial para pagar.');
+        navigate('/historial');
+      } else {
+        toast.loading('Redirigiendo a pago seguro...');
+        const { data: fnData, error: fnErr } = await supabase.functions.invoke('create-checkout-session', {
+          body: { reservaId },
+        });
+        if (fnErr || !fnData?.url) {
+          toast.error('No se pudo iniciar el pago. Puedes reintentarlo desde el historial.');
+          navigate('/historial');
+        } else {
+          window.location.assign(fnData.url);
+        }
+      }
     }
 
     setLoading(false);

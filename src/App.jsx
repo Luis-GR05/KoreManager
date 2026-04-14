@@ -12,6 +12,8 @@ import AvisoLegal from './pages/legal/AvisoLegal';
 import Privacidad from './pages/legal/Privacidad';
 import Cookies from './pages/legal/Cookies';
 import Terminos from './pages/legal/Terminos';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import NewBooking from './pages/NewBooking';
@@ -53,6 +55,16 @@ export default function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Layout><Dashboard /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/pago/exito" element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          } />
+          <Route path="/pago/cancelado" element={
+            <ProtectedRoute>
+              <PaymentCancel />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={
