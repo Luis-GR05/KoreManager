@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2, Image as ImageIcon, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getReservaStatus } from '../lib/reservaStatus';
 
@@ -138,7 +138,7 @@ export default function BookingHistory() {
     const fetchReservas = async () => {
       const { data, error } = await supabase
         .from('reservas')
-        .select(`id, fecha, hora, instalaciones ( nombre, tipo )`)
+        .select(`id, fecha, hora, payment_status, instalaciones ( nombre, tipo )`)
         .eq('user_id', user.id)
         .order('fecha', { ascending: true })
         .order('hora',  { ascending: true });
@@ -341,15 +341,25 @@ export default function BookingHistory() {
                   </div>
 
                   {/* Acción */}
-                  {isUpcoming && (
-                    <button
-                      onClick={() => setConfirmId(reserva.id)}
-                      disabled={cancelling}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 transition-colors disabled:opacity-40 shrink-0"
-                    >
-                      <Trash2 size={15} /> Cancelar
-                    </button>
-                  )}
+                  <div className="flex gap-2 shrink-0">
+                    {reserva.payment_status === 'pending' && (
+                      <Link
+                        to={`/checkout/${reserva.id}`}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-black bg-brand-lime hover:bg-brand-lime/80 transition-colors"
+                      >
+                       <CreditCard size={15} /> Pagar
+                      </Link>
+                    )}
+                    {isUpcoming && (
+                      <button
+                        onClick={() => setConfirmId(reserva.id)}
+                        disabled={cancelling}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 transition-colors disabled:opacity-40"
+                      >
+                        <Trash2 size={15} /> Cancelar
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
