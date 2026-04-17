@@ -176,29 +176,52 @@ function TabUsuarios() {
 function TabInstalaciones() {
   const [instalaciones, setInstalaciones] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
+  
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [form, setForm] = useState({ id: null, nombre: '', tipo: 'padel', estado: 'disponible' });
+  const [saving, setSaving] = useState(false);
 
   const ESTADOS = ['disponible', 'mantenimiento', 'ocupada'];
+  const TIPOS = ['padel', 'tenis', 'futbol', 'baloncesto', 'general'];
 
-  useEffect(() => {
-    supabase.from('instalaciones').select('*').order('id')
-      .then(({ data }) => { setInstalaciones(data || []); setLoading(false); });
-  }, []);
-
-  const updateEstado = async (id, nuevoEstado) => {
-    const { error } = await supabase
-      .from('instalaciones')
-      .update({ estado: nuevoEstado })
-      .eq('id', id);
-
-    if (error) {
-      toast.error('Error: ' + error.message);
-    } else {
-      toast.success('Estado actualizado.');
-      setInstalaciones(prev => prev.map(i => i.id === id ? { ...i, estado: nuevoEstado } : i));
-      setEditingId(null);
-    }
+  const loadInst = async () => {
+    const { data } = await supabase.from('instalaciones').select('*').order('id');
+    setInstalaciones(data || []);
+    setLoading(false);
   };
+
+  useEffect(() => { loadInst(); }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!form.nombre.trim()) return toast.error('El nombre es obligatorio');
+    setSaving(true);
+
+    if (form.id) {
+       const { error } = await supabase.from('instalaciones').update({ nombre: form.nombre, tipo: form.tipo, estado: form.estado }).eq('id', form.id);
+       if (error) toast.error(error.message);
+       else { toast.success('Pista actualizada'); setIsFormOpen(false); loadInst(); }
+    } else {
+       const { error } = await supabase.from('instalaciones').insert([{ nombre: form.nombre, tipo: form.tipo, estado: form.estado }]);
+       if (error) toast.error(error.message);
+       else { toast.success('Pista creada'); setIsFormOpen(false); loadInst(); }
+    }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+     if(!window.confirm('¿Seguro que deseas eliminar esta pista permanentemente? (Podría fallar si tiene referencias)')) return;
+     const { error } = await supabase.from('instalaciones').delete().eq('id', id);
+     if (error) {
+       toast.error('PostgreSQL avisó: error al borrar. Puede que tenga reservas activas.');
+     } else {
+       toast.success('Instalación eliminada definitivamente.');
+       loadInst();
+     }
+  };
+
+  const openEdit = (inst) => { setForm(inst); setIsFormOpen(true); };
+  const openNew = () => { setForm({ id: null, nombre: '', tipo: 'padel', estado: 'disponible' }); setIsFormOpen(true); };
 
   if (loading) return <p className="text-brand-lime animate-pulse">Cargando instalaciones...</p>;
 
@@ -208,45 +231,86 @@ function TabInstalaciones() {
                             'text-red-400 bg-red-400/10 border-red-400/20';
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {instalaciones.map(inst => (
-        <div key={inst.id} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white text-lg">{inst.nombre}</h3>
-            <span className={`text-xs font-bold px-3 py-1 rounded-full border uppercase ${colorEstado(inst.estado)}`}>
-              {inst.estado}
-            </span>
-          </div>
-          <p className="text-xs text-gray-500 uppercase">Tipo: {inst.tipo || 'general'}</p>
-
-          {editingId === inst.id ? (
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-gray-400 uppercase">Cambiar estado:</p>
-              <div className="flex gap-2 flex-wrap">
-                {ESTADOS.map(e => (
-                  <button
-                    key={e}
-                    onClick={() => updateEstado(inst.id, e)}
-                    className={`px-3 py-2 text-xs font-bold rounded-xl border transition-all ${
-                      inst.estado === e ? colorEstado(e) : 'border-white/10 text-gray-400 hover:border-white/30'
-                    }`}
-                  >
-                    {e}
-                  </button>
-                ))}
-              </div>
-              <button onClick={() => setEditingId(null)} className="text-xs text-gray-500 hover:text-white">Cancelar</button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setEditingId(inst.id)}
-              className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-brand-lime transition-colors"
-            >
-              <Edit3 size={14} /> Cambiar estado
-            </button>
-          )}
+    <div className="space-y-6">
+      
+      {/* Botón arriba a la derecha para crear */}
+      <div className="flex justify-between items-center bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
+        <div>
+          <h2 className="text-lg font-bold text-white">Gestión de Instalaciones</h2>
+          <p className="text-xs text-gray-500">Crea o modifica las pistas del centro deportivo.</p>
         </div>
-      ))}
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-lime text-black font-bold rounded-xl hover:scale-105 transition-all text-sm">
+          <PlusCircle size={16} /> Nueva Pista
+        </button>
+      </div>
+
+      {/* Formulario Modal si isFormOpen está true */}
+      {isFormOpen && (
+        <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-brand-lime/30 space-y-4 mb-6">
+          <h3 className="font-bold text-white mb-2">{form.id ? 'Editar Pista' : 'Crear Pista'}</h3>
+          <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="col-span-2">
+              <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Nombre</label>
+              <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})} className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-2 focus:border-brand-lime outline-none text-sm" placeholder="Ej: Pista 1 Centro" required />
+            </div>
+            
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Tipo</label>
+              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-2 focus:border-brand-lime outline-none text-sm capitalize">
+                {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Estado</label>
+              <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-2 focus:border-brand-lime outline-none text-sm capitalize">
+                {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+
+            <div className="md:col-span-4 flex justify-end gap-3 mt-2">
+              <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 rounded-xl text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5">Cancelar</button>
+              <button type="submit" disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-lime text-black text-sm font-bold disabled:opacity-50 hover:bg-brand-lime/80">
+                <Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Grid de Pistas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {instalaciones.map(inst => (
+          <div key={inst.id} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors group">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h3 className="font-bold text-white text-lg">{inst.nombre}</h3>
+                <p className="text-xs text-gray-500 uppercase mt-0.5">Tipo: {inst.tipo || 'general'}</p>
+              </div>
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase ${colorEstado(inst.estado)} shrink-0`}>
+                {inst.estado}
+              </span>
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => openEdit(inst)}
+                className="flex items-center justify-center flex-1 gap-2 py-2 text-xs font-bold text-gray-400 border border-white/10 rounded-xl hover:text-brand-lime hover:border-brand-lime/30 transition-colors"
+                title="Editar pista"
+              >
+                <Edit3 size={14} /> Editar
+              </button>
+              <button
+                onClick={() => handleDelete(inst.id)}
+                className="flex items-center justify-center flex-none px-3 py-2 text-xs font-bold text-gray-400 border border-white/10 rounded-xl hover:text-red-400 hover:border-red-400/30 transition-colors"
+                title="Borrar pista"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -418,9 +482,8 @@ function TabReservas() {
       .from('reservas')
       .select(
         `
-          id, fecha, hora, created_at,
+          id, fecha, hora, created_at, user_id,
           instalaciones ( nombre, tipo ),
-          profiles ( full_name, email, telefono ),
           reserva_material (
             cantidad,
             inventario ( nombre )
@@ -437,7 +500,13 @@ function TabReservas() {
       return;
     }
 
-    const next = data || [];
+    const { data: perfilesData } = await supabase.from('profiles').select('id, full_name, email, telefono');
+    const mappedData = (data || []).map(r => ({
+      ...r,
+      profiles: perfilesData?.find(p => p.id === r.user_id) || null
+    }));
+
+    const next = mappedData;
     setTotalCount(typeof count === 'number' ? count : null);
     setReservas(prev => (reset ? next : [...prev, ...next]));
 
@@ -742,12 +811,16 @@ function TabEstadisticasAdmin() {
       const [{ data: rData }, { data: uData }] = await Promise.all([
         supabase
           .from('reservas')
-          .select('id, fecha, hora, instalaciones ( nombre, tipo ), profiles ( full_name, email )'),
+          .select('id, fecha, hora, user_id, instalaciones ( nombre, tipo )'),
         supabase
           .from('profiles')
           .select('id, full_name, email'),
       ]);
-      setReservas(rData || []);
+      const reservasMapped = (rData || []).map(r => ({
+        ...r,
+        profiles: (uData || []).find(p => p.id === r.user_id) || null
+      }));
+      setReservas(reservasMapped);
       setUsuarios(uData || []);
       setLoading(false);
     };

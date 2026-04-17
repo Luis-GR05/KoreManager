@@ -101,7 +101,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen bg-[#0F0F1A] text-white">
 
       {/* SIDEBAR — escritorio */}
-      <aside className="w-72 bg-[#121222] border-r border-white/5 flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto">
+      <aside className="w-72 bg-[#121222] border-r border-white/5 flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50">
         <div className="h-20 flex items-center px-6 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-16 h-16 rounded-3xl bg-[#0F0F1A] border border-white/0 flex items-center justify-center overflow-hidden">

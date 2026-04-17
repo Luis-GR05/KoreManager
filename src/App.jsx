@@ -17,6 +17,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import NewBooking from './pages/NewBooking';
 import BookingHistory from './pages/BookingHistory';
+import CheckoutPage from './pages/CheckoutPage';
 import Inventory from './pages/Inventory';
 import AdminPanel from './pages/AdminPanel';
 import Estadisticas from './pages/Estadisticas';
@@ -84,6 +85,11 @@ export default function App() {
           <Route path="/historial" element={
             <ProtectedRoute>
               <Layout><BookingHistory /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/checkout/:id" element={
+            <ProtectedRoute>
+              <Layout><CheckoutPage /></Layout>
             </ProtectedRoute>
           } />
           <Route path="/estadisticas" element={

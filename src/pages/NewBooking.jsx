@@ -435,16 +435,8 @@ export default function NewBooking() {
           }
         }
 
-        toast.loading('Redirigiendo a pago seguro...');
-        const { data: fnData, error: fnErr } = await supabase.functions.invoke('create-checkout-session', {
-          body: { reservaId },
-        });
-        if (fnErr || !fnData?.url) {
-          toast.error('No se pudo iniciar el pago. Puedes reintentarlo desde el historial.');
-          navigate('/historial');
-        } else {
-          window.location.assign(fnData.url);
-        }
+        toast.success('Reserva creada. Redirigiendo a pago...');
+        navigate(`/checkout/${reservaId}`);
       }
     }
 

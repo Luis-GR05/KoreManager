@@ -175,15 +175,16 @@ function LogroCard({ logro, unlocked }) {
  * @returns {import('react').JSX.Element}
  */
 export default function Estadisticas() {
-  const { user, profile } = useAuth();
+  const { user, profile, roleName } = useAuth();
 
   const [loading, setLoading]     = useState(true);
   const [reservas, setReservas]   = useState([]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !roleName) return;
 
-    const cacheKey = `kore_estadisticas_reservas_v1:${user.id}`;
+    const isAdmin = roleName === 'admin';
+    const cacheKey = isAdmin ? 'kore_estadisticas_reservas_admin_v1' : `kore_estadisticas_reservas_v1:${user.id}`;
     const cached = (() => {
       try { return JSON.parse(sessionStorage.getItem(cacheKey) || 'null'); } catch { return null; }
     })();
@@ -196,11 +197,16 @@ export default function Estadisticas() {
 
     let alive = true;
     (async () => {
-      const { data } = await supabase
+      let query = supabase
         .from('reservas')
         .select('id, fecha, hora, instalaciones ( nombre, tipo )')
-        .eq('user_id', user.id)
         .order('fecha', { ascending: false });
+
+      if (!isAdmin) {
+        query = query.eq('user_id', user.id);
+      }
+
+      const { data } = await query;
 
       if (!alive) return;
       const next = data || [];
@@ -275,13 +281,12 @@ export default function Estadisticas() {
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <BarChart2 className="text-brand-lime" size={32} />
-            Mis Estadísticas
+            {roleName === 'admin' ? 'Estadísticas Globales' : 'Mis Estadísticas'}
           </h1>
           <p className="text-gray-400 text-sm mt-1">
-            Historial completo y análisis de tus partidos,{' '}
-            <span className="text-white font-medium">
-              {profile?.full_name?.split(' ')[0] || 'jugador'}
-            </span>.
+            {roleName === 'admin' 
+              ? 'Análisis global de las reservas de todos los ciudadanos del centro.'
+              : `Historial completo y análisis de tus partidos, ${profile?.full_name?.split(' ')[0] || 'jugador'}.`}
           </p>
         </div>
         <Link
@@ -299,7 +304,9 @@ export default function Estadisticas() {
             <Star className="text-brand-lime" size={32} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Tu nivel actual</p>
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">
+              {roleName === 'admin' ? 'Nivel del Centro' : 'Tu nivel actual'}
+            </p>
             <span className={`text-2xl font-black ${nivel.color}`}>{nivel.nombre}</span>
           </div>
         </div>

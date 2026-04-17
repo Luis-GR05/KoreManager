@@ -10,14 +10,24 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
 
+const corsHeaders = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-headers": "stripe-signature, content-type",
+  "access-control-allow-methods": "POST, OPTIONS",
+};
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: {
+      ...corsHeaders,
+      "content-type": "application/json; charset=utf-8",
+    },
   });
 }
 
 serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
@@ -62,10 +72,87 @@ serve(async (req) => {
 
     if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session;
+      const reservaId = Number(session.metadata?.reserva_id);
+
+      if (reservaId) {
+        await supabaseAdmin
+          .from("reservas")
+          .update({
+            payment_status: "cancelled",
+            stripe_checkout_session_id: session.id,
+          })
+          .eq("id", reservaId)
+          .neq("payment_status", "paid");
+      }
+
       await supabaseAdmin
         .from("payments")
-        .update({ status: "cancelled", updated_at: new Date().toISOString() })
+        .update({
+          status: "cancelled",
+          updated_at: new Date().toISOString(),
+        })
         .eq("checkout_session_id", session.id);
+    }
+
+    if (event.type === "checkout.session.async_payment_failed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const reservaId = Number(session.metadata?.reserva_id);
+
+      if (reservaId) {
+        await supabaseAdmin
+          .from("reservas")
+          .update({
+            payment_status: "failed",
+            stripe_checkout_session_id: session.id,
+          })
+          .eq("id", reservaId)
+          .neq("payment_status", "paid");
+      }
+
+      await supabaseAdmin
+        .from("payments")
+        .update({
+          status: "failed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("checkout_session_id", session.id);
+    }
+
+    if (event.type === "payment_intent.payment_failed") {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const reservaId = Number(paymentIntent.metadata?.reserva_id);
+
+      if (reservaId) {
+        await supabaseAdmin
+          .from("reservas")
+          .update({
+            payment_status: "failed",
+            stripe_payment_intent_id: paymentIntent.id,
+          })
+          .eq("id", reservaId)
+          .neq("payment_status", "paid");
+      }
+
+      await supabaseAdmin
+        .from("payments")
+        .update({
+          status: "failed",
+          payment_intent_id: paymentIntent.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("payment_intent_id", paymentIntent.id);
+
+      if (reservaId) {
+        await supabaseAdmin
+          .from("payments")
+          .update({
+            status: "failed",
+            payment_intent_id: paymentIntent.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("reserva_id", reservaId)
+          .in("status", ["created", "pending"]);
+      }
     }
 
     return json({ received: true });

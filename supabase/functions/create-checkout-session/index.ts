@@ -12,20 +12,26 @@ const SITE_URL = Deno.env.get("SITE_URL") ?? "";
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
 
+const corsHeaders = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
+  "access-control-allow-methods": "POST, OPTIONS",
+};
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: {
+      ...corsHeaders,
+      "content-type": "application/json; charset=utf-8",
+    },
   });
 }
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
-      headers: {
-        "access-control-allow-origin": "*",
-        "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
-      },
+      headers: corsHeaders,
     });
   }
 
@@ -63,30 +69,60 @@ serve(async (req) => {
     const amount = Number(reserva.precio_cents ?? 0);
     if (!Number.isFinite(amount) || amount < 0) return json({ error: "Invalid amount" }, 400);
 
+    const existingPayment = await supabaseAdmin
+      .from("payments")
+      .select("checkout_session_id, status")
+      .eq("reserva_id", reserva.id)
+      .in("status", ["created", "pending"])
+      .not("checkout_session_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingPayment.data?.checkout_session_id) {
+      const existingSession = await stripe.checkout.sessions.retrieve(existingPayment.data.checkout_session_id);
+      if (existingSession.status === "open" && existingSession.url) {
+        return json({ url: existingSession.url, sessionId: existingSession.id, reused: true });
+      }
+    }
+
     // Crear Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: user.email ?? undefined,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: (reserva.currency ?? "eur").toLowerCase(),
-            unit_amount: amount,
-            product_data: {
-              name: `Reserva — ${reserva.instalaciones?.nombre ?? "Instalación"}`,
-              metadata: { reserva_id: String(reserva.id) },
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        customer_email: user.email ?? undefined,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: (reserva.currency ?? "eur").toLowerCase(),
+              unit_amount: amount,
+              product_data: {
+                name: `Reserva — ${reserva.instalaciones?.nombre ?? "Instalación"}`,
+                metadata: { reserva_id: String(reserva.id) },
+              },
             },
           },
+        ],
+        success_url: `${origin}/pago/exito?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pago/cancelado?reserva_id=${reserva.id}`,
+        metadata: {
+          reserva_id: String(reserva.id),
+          user_id: user.id,
         },
-      ],
-      success_url: `${origin}/pago/exito?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pago/cancelado?reserva_id=${reserva.id}`,
-      metadata: {
-        reserva_id: String(reserva.id),
-        user_id: user.id,
+        payment_intent_data: {
+          metadata: {
+            reserva_id: String(reserva.id),
+            user_id: user.id,
+          },
+        },
       },
-    });
+      {
+        // Evita duplicados por reintento inmediato de red, pero permite nuevos intentos
+        // cuando una sesión previa ya no está "open".
+        idempotencyKey: `checkout_session_reserva_${reserva.id}_${Date.now()}`,
+      },
+    );
 
     // Registrar payment (idempotente simple por checkout_session_id si se reintenta)
     await supabaseAdmin.from("payments").insert({
