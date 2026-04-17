@@ -1,6 +1,10 @@
 // src/pages/Profile.jsx
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { User, Mail, Phone, Save, Trophy, Calendar, MapPin, TrendingUp, Image as ImageIcon, ShieldCheck } from 'lucide-react';
+import {
+  User, Mail, Phone, Save, Trophy, Calendar, MapPin,
+  TrendingUp, Image as ImageIcon, ShieldCheck, Sparkles,
+  Wand2, Loader2, AlertCircle
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -28,6 +32,12 @@ export default function Profile() {
   });
   const [stats, setStats] = useState({ total: 0, proximas: 0, favorita: '—' });
   const [loadingStats, setLoadingStats] = useState(true);
+
+  // IA Avatar state
+  const [aiPrompt, setAiPrompt] = useState('Style Pixar, detailed, professional athlete photo');
+  const [generatingIA, setGeneratingIA] = useState(false);
+  const [iaStatus, setIaStatus] = useState(''); // 'uploading', 'processing', 'polling'
+  const [iaTaskId, setIaTaskId] = useState(null);
 
   // Sincronizar datos del perfil con el formulario
   useEffect(() => {
@@ -176,12 +186,95 @@ export default function Profile() {
     }
   };
 
+  /**
+   * Dispara el flujo de generación de Avatar con IA en el backend (Spring Boot)
+   */
+  const handleGenerateAIAvatar = async () => {
+    if (!user || !aiPrompt.trim()) return;
+
+    // Necesitamos una foto base. Si no tiene, avisamos.
+    if (!profile?.avatar_url) {
+      toast.error('Primero debes subir una foto real para usarla como base.');
+      return;
+    }
+
+    setGeneratingIA(true);
+    setIaStatus('starting');
+
+    try {
+      // 1. Obtener la imagen actual (blob) para enviarla al backend
+      // O si el backend puede descargarla de Supabase, enviamos la URL.
+      // El flujo propuesto dice: React envía POST FormData a Spring Boot.
+      const avatarUrl = await resolveAvatarUrl();
+      const response = await fetch(avatarUrl);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append('file', blob, 'base_image.png');
+      formData.append('prompt', aiPrompt);
+      formData.append('userId', user.id);
+
+      // 2. POST a Spring Boot
+      const apiResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/avatares/generar`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!apiResponse.ok) throw new Error('Error al conectar con el servicio de IA.');
+
+      const taskId = await apiResponse.text();
+      setIaTaskId(taskId);
+      setIaStatus('processing');
+
+      // 3. Iniciar Polling
+      startPolling(taskId);
+
+    } catch (err) {
+      toast.error(err.message);
+      setGeneratingIA(false);
+    }
+  };
+
+  const startPolling = (taskId) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/avatares/estado/${taskId}`);
+        if (!res.ok) return;
+
+        const data = await res.json(); // { status: 'COMPLETED', outputImageUrl: '...' }
+
+        if (data.status === 'COMPLETED') {
+          clearInterval(interval);
+          setGeneratingIA(false);
+          setIaStatus('');
+
+          // Actualizar el perfil en Supabase con la nueva URL generada
+          const { error } = await supabase
+            .from('profiles')
+            .update({ avatar_url: data.outputImageUrl })
+            .eq('id', user.id);
+
+          if (error) throw error;
+
+          toast.success('¡Tu nuevo avatar IA está listo!');
+          await refreshProfile();
+        } else if (data.status === 'FAILED') {
+          clearInterval(interval);
+          setGeneratingIA(false);
+          toast.error('La generación falló: ' + (data.errorMessage || 'Desconocido'));
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, 4000);
+  };
+
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">Cargando ficha de jugador...</div>;
 
   const statsCards = [
-    { label: 'Partidos Totales', value: stats.total,    icon: Trophy,   color: 'text-brand-lime',   bg: 'bg-brand-lime/10' },
-    { label: 'Próximos',         value: stats.proximas, icon: Calendar, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
-    { label: 'Pista Favorita',   value: stats.favorita, icon: MapPin,   color: 'text-blue-400',     bg: 'bg-blue-400/10', isText: true },
+    { label: 'Partidos Totales', value: stats.total, icon: Trophy, color: 'text-brand-lime', bg: 'bg-brand-lime/10' },
+    { label: 'Próximos', value: stats.proximas, icon: Calendar, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
+    { label: 'Pista Favorita', value: stats.favorita, icon: MapPin, color: 'text-blue-400', bg: 'bg-blue-400/10', isText: true },
   ];
 
   return (
@@ -217,19 +310,6 @@ export default function Profile() {
               </div>
             </div>
           </div>
-
-          <div className="md:ml-auto flex gap-3">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarSelected}
-            />
-            <Button type="button" variant="secondary" className="anim-popin" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
-              <ImageIcon size={18} /> Subir foto
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -254,11 +334,9 @@ export default function Profile() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {/* COLUMNA IZQUIERDA — Foto de perfil (sin duplicar nombre) */}
-        <div className="lg:col-span-1">
+        {/* COLUMNA IZQUIERDA — Foto de perfil */}
+        <div className="lg:col-span-1 space-y-6">
           <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-white/5 text-center relative overflow-hidden">
-            {/* Glow decorativo */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10">
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Foto de perfil</p>
@@ -269,17 +347,72 @@ export default function Profile() {
                   <ImageIcon size={28} />
                 )}
               </div>
-              <p className="text-sm font-bold text-white mb-1">Sube tu foto</p>
+              <p className="text-sm font-bold text-white mb-1">Tu foto</p>
               <p className="text-xs text-gray-500 mb-5">
                 Se guardará en tu perfil y se verá en el menú lateral.
               </p>
-              <div className="flex flex-col gap-3">
-                <Button type="button" variant="primary" className="w-full" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
-                  <ImageIcon size={18} /> Cambiar foto
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarSelected}
+              />
+
+              <Button type="button" variant="primary" className="w-full" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
+                <ImageIcon size={18} /> Cambiar foto
+              </Button>
+            </div>
+          </div>
+
+          {/* Generación con IA */}
+          <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-brand-purple/20 text-center relative overflow-hidden group">
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-purple/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Sparkles size={18} className="text-brand-purple" />
+                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Avatar IA</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="text-left">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1.5 block">
+                    Estilo / Prompt
+                  </label>
+                  <textarea
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="Ej: Estilo Pixar, ultra detallado..."
+                    className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:border-brand-purple outline-none resize-none transition-colors"
+                    rows={2}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full bg-gradient-to-r from-brand-purple/20 to-brand-lime/10 border-brand-purple/30 text-white hover:border-brand-purple/60"
+                  isLoading={generatingIA}
+                  onClick={handleGenerateAIAvatar}
+                >
+                  {generatingIA ? (
+                    <><Loader2 className="animate-spin mr-2" size={16} /> Procesando...</>
+                  ) : (
+                    <><Wand2 size={16} className="mr-2" /> Generar con IA</>
+                  )}
                 </Button>
-                <Button type="button" variant="secondary" className="w-full" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
-                  <ImageIcon size={18} /> Añadir imagen
-                </Button>
+
+                {iaStatus === 'processing' && (
+                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-lime animate-pulse">
+                    <Loader2 size={12} className="animate-spin" />
+                    <span className="text-[10px] font-bold uppercase">La magia está ocurriendo...</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-gray-600 mt-4 leading-relaxed italic">
+                  * Usa tu foto de arriba como referencia. El proceso puede tardar unos 20-30 segundos.
+                </p>
               </div>
             </div>
           </div>
