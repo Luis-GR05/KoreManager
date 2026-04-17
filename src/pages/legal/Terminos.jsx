@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
 
+/**
+ * Página legal: Términos de uso.
+ * Contenido orientativo; debe ajustarse a las condiciones reales del servicio.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Terminos() {
   return (
     <div className="min-h-screen bg-dark-base text-white">

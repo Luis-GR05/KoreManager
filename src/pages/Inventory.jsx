@@ -5,6 +5,13 @@ import { useAuth } from '../context/useAuth';
 import { Package, Plus, Minus, Box, Search, PlusCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+/**
+ * Página de inventario:
+ * - lista items (con fallback si la BD aún no tiene `tipo_pista`)
+ * - alta de material (solo admin)
+ * - ajuste de stock (optimista) con revert si falla
+ * @returns {import('react').JSX.Element}
+ */
 export default function Inventory() {
   const { roleName } = useAuth();
   const isAdmin = roleName === 'admin';
@@ -15,7 +22,6 @@ export default function Inventory() {
   const [loadError, setLoadError]   = useState(null);
   const [hasTipoPista, setHasTipoPista] = useState(true);
 
-  // Formulario para nuevo artículo (solo admin)
   const [showForm, setShowForm]     = useState(false);
   const [newItem, setNewItem]       = useState({ nombre: '', cantidad: 0, tipo_pista: 'padel' });
   const [saving, setSaving]         = useState(false);
@@ -23,13 +29,11 @@ export default function Inventory() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      // Intento 1: esquema nuevo (con tipo_pista)
       let res = await supabase
         .from('inventario')
         .select('id, nombre, cantidad, estado, tipo_pista')
         .order('id', { ascending: true });
 
-      // Fallback: si la BD aún no tiene tipo_pista, reintentar sin esa columna
       if (res?.error && String(res.error.message || '').toLowerCase().includes('tipo_pista')) {
         setHasTipoPista(false);
         res = await supabase
@@ -53,6 +57,10 @@ export default function Inventory() {
     return () => { alive = false; };
   }, []);
 
+  /**
+   * Recarga el inventario desde Supabase (con fallback si falta `tipo_pista`).
+   * @returns {Promise<void>}
+   */
   const fetchInventory = async () => {
     setLoading(true);
     let res = await supabase
@@ -80,7 +88,6 @@ export default function Inventory() {
     setLoading(false);
   };
 
-  // Refrescar al volver a la pestaña (evita “se queda viejo”)
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === 'visible') {
@@ -95,9 +102,15 @@ export default function Inventory() {
     };
   }, []);
 
+  /**
+   * Ajusta el stock del item en BD y en UI (optimista).
+   * @param {number} id
+   * @param {number} currentQty
+   * @param {number} change +1 / -1
+   * @returns {Promise<void>}
+   */
   const updateStock = async (id, currentQty, change) => {
     const newQty = Math.max(0, currentQty + change);
-    // UI optimista
     setItems(prev => prev.map(item => item.id === id ? { ...item, cantidad: newQty } : item));
 
     const { error } = await supabase
@@ -107,10 +120,15 @@ export default function Inventory() {
 
     if (error) {
       toast.error('Error actualizando stock.');
-      fetchInventory(); // Revertir
+      fetchInventory();
     }
   };
 
+  /**
+   * Crea un nuevo item de inventario.
+   * @param {import('react').FormEvent} e
+   * @returns {Promise<void>}
+   */
   const addItem = async (e) => {
     e.preventDefault();
     if (!newItem.nombre.trim()) { toast.error('El nombre es obligatorio.'); return; }
@@ -145,6 +163,11 @@ export default function Inventory() {
     return nombre.includes(term) || tipo.includes(term);
   });
 
+  /**
+   * Determina si un item está en stock bajo (umbral visual).
+   * @param {number} qty
+   * @returns {boolean}
+   */
   const isLowStock = (qty) => qty > 0 && qty < 5;
 
   return (

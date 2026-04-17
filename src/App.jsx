@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
@@ -18,11 +17,19 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import NewBooking from './pages/NewBooking';
 import BookingHistory from './pages/BookingHistory';
+import CheckoutPage from './pages/CheckoutPage';
 import Inventory from './pages/Inventory';
 import AdminPanel from './pages/AdminPanel';
 import Estadisticas from './pages/Estadisticas';
 import Layout from './components/Layout';
 
+/**
+ * Componente raíz de la app:
+ * - configura providers (Auth + Toaster)
+ * - define el routing (público/privado) con `react-router-dom`
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function App() {
   return (
     <AuthProvider>
@@ -42,7 +49,6 @@ export default function App() {
 
       <BrowserRouter>
         <Routes>
-          {/* RUTAS PÚBLICAS */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -51,7 +57,6 @@ export default function App() {
           <Route path="/legal/cookies" element={<Cookies />} />
           <Route path="/legal/terminos" element={<Terminos />} />
 
-          {/* RUTAS PRIVADAS - todos los usuarios autenticados */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Layout><Dashboard /></Layout>
@@ -80,6 +85,11 @@ export default function App() {
           <Route path="/historial" element={
             <ProtectedRoute>
               <Layout><BookingHistory /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/checkout/:id" element={
+            <ProtectedRoute>
+              <Layout><CheckoutPage /></Layout>
             </ProtectedRoute>
           } />
           <Route path="/estadisticas" element={

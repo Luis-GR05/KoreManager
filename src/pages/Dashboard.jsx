@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
@@ -6,7 +5,11 @@ import { Link } from 'react-router-dom';
 import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star, Image as ImageIcon, ArrowUpRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// Determina el nivel del jugador según partidos completados
+/**
+ * Determina el nivel del jugador a partir de partidos completados.
+ * @param {number} total
+ * @returns {{nombre: string, emoji: string, color: string, next: (number|null), threshold: number}}
+ */
 function getNivel(total) {
   if (total >= 50) return { nombre: 'Leyenda',   emoji: '🏆', color: 'text-brand-lime',   next: null,  threshold: 50 };
   if (total >= 25) return { nombre: 'Veterano',   emoji: '⭐', color: 'text-yellow-400',   next: 50,   threshold: 25 };
@@ -16,6 +19,15 @@ function getNivel(total) {
   return                  { nombre: 'Nuevo',      emoji: '👤', color: 'text-gray-500',     next: 1,    threshold: 0  };
 }
 
+/**
+ * Dashboard del usuario:
+ * - estado de instalaciones
+ * - próximas reservas
+ * - avisos
+ * - métricas de actividad
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Dashboard() {
   const { user, profile } = useAuth();
 

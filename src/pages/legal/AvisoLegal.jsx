@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
 
+/**
+ * Página legal: Aviso legal.
+ * Contenido orientativo (España); debe sustituirse con datos reales.
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function AvisoLegal() {
   return (
     <div className="min-h-screen bg-dark-base text-white">
@@ -7,19 +13,16 @@ export default function AvisoLegal() {
         <header className="space-y-2">
           <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Legal</p>
           <h1 className="text-3xl md:text-4xl font-black">Aviso legal</h1>
-          <p className="text-sm text-gray-400">
-            Documento orientativo para España. Sustituye los campos entre corchetes por los datos reales del titular.
-          </p>
         </header>
 
         <section className="space-y-4 bg-[#1A1A2E] border border-white/5 rounded-3xl p-6">
           <h2 className="text-lg font-black">1. Titularidad</h2>
           <p className="text-sm text-gray-300">
-            Titular: <strong>[Nombre / Razón social]</strong><br />
-            NIF/CIF: <strong>[NIF/CIF]</strong><br />
-            Domicilio: <strong>[Dirección completa]</strong><br />
-            Email de contacto: <strong>[Email]</strong><br />
-            Teléfono: <strong>[Teléfono]</strong>
+            Titular: <strong>Luis Gordillo Rodríguez</strong><br />
+            NIF/CIF: <strong>80243879F</strong><br />
+            Domicilio: <strong>Plaza de la libertad, 1, Montijo, Badajoz</strong><br />
+            Email de contacto: <strong>luisgordillor01@gmail.com</strong><br />
+            Teléfono: <strong>644353801</strong>
           </p>
         </section>
 

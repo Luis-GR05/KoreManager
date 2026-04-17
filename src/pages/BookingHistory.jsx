@@ -1,13 +1,16 @@
-// src/pages/BookingHistory.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, PlusCircle, Trash2, Image as ImageIcon, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getReservaStatus } from '../lib/reservaStatus';
 
-// ─── Modal de confirmación (reemplaza el confirm() nativo) ──────────────────
+/**
+ * Modal de confirmación para cancelar una reserva.
+ * @param {{onConfirm: () => void, onCancel: () => void}} props
+ * @returns {import('react').JSX.Element}
+ */
 function ConfirmModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -35,16 +38,32 @@ function ConfirmModal({ onConfirm, onCancel }) {
   );
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+/**
+ * Atajo de estado usando duración fija de 60 min.
+ * @param {string} fecha
+ * @param {string} hora
+ * @returns {'upcoming'|'in_progress'|'completed'|'unknown'}
+ */
 function getStatus(fecha, hora) {
   return getReservaStatus(fecha, hora, 60);
 }
 
+/**
+ * Timestamp (ms) del inicio de una reserva.
+ * @param {{fecha: string, hora: string}} r
+ * @returns {number}
+ */
 function reservaStartMs(r) {
   const d = new Date(`${r.fecha}T${String(r.hora).slice(0, 8)}`);
   return d.getTime();
 }
 
+/**
+ * Ordena reservas por "cercanía": en curso -> próximas (asc) -> completadas (desc).
+ * @param {any} a
+ * @param {any} b
+ * @returns {number}
+ */
 function compareReservasByCercania(a, b) {
   const now = Date.now();
 
@@ -52,7 +71,7 @@ function compareReservasByCercania(a, b) {
   const sb = getStatus(b.fecha, b.hora);
 
   const group = (s) => {
-    if (s === 'in_progress') return 0; // lo más cercano/urgente
+    if (s === 'in_progress') return 0;
     if (s === 'upcoming') return 1;
     if (s === 'completed') return 2;
     return 3;
@@ -65,16 +84,18 @@ function compareReservasByCercania(a, b) {
   const ta = reservaStartMs(a);
   const tb = reservaStartMs(b);
 
-  // En próximas/en curso: más cercano primero (asc)
   if (ga === 0 || ga === 1) return ta - tb;
 
-  // En completadas: más reciente primero (desc) => más "cercana" al presente
   if (ga === 2) return tb - ta;
 
-  // fallback: ordenar por cercanía absoluta a ahora
   return Math.abs(ta - now) - Math.abs(tb - now);
 }
 
+/**
+ * Badge visual para el estado de la reserva.
+ * @param {{status: string}} props
+ * @returns {import('react').JSX.Element}
+ */
 function StatusBadge({ status }) {
   if (status === 'upcoming') {
     return (
@@ -97,7 +118,10 @@ function StatusBadge({ status }) {
   );
 }
 
-// ─── Página ───────────────────────────────────────────────────────────────────
+/**
+ * Página de historial de reservas del usuario con filtros y cancelación.
+ * @returns {import('react').JSX.Element}
+ */
 export default function BookingHistory() {
   const { user } = useAuth();
 
@@ -114,7 +138,7 @@ export default function BookingHistory() {
     const fetchReservas = async () => {
       const { data, error } = await supabase
         .from('reservas')
-        .select(`id, fecha, hora, instalaciones ( nombre, tipo )`)
+        .select(`id, fecha, hora, payment_status, instalaciones ( nombre, tipo )`)
         .eq('user_id', user.id)
         .order('fecha', { ascending: true })
         .order('hora',  { ascending: true });
@@ -317,15 +341,25 @@ export default function BookingHistory() {
                   </div>
 
                   {/* Acción */}
-                  {isUpcoming && (
-                    <button
-                      onClick={() => setConfirmId(reserva.id)}
-                      disabled={cancelling}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 transition-colors disabled:opacity-40 shrink-0"
-                    >
-                      <Trash2 size={15} /> Cancelar
-                    </button>
-                  )}
+                  <div className="flex gap-2 shrink-0">
+                    {reserva.payment_status === 'pending' && (
+                      <Link
+                        to={`/checkout/${reserva.id}`}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-black bg-brand-lime hover:bg-brand-lime/80 transition-colors"
+                      >
+                       <CreditCard size={15} /> Pagar
+                      </Link>
+                    )}
+                    {isUpcoming && (
+                      <button
+                        onClick={() => setConfirmId(reserva.id)}
+                        disabled={cancelling}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 transition-colors disabled:opacity-40"
+                      >
+                        <Trash2 size={15} /> Cancelar
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
