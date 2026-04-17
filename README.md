@@ -7,7 +7,7 @@
 
   <p align="center">
     <img src="https://img.shields.io/badge/STATUS-EN_DESARROLLO-CCFF00?style=for-the-badge&labelColor=151525&logoColor=black" />
-    <img src="https://img.shields.io/badge/VERSION-1.0.0-white?style=for-the-badge&labelColor=151525" />
+    <img src="https://img.shields.io/badge/VERSION-1.3.0-white?style=for-the-badge&labelColor=151525" />
   </p>
 
   <p align="center">
