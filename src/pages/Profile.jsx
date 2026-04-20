@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import { useRef, useState, useEffect, useCallback } from 'react';
 import {
   User, Mail, Phone, Save, Trophy, Calendar, MapPin,
@@ -13,6 +12,14 @@ import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import toast from 'react-hot-toast';
 
+/**
+ * Página de perfil:
+ * - edición de datos personales
+ * - subida de avatar a Storage
+ * - estadísticas rápidas del usuario
+ *
+ * @returns {import('react').JSX.Element}
+ */
 export default function Profile() {
   const { profile, roleName, loading, updating, updateProfile } = useProfile();
   const { user, refreshProfile } = useAuth();
@@ -43,7 +50,6 @@ export default function Profile() {
   useEffect(() => {
     if (profile) {
       const meta = user?.user_metadata || {};
-      // Evitamos setState síncrono directo en el efecto (regla ESLint del proyecto).
       const id = setTimeout(() => {
         setFormData({
           full_name: profile.full_name || meta.full_name || '',
@@ -60,6 +66,13 @@ export default function Profile() {
     }
   }, [profile, user?.user_metadata]);
 
+  /**
+   * Resuelve el avatar a una URL visible:
+   * - si ya es http(s), se usa tal cual
+   * - si es path de bucket privado, genera signed URL
+   *
+   * @returns {Promise<string|null>}
+   */
   const resolveAvatarUrl = useCallback(async () => {
     const value = profile?.avatar_url;
     if (!value) {
@@ -114,11 +127,14 @@ export default function Profile() {
     };
   }, [resolveAvatarUrl]);
 
-  // Cargar estadísticas rápidas del usuario
   useEffect(() => {
     if (!user) return;
     const hoy = new Date().toISOString().split('T')[0];
 
+    /**
+     * Carga resumen de reservas del usuario (total / próximas / favorita).
+     * @returns {Promise<void>}
+     */
     const fetchStats = async () => {
       const { data } = await supabase
         .from('reservas')
@@ -145,13 +161,27 @@ export default function Profile() {
     fetchStats();
   }, [user]);
 
+  /**
+   * Envía el formulario de perfil.
+   * @param {import('react').FormEvent} e
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     await updateProfile(formData);
   };
 
+  /**
+   * Abre el selector de fichero para avatar.
+   * @returns {void}
+   */
   const handlePickAvatar = () => fileRef.current?.click();
 
+  /**
+   * Sube el avatar a Storage y guarda el path en `profiles.avatar_url`.
+   * @param {import('react').ChangeEvent<HTMLInputElement>} e
+   * @returns {Promise<void>}
+   */
   const handleAvatarSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
