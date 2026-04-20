@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
@@ -37,6 +37,7 @@ export default function Dashboard() {
   const [loading, setLoading]             = useState(true);
   const [partidosMes, setPartidosMes]     = useState(0);
   const [totalJugados, setTotalJugados]   = useState(0); // partidos completados (pasados)
+  const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
 
   const META_PARTIDOS = 5;
   useEffect(() => {
@@ -96,6 +97,46 @@ export default function Dashboard() {
 
     fetchData();
   }, [user?.id]);
+
+  const resolveAvatarUrl = useCallback(async () => {
+    const value = profile?.avatar_url;
+    if (!value) return null;
+    if (String(value).startsWith('http')) return value;
+
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .createSignedUrl(String(value), 60 * 60);
+
+    if (error) {
+      console.warn('[Avatar] signed url error:', error.message);
+      return null;
+    }
+    return data?.signedUrl ?? null;
+  }, [profile?.avatar_url]);
+
+  useEffect(() => {
+    let alive = true;
+    const safeRefresh = async () => {
+      const nextUrl = await resolveAvatarUrl();
+      if (!alive) return;
+      setAvatarDisplayUrl(nextUrl);
+    };
+
+    void safeRefresh();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void safeRefresh();
+    };
+
+    window.addEventListener('focus', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      alive = false;
+      window.removeEventListener('focus', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [resolveAvatarUrl]);
 
   const cancelarReserva = async (id) => {
     const { error } = await supabase.from('reservas').delete().eq('id', id);
@@ -157,8 +198,12 @@ export default function Dashboard() {
         <div className="relative z-10 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
             {/* Slot de imagen/escudo */}
-            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
-              <ImageIcon size={22} />
+            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0 overflow-hidden">
+              {avatarDisplayUrl ? (
+                <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon size={22} />
+              )}
             </div>
             <div>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
