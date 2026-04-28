@@ -223,8 +223,7 @@ export default function Register() {
             required
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Input
+          <Input
               icon={MapPin}
               name="postalCode"
               type="text"
@@ -251,7 +250,6 @@ export default function Register() {
               onChange={handleChange}
               required
             />
-          </div>
 
           {/* Input de contraseña */}
           <div className="relative group">

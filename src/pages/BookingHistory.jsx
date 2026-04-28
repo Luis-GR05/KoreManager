@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
@@ -8,16 +9,26 @@ import { getReservaStatus } from '../lib/reservaStatus';
 
 /**
  * Modal de confirmación para cancelar una reserva.
- * @param {{onConfirm: () => void, onCancel: () => void}} props
+ * @param {{reserva: any, relatedCount: number, onConfirm: () => void, onCancel: () => void}} props
  * @returns {import('react').JSX.Element}
  */
-function ConfirmModal({ onConfirm, onCancel }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+function ConfirmModal({ reserva, relatedCount, onConfirm, onCancel }) {
+  const isPaid = reserva?.payment_status === 'paid';
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
         <h3 className="text-xl font-bold text-white mb-2">¿Cancelar reserva?</h3>
         <p className="text-gray-400 text-sm mb-6">
-          Esta acción no se puede deshacer. La franja horaria quedará libre para otros usuarios.
+          {relatedCount > 0 
+            ? `Esta acción cancelará también ${relatedCount} franja(s) vinculada(s). ` 
+            : ''}
+          La franja horaria quedará libre para otros usuarios.
+          {isPaid && (
+            <span className="text-yellow-500 mt-3 block font-bold">
+              Nota: Esta reserva ya está pagada. Contacta con el club para gestionar posibles reembolsos.
+            </span>
+          )}
         </p>
         <div className="flex gap-3">
           <button
@@ -34,7 +45,8 @@ function ConfirmModal({ onConfirm, onCancel }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -136,9 +148,56 @@ export default function BookingHistory() {
     if (!user?.id) return;
 
     const fetchReservas = async () => {
+      // 1. Sincronizar estado de reservas agrupadas (multi-franja)
+      const { data: linked } = await supabase
+        .from('reservas')
+        .select('id, currency')
+        .eq('user_id', user.id)
+        .eq('payment_status', 'pending')
+        .eq('precio_cents', 0)
+        .like('currency', 'linked_%');
+        
+      if (linked && linked.length > 0) {
+        const parentIds = [...new Set(linked.map(r => r.currency.replace('linked_', '')))];
+        const { data: parents } = await supabase
+          .from('reservas')
+          .select('id, payment_status')
+          .in('id', parentIds);
+          
+        if (parents) {
+          const paidParents = parents.filter(p => p.payment_status === 'paid').map(p => String(p.id));
+          const failedParents = parents.filter(p => p.payment_status === 'cancelled' || p.payment_status === 'failed').map(p => String(p.id));
+          
+          for (const l of linked) {
+            const pid = String(l.currency.replace('linked_', ''));
+            if (paidParents.includes(pid)) {
+              await supabase.from('reservas').update({ payment_status: 'paid' }).eq('id', l.id);
+            } else if (failedParents.includes(pid)) {
+              await supabase.from('reservas').update({ payment_status: 'cancelled' }).eq('id', l.id);
+            }
+          }
+        }
+      }
+
+      // 2. Limpieza perezosa (eliminar reservas pendientes expiradas)
+      const tresHorasAtras = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+      const enTresHoras = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+      const quinceMinutosAtras = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      
+      // Eliminamos pendientes creadas hace > 3 horas
+      await supabase.from('reservas')
+        .delete()
+        .eq('payment_status', 'pending')
+        .lt('created_at', tresHorasAtras);
+
+      // Eliminamos pendientes que son para dentro de menos de 3h (urgentes) si llevan > 15 mins sin pagar
+      // Como no podemos hacer esta consulta compleja fácilmente en una sola pasada, cargamos el historial
+      // y lo filtramos en memoria para futuras actualizaciones, o las borramos si las detectamos en la UI.
+
+      // 3. Cargar historial
       const { data, error } = await supabase
         .from('reservas')
-        .select(`id, fecha, hora, payment_status, instalaciones ( nombre, tipo )`)
+        .select(`id, fecha, hora, payment_status, currency, precio_cents, instalaciones ( nombre, tipo )`)
         .eq('user_id', user.id)
         .order('fecha', { ascending: true })
         .order('hora',  { ascending: true });
@@ -159,38 +218,90 @@ export default function BookingHistory() {
     if (!confirmId) return;
     setCancelling(true);
 
+    const reservaToCancel = reservas.find(r => r.id === confirmId);
+    let idsToDelete = [confirmId];
+
+    if (reservaToCancel && !reservaToCancel.currency?.startsWith('linked_')) {
+      const children = reservas.filter(r => r.currency === `linked_${confirmId}`);
+      idsToDelete = [...idsToDelete, ...children.map(c => c.id)];
+    }
+
     const { error } = await supabase
       .from('reservas')
       .delete()
-      .eq('id', confirmId);
+      .in('id', idsToDelete);
 
     if (error) {
       toast.error('Error al cancelar la reserva.');
     } else {
-      toast.success('Reserva cancelada correctamente.');
-      setReservas(prev => prev.filter(r => r.id !== confirmId));
+      toast.success(idsToDelete.length > 1 ? 'Reservas canceladas correctamente.' : 'Reserva cancelada correctamente.');
+      setReservas(prev => prev.filter(r => !idsToDelete.includes(r.id)));
     }
 
     setConfirmId(null);
     setCancelling(false);
   };
 
+  // ── Agrupar Reservas Multi-Franja ─────────────────────────────────────────
+  const groupedReservas = [];
+  const map = new Map();
+
+  for (const r of reservas) {
+    // Limpieza lazy cliente para urgentes (menos de 3h para jugar y >15 min pendientes)
+    if (r.payment_status === 'pending') {
+      const matchStart = new Date(`${r.fecha}T${r.hora}`);
+      const created = new Date(r.created_at || Date.now());
+      const minsSinceCreated = (Date.now() - created.getTime()) / 60000;
+      const hoursToMatch = (matchStart.getTime() - Date.now()) / 3600000;
+      
+      if (hoursToMatch < 3 && minsSinceCreated > 15) {
+        supabase.from('reservas').delete().eq('id', r.id).then(() => {});
+        continue; // Excluimos de la UI
+      }
+    }
+
+    if (r.currency?.startsWith('linked_')) {
+      const parentId = Number(r.currency.split('_')[1]);
+      if (!map.has(parentId)) map.set(parentId, { children: [] });
+      map.get(parentId).children.push(r);
+    } else if (r.currency === 'eur') {
+      if (!map.has(r.id)) map.set(r.id, { children: [] });
+      map.get(r.id).parent = r;
+    } else {
+      groupedReservas.push({ ...r, isGroup: false, franjas: [r.hora] });
+    }
+  }
+
+  for (const group of map.values()) {
+    if (group.parent) {
+      const allSlots = [group.parent, ...group.children].sort((a,b) => a.hora.localeCompare(b.hora));
+      groupedReservas.push({
+        ...group.parent,
+        isGroup: group.children.length > 0,
+        franjas: allSlots.map(s => s.hora)
+      });
+    } else {
+      for (const c of group.children) {
+        groupedReservas.push({ ...c, isGroup: false, franjas: [c.hora] });
+      }
+    }
+  }
+
   // ── Filtrado ─────────────────────────────────────────────────────────────
-  const reservasFiltradas = reservas
+  const reservasFiltradas = groupedReservas
     .filter(r => {
-    const status = getStatus(r.fecha, r.hora);
-    if (filtro === 'proximas') return status === 'upcoming' || status === 'in_progress';
-    if (filtro === 'pasadas')  return status === 'completed';
-    return true;
+      const status = getStatus(r.fecha, r.hora);
+      if (filtro === 'proximas') return status === 'upcoming' || status === 'in_progress';
+      if (filtro === 'pasadas')  return status === 'completed';
+      return true;
     })
-    .slice()
     .sort(compareReservasByCercania);
 
-  const proximas = reservas.filter(r => {
+  const proximas = groupedReservas.filter(r => {
     const s = getStatus(r.fecha, r.hora);
     return s === 'upcoming' || s === 'in_progress';
   }).length;
-  const pasadas  = reservas.filter(r => getStatus(r.fecha, r.hora) === 'completed').length;
+  const pasadas  = groupedReservas.filter(r => getStatus(r.fecha, r.hora) === 'completed').length;
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -198,6 +309,8 @@ export default function BookingHistory() {
       {/* Modal */}
       {confirmId && (
         <ConfirmModal
+          reserva={reservas.find(r => r.id === confirmId)}
+          relatedCount={reservas.filter(r => r.currency === `linked_${confirmId}`).length}
           onConfirm={handleCancel}
           onCancel={() => setConfirmId(null)}
         />
@@ -233,10 +346,10 @@ export default function BookingHistory() {
         </header>
 
         {/* Stats rápidas */}
-        {!loading && reservas.length > 0 && (
+        {!loading && groupedReservas.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { label: 'Total',    value: reservas.length, color: 'text-white',        bg: 'bg-white/5' },
+              { label: 'Total',    value: groupedReservas.length, color: 'text-white',        bg: 'bg-white/5' },
               { label: 'Próximas', value: proximas,        color: 'text-brand-lime',   bg: 'bg-brand-lime/10' },
               { label: 'Pasadas',  value: pasadas,         color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
             ].map(({ label, value, color, bg }) => (
@@ -249,7 +362,7 @@ export default function BookingHistory() {
         )}
 
         {/* Filtros */}
-        {!loading && reservas.length > 0 && (
+        {!loading && groupedReservas.length > 0 && (
           <div className="flex gap-2 bg-[#1A1A2E] p-1 rounded-2xl border border-white/5 w-fit">
             {[
               { id: 'todas',    label: 'Todas' },
@@ -279,7 +392,7 @@ export default function BookingHistory() {
         ) : reservasFiltradas.length === 0 ? (
           <div className="text-center py-16 bg-[#1A1A2E] border border-white/5 rounded-3xl">
             <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
-            {reservas.length === 0 ? (
+            {groupedReservas.length === 0 ? (
               <>
                 <h3 className="text-xl text-white font-bold mb-2">Aún no tienes reservas</h3>
                 <p className="text-gray-400 text-sm mb-6">Reserva una pista y empieza a jugar.</p>
@@ -329,7 +442,7 @@ export default function BookingHistory() {
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Clock size={14} className="text-brand-purple" />
-                        {reserva.hora?.slice(0, 5)}h
+                        {reserva.franjas.map(h => h.slice(0, 5)).join(', ')}h
                       </span>
                       {reserva.instalaciones?.tipo && (
                         <span className="flex items-center gap-1.5">
@@ -342,7 +455,7 @@ export default function BookingHistory() {
 
                   {/* Acción */}
                   <div className="flex gap-2 shrink-0">
-                    {reserva.payment_status === 'pending' && (
+                    {reserva.payment_status === 'pending' && !reserva.currency?.startsWith('linked_') && (
                       <Link
                         to={`/checkout/${reserva.id}`}
                         className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-black bg-brand-lime hover:bg-brand-lime/80 transition-colors"

@@ -14,10 +14,14 @@ import toast from 'react-hot-toast';
  * }}
  */
 export function useProfile() {
-  const { profile, roleName, loading, refreshProfile, user } = useAuth();
+  const { profile, refreshProfile, user } = useAuth();
   const [updating, setUpdating] = useState(false);
 
-  /**
+  const updateProfile = async (formData) => {
+    if (!user) return;
+    setUpdating(true);
+
+    /**
    * Actualiza el perfil en tabla `profiles` y sincroniza metadatos en Supabase Auth.
    * Intenta primero campos extendidos; si el esquema no existe, cae a campos básicos.
    *
@@ -33,57 +37,48 @@ export function useProfile() {
    * }} next
    * @returns {Promise<void>}
    */
-  const updateProfile = async (next) => {
-    if (!profile) return;
-    setUpdating(true);
+    try {
+      const profileUpdates = {
+        id: user.id,
+        full_name: formData.full_name,
+        telefono: formData.telefono,
+        dni: formData.dni || null,
+        fecha_nacimiento: formData.fecha_nacimiento || null,
+        direccion: formData.direccion || null,
+        codigo_postal: formData.codigo_postal || null,
+        municipio: formData.municipio || null,
+        provincia: formData.provincia || null,
+        updated_at: new Date().toISOString(),
+      };
 
-    const baseUpdate = {
-      full_name: next.full_name,
-      telefono: next.telefono,
-    };
+      const [profileRes, authRes] = await Promise.all([
+        supabase.from('profiles').upsert(profileUpdates),
+        supabase.auth.updateUser({
+          data: { 
+            full_name: formData.full_name,
+            telefono: formData.telefono 
+          }
+        })
+      ]);
 
-    const extendedUpdate = {
-      ...baseUpdate,
-      dni: next.dni || null,
-      fecha_nacimiento: next.fecha_nacimiento || null,
-      direccion: next.direccion || null,
-      codigo_postal: next.codigo_postal || null,
-      municipio: next.municipio || null,
-      provincia: next.provincia || null,
-    };
+      if (profileRes.error) throw profileRes.error;
+      if (authRes.error) throw authRes.error;
 
-    let error = null;
-    const attempt1 = await supabase.from('profiles').update(extendedUpdate).eq('id', profile.id);
-    if (attempt1.error) {
-      const attempt2 = await supabase.from('profiles').update(baseUpdate).eq('id', profile.id);
-      error = attempt2.error || attempt1.error;
-    }
-
-    if (user) {
-      await supabase.auth.updateUser({
-        data: {
-          full_name: next.full_name,
-          phone: next.telefono,
-          dni: next.dni,
-          fecha_nacimiento: next.fecha_nacimiento,
-          direccion: next.direccion,
-          codigo_postal: next.codigo_postal,
-          municipio: next.municipio,
-          provincia: next.provincia,
-        },
-      });
-    }
-
-    if (error) {
-      toast.error('Error al guardar: ' + error.message);
-    } else {
-      toast.success('¡Perfil actualizado correctamente!');
+      toast.success('Perfil actualizado correctamente');
       await refreshProfile();
+      
+    } catch (error) {
+      console.error('[useProfile] Error:', error.message);
+      toast.error('Error al actualizar: ' + error.message);
+    } finally {
+      setUpdating(false);
     }
-
-    setUpdating(false);
   };
 
-  return { profile, roleName, loading, updating, updateProfile };
+  return { 
+    profile, 
+    updating, 
+    updateProfile,
+    loading: updating
+  };
 }
-
