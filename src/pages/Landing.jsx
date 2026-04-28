@@ -126,6 +126,7 @@ function SectionLabel({ children }) {
 function GlowOrb({ className }) {
   return (
     <div
+      aria-hidden="true"
       className={`absolute rounded-full pointer-events-none blur-[140px] ${className}`}
     />
   );
@@ -211,7 +212,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0F0F1A] text-white overflow-x-hidden selection:bg-brand-lime selection:text-black font-sans">
+    <main className="min-h-screen bg-[#0F0F1A] text-white overflow-x-hidden selection:bg-brand-lime selection:text-black font-sans">
 
       {/* ══════════════════════════════════════════
           NAVBAR
@@ -221,7 +222,9 @@ export default function Landing() {
           <div className="w-12 h-12 rounded-3xl bg-[#0F0F1A] flex items-center justify-center overflow-hidden">
             <img
               src="/images/logo.png"
-              alt="Kore Manager"
+              alt="Kore Manager Logo"
+              width="48"
+              height="48"
               className="w-full h-full object-contain p-2"
               style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.18)) drop-shadow(0 0 18px rgba(138,43,226,.10)) brightness(1.08)' }}
             />
@@ -245,7 +248,7 @@ export default function Landing() {
           flex items-center gap-2"
           aria-label="Acceso Usuarios"
         >
-          <User size={18} className="md:hidden" />
+          <User size={18} className="md:hidden" aria-hidden="true" />
           <span className="hidden md:inline">Acceso Usuarios</span>
         </Link>
       </nav>
@@ -299,7 +302,7 @@ export default function Landing() {
               transition-all duration-300 flex items-center justify-center gap-2 group"
             >
               Reservar pista ahora
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} aria-hidden="true" />
             </Link>
 
             <a
@@ -313,7 +316,7 @@ export default function Landing() {
 
           {/* Scroll hint */}
           <div className="pt-12 flex flex-col items-center gap-2 text-gray-600 text-xs animate-bounce">
-            <ChevronDown size={18} />
+            <ChevronDown size={18} aria-hidden="true" />
           </div>
         </div>
       </header>
@@ -387,7 +390,7 @@ export default function Landing() {
                     style={{ color: sport.accent }}
                   >
                     Reservar ahora
-                    <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                    <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" aria-hidden="true" />
                   </Link>
                 </div>
               </div>
@@ -462,7 +465,7 @@ export default function Landing() {
           <div data-about className="mt-4 p-6 rounded-2xl bg-[#1A1A2E] border border-white/8 text-left space-y-3">
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={14} className="text-brand-lime fill-brand-lime" />
+                <Star key={i} size={14} className="text-brand-lime fill-brand-lime" aria-hidden="true" />
               ))}
             </div>
             <p className="text-gray-300 text-sm italic leading-relaxed">
@@ -482,7 +485,7 @@ export default function Landing() {
               transition-all duration-300 flex items-center justify-center gap-2 group"
             >
               Empezar gratis
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -490,6 +493,6 @@ export default function Landing() {
 
       <Footer />
 
-    </div>
+    </main>
   );
 }
