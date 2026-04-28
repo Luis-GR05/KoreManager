@@ -273,7 +273,7 @@ export default function Landing() {
           {/* Badge */}
           <div data-hero className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-lime/5 border border-brand-lime/20 text-brand-lime text-xs font-bold uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-brand-lime animate-pulse" />
-            Sistema v1.3 — Ya disponible
+            Sistema v1.4 — Ya disponible
           </div>
 
           {/* Título principal */}
