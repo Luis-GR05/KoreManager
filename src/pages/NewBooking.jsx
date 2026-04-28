@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Calendar, Clock, CheckCircle, AlertCircle, X, ChevronsUpDown, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -86,8 +87,8 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
   const grid = buildCalendarGrid(cursor);
   const today = startOfDay(new Date());
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-6 md:p-7 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -186,18 +187,19 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
 /**
- * Modal de confirmación de reserva.
- * @param {{date: string, time: string, instalacion: string, onConfirm: () => void, onCancel: () => void}} props
+ * Modal de confirmación de reserva multi-franja.
+ * @param {{date: string, slots: string[], instalacion: string, totalCents: number, onConfirm: () => void, onCancel: () => void}} props
  * @returns {import('react').JSX.Element}
  */
-function ConfirmBookingModal({ date, time, instalacion, onConfirm, onCancel }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+function ConfirmBookingModal({ date, slots, instalacion, totalCents, onConfirm, onCancel }) {
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="w-14 h-14 bg-brand-lime/10 rounded-2xl flex items-center justify-center mb-5 mx-auto">
           <Calendar className="text-brand-lime" size={28} />
@@ -205,8 +207,10 @@ function ConfirmBookingModal({ date, time, instalacion, onConfirm, onCancel }) {
         <h3 className="text-xl font-bold text-white text-center mb-1">Confirmar Reserva</h3>
         <p className="text-gray-400 text-sm text-center mb-6">
           Vas a reservar <strong className="text-white">{instalacion}</strong> el{' '}
-          <strong className="text-brand-lime">{date}</strong> a las{' '}
-          <strong className="text-brand-lime">{time}h</strong>.
+          <strong className="text-brand-lime">{date}</strong> en los horarios:{' '}
+          <strong className="text-brand-lime">{slots.join(', ')}</strong>.
+          <br /><br />
+          Total a pagar: <strong className="text-white">{(totalCents / 100).toFixed(2)} €</strong>
         </p>
         <div className="flex gap-3">
           <button
@@ -223,7 +227,8 @@ function ConfirmBookingModal({ date, time, instalacion, onConfirm, onCancel }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -239,17 +244,46 @@ export default function NewBooking() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [loading, setLoading]             = useState(false);
+  const [loading, setLoading] = useState(false);
   const [instalaciones, setInstalaciones] = useState([]);
-  const [selectedInst, setSelectedInst]   = useState(null);
+  const [selectedInst, setSelectedInst] = useState(null);
   const [selectedInstData, setSelectedInstData] = useState(null);
-  const [date, setDate]                   = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [occupiedSlots, setOccupiedSlots] = useState([]);
-  const [inventory, setInventory]         = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [loadingInventory, setLoadingInventory] = useState(true);
-  const [materialReq, setMaterialReq]     = useState({}); // { [inventarioId]: qty }
-  const [pendingTime, setPendingTime]     = useState(null);
-  const [calendarOpen, setCalendarOpen]   = useState(false);
+  const [materialReq, setMaterialReq] = useState({}); // { [inventarioId]: qty }
+  const [selectedSlots, setSelectedSlots] = useState([]);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const [hasPendingBooking, setHasPendingBooking] = useState(false);
+  const [checkingPending, setCheckingPending] = useState(true);
+
+  const [pendingBookingData, setPendingBookingData] = useState(null);
+
+  // Comprobar si hay reservas pendientes (de menos de 3 horas)
+  useEffect(() => {
+    if (!user) return;
+    const checkPending = async () => {
+      const tresHorasAtras = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from('reservas')
+        .select('id, fecha, hora, currency')
+        .eq('user_id', user.id)
+        .eq('payment_status', 'pending')
+        .gte('created_at', tresHorasAtras)
+        .limit(1)
+        .maybeSingle();
+
+      if (!error && data) {
+        setPendingBookingData(data);
+        setHasPendingBooking(true);
+      }
+      setCheckingPending(false);
+    };
+    checkPending();
+  }, [user]);
 
   useEffect(() => {
     supabase
@@ -300,6 +334,7 @@ export default function NewBooking() {
 
   useEffect(() => {
     setMaterialReq({});
+    setSelectedSlots([]);
   }, [selectedInst, date]);
 
   // Comprobar disponibilidad al cambiar pista o fecha
@@ -340,13 +375,8 @@ export default function NewBooking() {
     });
   };
 
-  // Valida y abre el modal (antes usaba window.confirm)
-  /**
-   * Valida la reserva (fecha/estado instalación/hora) y abre el modal de confirmación.
-   * @param {string} time HH:mm
-   * @returns {void}
-   */
-  const requestBooking = (time) => {
+  const toggleSlot = (time) => {
+    if (selectedInstData?.estado === 'mantenimiento') return;
     const hoy = new Date().toISOString().split('T')[0];
     if (date < hoy) {
       toast.error('No puedes reservar en una fecha pasada.');
@@ -355,48 +385,51 @@ export default function NewBooking() {
     if (date === hoy) {
       const slotStart = new Date(`${date}T${time}:00`);
       if (slotStart.getTime() <= Date.now()) {
-        toast.error('Ese horario ya ha pasado. Elige una franja posterior.');
+        toast.error('Ese horario ya ha pasado.');
         return;
       }
     }
-    if (selectedInstData?.estado === 'mantenimiento') {
-      toast.error(`"${selectedInstData.nombre}" está en mantenimiento.`);
-      return;
-    }
-    setPendingTime(time);
+
+    setSelectedSlots(prev =>
+      prev.includes(time) ? prev.filter(t => t !== time) : [...prev, time]
+    );
   };
 
   /**
-   * Crea la reserva, guarda material solicitado, reserva stock (DB) y redirige a pago.
+   * Crea las reservas (1 principal con total, N secundarias con coste 0),
+   * guarda material, reserva stock y redirige.
    * @returns {Promise<void>}
    */
   const handleBooking = async () => {
-    if (!pendingTime) return;
-    const time = pendingTime;
-    setPendingTime(null);
+    if (selectedSlots.length === 0) return;
+    setIsConfirming(false);
     setLoading(true);
 
     const toastId = toast.loading('Confirmando reserva...');
-    // Precio fijo por reserva (1h). Puedes moverlo a BD o settings más adelante.
-    const PRECIO_CENTS = 500; // 5,00€
+    const PRECIO_CENTS = 500; // 5,00€ por franja
+    const totalCents = PRECIO_CENTS * selectedSlots.length;
 
+    // Ordenamos franjas temporalmente
+    const sortedSlots = [...selectedSlots].sort();
+    const firstTime = sortedSlots[0];
+
+    // Insertar primera reserva (con el precio total)
     const { data: inserted, error } = await supabase
       .from('reservas')
       .insert([{
         user_id: user.id,
         installation_id: selectedInst,
         fecha: date,
-        hora: time,
-        precio_cents: PRECIO_CENTS,
+        hora: firstTime,
+        precio_cents: totalCents,
         currency: 'eur',
         payment_status: 'pending',
       }])
       .select('id')
       .single();
 
-    toast.dismiss(toastId);
-
     if (error) {
+      toast.dismiss(toastId);
       if (error.code === '23505') {
         toast.error('Ese horario ya fue reservado. Elige otro.');
         const { data } = await supabase.rpc('get_occupied_slots', { inst_id: selectedInst, date_in: date });
@@ -404,44 +437,95 @@ export default function NewBooking() {
       } else {
         toast.error('Error al reservar: ' + error.message);
       }
-    } else {
-      const reservaId = inserted?.id;
-      if (!reservaId) {
-        toast.success('Reserva creada. Ve al historial para pagar.');
-        navigate('/historial');
-      } else {
-        if (requestedMaterialRows.length > 0) {
-          const rows = requestedMaterialRows.map(r => ({
-            reserva_id: reservaId,
-            inventario_id: r.id,
-            cantidad: r.qty,
-          }));
+      setLoading(false);
+      return;
+    }
 
-          const { error: matErr } = await supabase.from('reserva_material').insert(rows);
-          if (matErr) {
-            // rollback de reserva para evitar reservas sin material guardado (consistencia UI)
-            await supabase.from('reservas').delete().eq('id', reservaId);
-            toast.error('No se pudo guardar el material solicitado: ' + matErr.message);
-            setLoading(false);
-            return;
-          }
+    const reservaId = inserted.id;
 
-          const { error: stockErr } = await supabase.rpc('reserve_inventory_for_reserva', { reserva_id_in: reservaId });
-          if (stockErr) {
-            await supabase.from('reservas').delete().eq('id', reservaId);
-            toast.error('No hay stock suficiente para el material solicitado.');
-            setLoading(false);
-            return;
-          }
-        }
+    // Insertar el resto de franjas asociadas (precio 0, currency especial para enlazarlas)
+    if (sortedSlots.length > 1) {
+      const secondaryRows = sortedSlots.slice(1).map(time => ({
+        user_id: user.id,
+        installation_id: selectedInst,
+        fecha: date,
+        hora: time,
+        precio_cents: 0,
+        currency: `linked_${reservaId}`,
+        payment_status: 'pending',
+      }));
 
-        toast.success('Reserva creada. Redirigiendo a pago...');
-        navigate(`/checkout/${reservaId}`);
+      const { error: secErr } = await supabase.from('reservas').insert(secondaryRows);
+      if (secErr) {
+        toast.dismiss(toastId);
+        toast.error('Atención: No se pudieron registrar algunas horas seleccionadas.');
       }
     }
 
+    toast.dismiss(toastId);
+
+    // Material (se asocia solo al ID principal)
+    if (requestedMaterialRows.length > 0) {
+      const rows = requestedMaterialRows.map(r => ({
+        reserva_id: reservaId,
+        inventario_id: r.id,
+        cantidad: r.qty,
+      }));
+
+      const { error: matErr } = await supabase.from('reserva_material').insert(rows);
+      if (matErr) {
+        toast.error('No se pudo guardar el material solicitado.');
+      } else {
+        const { error: stockErr } = await supabase.rpc('reserve_inventory_for_reserva', { reserva_id_in: reservaId });
+        if (stockErr) {
+          toast.error('No hay stock suficiente para el material solicitado.');
+        }
+      }
+    }
+
+    toast.success('Reserva creada. Redirigiendo a pago...');
+    navigate(`/checkout/${reservaId}`);
     setLoading(false);
   };
+
+  const PRECIO_CENTS = 500;
+  const totalCents = selectedSlots.length * PRECIO_CENTS;
+
+  if (checkingPending) {
+    return <div className="text-center p-12 text-gray-500 animate-pulse">Cargando...</div>;
+  }
+
+  if (hasPendingBooking) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-8 text-center space-y-4">
+          <div className="w-14 h-14 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto text-red-500">
+            <AlertCircle size={28} />
+          </div>
+          <h2 className="text-xl font-bold text-white">Tienes una reserva pendiente</h2>
+          <p className="text-gray-400">
+            Debes completar el pago de tu reserva actual antes de poder realizar una nueva.
+            Las reservas pendientes caducan en <strong className="text-white">3 horas</strong>.<br />
+            <span className="text-sm mt-2 block">
+              ⚠️ Si la reserva es para dentro de menos de 3 horas, caducará en 15 minutos si no se paga.
+            </span>
+          </p>
+          {pendingBookingData && (
+            <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/10 inline-block text-left mt-2">
+              <p className="text-sm text-gray-300"><strong>Fecha:</strong> {pendingBookingData.fecha}</p>
+              <p className="text-sm text-gray-300"><strong>Hora:</strong> {String(pendingBookingData.hora).slice(0, 5)}</p>
+              <p className="text-xs text-gray-500 mt-1">ID: {pendingBookingData.id} | Ref: {pendingBookingData.currency}</p>
+            </div>
+          )}
+          <div className="pt-4">
+            <Link to="/historial" className="px-6 py-3 rounded-xl bg-red-500 text-white font-bold inline-block hover:bg-red-600 transition-colors">
+              Ir al Historial de Pagos
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -454,14 +538,15 @@ export default function NewBooking() {
         />
       )}
 
-      {/* Modal de confirmación (reemplaza window.confirm nativo) */}
-      {pendingTime && (
+      {/* Modal de confirmación */}
+      {isConfirming && (
         <ConfirmBookingModal
           date={date}
-          time={pendingTime}
+          slots={selectedSlots.sort()}
           instalacion={selectedInstData?.nombre || 'Pista'}
+          totalCents={totalCents}
           onConfirm={handleBooking}
-          onCancel={() => setPendingTime(null)}
+          onCancel={() => setIsConfirming(false)}
         />
       )}
 
@@ -537,9 +622,8 @@ export default function NewBooking() {
                 return (
                   <div
                     key={it.id}
-                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${
-                      disabled ? 'bg-white/3 border-white/5 opacity-50' : 'bg-[#0F0F1A] border-white/10 hover:border-white/20'
-                    }`}
+                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${disabled ? 'bg-white/3 border-white/5 opacity-50' : 'bg-[#0F0F1A] border-white/10 hover:border-white/20'
+                      }`}
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-white truncate">{it.nombre}</p>
@@ -584,29 +668,48 @@ export default function NewBooking() {
           </h3>
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {TIME_SLOTS.filter((time) => {
-              const hoy = new Date().toISOString().split('T')[0];
-              if (date !== hoy) return true;
               const slotStart = new Date(`${date}T${time}:00`);
-              return slotStart.getTime() > Date.now();
+              // Solo mostrar franjas que tengan al menos 3 horas de margen desde la hora actual
+              return slotStart.getTime() > Date.now() + 3 * 60 * 60 * 1000;
             }).map((time) => {
               const isOccupied = occupiedSlots.includes(time);
+              const isSelected = selectedSlots.includes(time);
               return (
                 <button
                   key={time}
                   disabled={isOccupied || loading || selectedInstData?.estado === 'mantenimiento'}
-                  onClick={() => requestBooking(time)}
-                  className={`py-4 rounded-2xl font-bold text-lg transition-all ${
-                    isOccupied
+                  onClick={() => toggleSlot(time)}
+                  className={`py-4 rounded-2xl font-bold text-lg transition-all ${isOccupied
                       ? 'bg-red-500/10 text-red-500 border border-red-500/20 cursor-not-allowed opacity-50'
-                      : 'bg-[#1F1F2E] text-white border border-brand-lime/20 hover:bg-brand-lime hover:text-black hover:shadow-[0_0_15px_rgba(204,255,0,0.4)] disabled:opacity-30'
-                  }`}
+                      : isSelected
+                        ? 'bg-brand-lime text-black border border-brand-lime shadow-[0_0_15px_rgba(204,255,0,0.4)]'
+                        : 'bg-[#1F1F2E] text-white border border-brand-lime/20 hover:border-brand-lime/50 disabled:opacity-30'
+                    }`}
                 >
                   {time}
                   {isOccupied && <span className="text-[10px] block font-normal">OCUPADO</span>}
+                  {isSelected && !isOccupied && <span className="text-[10px] block font-black">SELECCIONADO</span>}
                 </button>
               );
             })}
           </div>
+
+          {selectedSlots.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div>
+                <p className="text-gray-400 text-sm">Franjas seleccionadas: <strong className="text-white">{selectedSlots.length}</strong></p>
+                <p className="text-2xl font-black text-brand-lime">{(totalCents / 100).toFixed(2)} €</p>
+              </div>
+              <button
+                onClick={() => setIsConfirming(true)}
+                disabled={loading}
+                className="w-full sm:w-auto px-8 py-3 bg-brand-lime text-black rounded-xl font-black shadow-[0_0_20px_rgba(204,255,0,0.2)] hover:scale-105 hover:shadow-[0_0_30px_rgba(204,255,0,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                Reservar {selectedSlots.length > 1 ? 'Horarios' : 'Horario'}
+                <CheckCircle size={18} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

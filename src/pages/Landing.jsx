@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Zap, Calendar, Users, Shield, Star, Clock, ChevronDown } from 'lucide-react';
+import { ArrowRight, Zap, Calendar, Users, Shield, Star, Clock, ChevronDown, User } from 'lucide-react';
 import { GiPingPongBat, GiSoccerBall, GiTennisRacket } from 'react-icons/gi';
 import gsap from 'gsap';
 import Footer from '../components/Footer';
@@ -239,18 +239,21 @@ export default function Landing() {
 
         <Link
           to="/login"
-          className="px-6 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
+          className="px-4 md:px-6 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
           transition-all duration-300 ease-out
-          hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.35)] hover:scale-105"
+          hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.35)] hover:scale-105
+          flex items-center gap-2"
+          aria-label="Acceso Usuarios"
         >
-          Acceso Usuarios
+          <User size={18} className="md:hidden" />
+          <span className="hidden md:inline">Acceso Usuarios</span>
         </Link>
       </nav>
 
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <header ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
+      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-20">
 
         {/* Orbes de fondo */}
         <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
