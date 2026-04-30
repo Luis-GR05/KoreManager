@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import toast from 'react-hot-toast';
 import { supabase } from '../../supabaseClient';
 
@@ -46,7 +46,7 @@ export const CheckoutForm = ({ amount, orderId }) => {
       // 2. Confirmar el pago en el cliente
       const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
-          card: elements.getElement(CardElement),
+          card: elements.getElement(CardNumberElement),
           billing_details: {
             name: 'Usuario Plataforma', // En producción, extraer de useAuth()
           },
@@ -71,24 +71,43 @@ export const CheckoutForm = ({ amount, orderId }) => {
     }
   };
 
+  const elementOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#fff',
+        '::placeholder': { color: '#aab7c4' },
+      },
+      invalid: { color: '#FF3B30' },
+    },
+  };
+
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto p-6 bg-white dark:bg-[#1A1A2E] rounded-xl shadow-md border border-gray-200 dark:border-white/5">
       <h3 className="text-xl font-black mb-4 text-gray-900 dark:text-white">Detalles de Pago</h3>
       
-      <div className="mb-6 p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
-        <CardElement 
-          options={{
-            style: {
-              base: {
-                fontSize: '16px',
-                color: '#fff', // Ajustado para dark mode
-                '::placeholder': { color: '#aab7c4' },
-              },
-              invalid: { color: '#FF3B30' },
-            },
-            hidePostalCode: true,
-          }} 
-        />
+      <div className="mb-6 space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-400 mb-2">Número de tarjeta</label>
+          <div className="p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
+            <CardNumberElement options={{ ...elementOptions, showIcon: true }} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-400 mb-2">Fecha de expiración</label>
+            <div className="p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
+              <CardExpiryElement options={elementOptions} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-400 mb-2">CVV</label>
+            <div className="p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
+              <CardCvcElement options={elementOptions} />
+            </div>
+          </div>
+        </div>
       </div>
 
       {paymentError && (
