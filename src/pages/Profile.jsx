@@ -188,19 +188,44 @@ export default function Profile() {
 
     setUploadingAvatar(true);
     try {
-      // Bucket requerido en Supabase Storage: `avatars` (público o con policy de lectura para el propio usuario)
-      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      // Redimensionar la imagen a 512x512 JPEG usando Canvas para asegurar
+      // la compatibilidad estricta con Vertex AI (Imagen)
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 512;
+      canvas.height = 512;
+
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+
+      const blobResize = await new Promise((resolve, reject) => {
+        img.onload = () => {
+          // Centrar y recortar (Object-fit: cover)
+          const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+          const drawWidth = img.width * scale;
+          const drawHeight = img.height * scale;
+          const x = (canvas.width - drawWidth) / 2;
+          const y = (canvas.height - drawHeight) / 2;
+
+          ctx.drawImage(img, x, y, drawWidth, drawHeight);
+          URL.revokeObjectURL(objectUrl);
+          canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
+        };
+        img.onerror = () => reject(new Error('Error al cargar la imagen'));
+        img.src = objectUrl;
+      });
+
+      const ext = 'jpg';
       const path = `${user.id}/avatar.${ext}`;
 
       const { error: upErr } = await supabase.storage
         .from('avatars')
-        .upload(path, file, { upsert: true, contentType: file.type });
+        .upload(path, blobResize, { upsert: true, contentType: 'image/jpeg' });
 
       if (upErr) throw upErr;
 
       const { error: dbErr } = await supabase
         .from('profiles')
-        // Guardamos el path (bucket privado). La UI lo resuelve con signed URL.
         .update({ avatar_url: path })
         .eq('id', user.id);
 
@@ -217,86 +242,86 @@ export default function Profile() {
   };
 
   /**
-   * Dispara el flujo de generación de Avatar con IA en el backend (Spring Boot)
+   * Dispara el flujo de generación de Avatar con IA usando una Supabase Edge Function
    */
   const handleGenerateAIAvatar = async () => {
     if (!user || !aiPrompt.trim()) return;
 
-    // Necesitamos una foto base. Si no tiene, avisamos.
     if (!profile?.avatar_url) {
       toast.error('Primero debes subir una foto real para usarla como base.');
       return;
     }
 
     setGeneratingIA(true);
-    setIaStatus('starting');
+    setIaStatus('Iniciando...');
 
     try {
-      // 1. Obtener la imagen actual (blob) para enviarla al backend
-      // O si el backend puede descargarla de Supabase, enviamos la URL.
-      // El flujo propuesto dice: React envía POST FormData a Spring Boot.
-      const avatarUrl = await resolveAvatarUrl();
-      const response = await fetch(avatarUrl);
-      const blob = await response.blob();
+      // 1. Insertar la tarea en base de datos
+      const { data: tarea, error: errorInsert } = await supabase
+        .from('tareas_ia')
+        .insert({
+          id_usuario: user.id,
+          ruta_imagen_base: profile.avatar_url,
+          prompt_estilo: aiPrompt
+        })
+        .select()
+        .single();
 
-      const formData = new FormData();
-      formData.append('file', blob, 'base_image.png');
-      formData.append('prompt', aiPrompt);
-      formData.append('userId', user.id);
+      if (errorInsert) throw errorInsert;
 
-      // 2. POST a Spring Boot
-      const apiResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/avatares/generar`, {
-        method: 'POST',
-        body: formData
+      // 2. Escuchar cambios de estado por WebSocket
+      const channel = supabase.channel(`tarea-${tarea.id}`)
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'tareas_ia', filter: `id=eq.${tarea.id}` },
+          async (payload) => {
+            const estado = payload.new.estado;
+            if (estado === 'procesando') {
+              setIaStatus('La IA está analizando las facciones...');
+            } else if (estado === 'completado') {
+              // Actualizar perfil local y base de datos con nueva foto
+              await supabase
+                .from('profiles')
+                .update({ avatar_url: payload.new.ruta_resultado })
+                .eq('id', user.id);
+
+              toast.success('¡Tu nuevo avatar IA está listo!');
+              await refreshProfile();
+              setGeneratingIA(false);
+              setIaStatus('');
+              supabase.removeChannel(channel);
+            } else if (estado === 'error') {
+              toast.error(payload.new.mensaje_error || 'Error generando el avatar.');
+              setGeneratingIA(false);
+              setIaStatus('');
+              supabase.removeChannel(channel);
+            }
+          }
+        )
+        .subscribe();
+
+      // 3. Invocar la Edge Function pasándole el ID de la tarea
+      supabase.functions.invoke('generate-avatar', {
+        body: { id_tarea: tarea.id }
+      }).catch(async (err) => {
+        console.error('Fallo en la red o servidor:', err);
+        // Desbloqueamos la UI a la fuerza
+        setGeneratingIA(false);
+        setIaStatus('');
+        toast.error('El servidor rechazó la solicitud.');
+
+        // Actualizamos la base de datos por seguridad para no dejar tareas huérfanas
+        await supabase.from('tareas_ia').update({
+          estado: 'error',
+          mensaje_error: 'Timeout o fallo de invocación desde el cliente'
+        }).eq('id', tarea.id);
       });
 
-      if (!apiResponse.ok) throw new Error('Error al conectar con el servicio de IA.');
-
-      const taskId = await apiResponse.text();
-      setIaTaskId(taskId);
-      setIaStatus('processing');
-
-      // 3. Iniciar Polling
-      startPolling(taskId);
-
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || 'Error desconocido iniciando generación.');
       setGeneratingIA(false);
+      setIaStatus('');
     }
-  };
-
-  const startPolling = (taskId) => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/avatares/estado/${taskId}`);
-        if (!res.ok) return;
-
-        const data = await res.json(); // { status: 'COMPLETED', outputImageUrl: '...' }
-
-        if (data.status === 'COMPLETED') {
-          clearInterval(interval);
-          setGeneratingIA(false);
-          setIaStatus('');
-
-          // Actualizar el perfil en Supabase con la nueva URL generada
-          const { error } = await supabase
-            .from('profiles')
-            .update({ avatar_url: data.outputImageUrl })
-            .eq('id', user.id);
-
-          if (error) throw error;
-
-          toast.success('¡Tu nuevo avatar IA está listo!');
-          await refreshProfile();
-        } else if (data.status === 'FAILED') {
-          clearInterval(interval);
-          setGeneratingIA(false);
-          toast.error('La generación falló: ' + (data.errorMessage || 'Desconocido'));
-        }
-      } catch (err) {
-        console.error('Polling error:', err);
-      }
-    }, 4000);
   };
 
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">Cargando ficha de jugador...</div>;
@@ -433,10 +458,10 @@ export default function Profile() {
                   )}
                 </Button>
 
-                {iaStatus === 'processing' && (
-                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-lime animate-pulse">
+                {iaStatus && (
+                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-lime animate-pulse" aria-live="polite">
                     <Loader2 size={12} className="animate-spin" />
-                    <span className="text-[10px] font-bold uppercase">La magia está ocurriendo...</span>
+                    <span className="text-[10px] font-bold uppercase">{iaStatus}</span>
                   </div>
                 )}
 

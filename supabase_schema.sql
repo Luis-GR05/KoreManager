@@ -173,39 +173,7 @@ CREATE TABLE IF NOT EXISTS instalaciones (
 -- 1) Normaliza nombres (trim)
 UPDATE instalaciones SET nombre = trim(nombre) WHERE nombre IS NOT NULL;
 
--- 2) Reasigna reservas al ID "principal" (el menor id por nombre)
-WITH canon AS (
-  SELECT nombre, MIN(id) AS keep_id
-  FROM instalaciones
-  GROUP BY nombre
-),
-dups AS (
-  SELECT i.id AS dup_id, c.keep_id
-  FROM instalaciones i
-  JOIN canon c ON c.nombre = i.nombre
-  WHERE i.id <> c.keep_id
-)
-UPDATE reservas r
-SET installation_id = d.keep_id
-FROM dups d
-WHERE r.installation_id = d.dup_id;
-
--- 3) Borra instalaciones duplicadas (ya sin reservas apuntando a ellas)
-WITH canon AS (
-  SELECT nombre, MIN(id) AS keep_id
-  FROM instalaciones
-  GROUP BY nombre
-)
-DELETE FROM instalaciones i
-USING canon c
-WHERE i.nombre = c.nombre
-  AND i.id <> c.keep_id;
-
--- 4) Aplica UNIQUE(nombre) para que no vuelvan a aparecer duplicados
-ALTER TABLE instalaciones
-  DROP CONSTRAINT IF EXISTS instalaciones_nombre_uniq;
-ALTER TABLE instalaciones
-  ADD CONSTRAINT instalaciones_nombre_uniq UNIQUE (nombre);
+-- (Limpieza de duplicados movida después de crear la tabla reservas)
 
 INSERT INTO instalaciones (nombre, tipo, estado) VALUES
   ('Pista 1 - Pádel',   'padel',       'disponible'),
@@ -242,7 +210,7 @@ LANGUAGE sql
 SECURITY DEFINER
 STABLE
 AS $$
-  SELECT to_char(r.hora, 'HH24:MI') AS hora
+  SELECT to_char(r.hora::time, 'HH24:MI') AS hora
   FROM reservas r
   WHERE r.installation_id = inst_id
     AND r.fecha = date_in;
@@ -280,6 +248,44 @@ ALTER TABLE reservas
   DROP CONSTRAINT IF EXISTS reservas_payment_status_chk;
 ALTER TABLE reservas
   ADD CONSTRAINT reservas_payment_status_chk CHECK (payment_status IN ('pending','paid','failed','refunded','cancelled'));
+
+-- ─────────────────────────────────────────────
+-- 5a. LIMPIEZA DE DUPLICADOS (Instalaciones y Reservas)
+-- ─────────────────────────────────────────────
+-- Reasigna reservas al ID "principal" (el menor id por nombre)
+WITH canon AS (
+  SELECT nombre, MIN(id) AS keep_id
+  FROM instalaciones
+  GROUP BY nombre
+),
+dups AS (
+  SELECT i.id AS dup_id, c.keep_id
+  FROM instalaciones i
+  JOIN canon c ON c.nombre = i.nombre
+  WHERE i.id <> c.keep_id
+)
+UPDATE reservas r
+SET installation_id = d.keep_id
+FROM dups d
+WHERE r.installation_id = d.dup_id;
+
+-- Borra instalaciones duplicadas (ya sin reservas apuntando a ellas)
+WITH canon AS (
+  SELECT nombre, MIN(id) AS keep_id
+  FROM instalaciones
+  GROUP BY nombre
+)
+DELETE FROM instalaciones i
+USING canon c
+WHERE i.nombre = c.nombre
+  AND i.id <> c.keep_id;
+
+-- Aplica UNIQUE(nombre) para que no vuelvan a aparecer duplicados
+ALTER TABLE instalaciones
+  DROP CONSTRAINT IF EXISTS instalaciones_nombre_uniq;
+ALTER TABLE instalaciones
+  ADD CONSTRAINT instalaciones_nombre_uniq UNIQUE (nombre);
+
 
 -- ─────────────────────────────────────────────
 -- 5b. PAYMENTS (registro de cobros)
@@ -667,3 +673,51 @@ CREATE POLICY "admin_all_logros" ON user_logros
 -- Índice de rendimiento
 CREATE INDEX IF NOT EXISTS idx_user_logros_user_id  ON user_logros(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_logros_logro_id ON user_logros(logro_id);
+
+-- ─────────────────────────────────────────────
+-- 12. TAREAS IA (Generación de Avatares)
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS tareas_ia (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  id_usuario UUID REFERENCES auth.users(id) NOT NULL,
+  estado TEXT NOT NULL DEFAULT 'pendiente',
+  ruta_imagen_base TEXT NOT NULL,
+  prompt_estilo TEXT NOT NULL,
+  ruta_resultado TEXT,
+  mensaje_error TEXT,
+  creado_en TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Habilitar Realtime
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE tareas_ia;
+  END IF;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+ALTER TABLE tareas_ia ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Usuarios gestionan sus tareas" ON tareas_ia;
+CREATE POLICY "Usuarios gestionan sus tareas" ON tareas_ia
+  FOR ALL USING (auth.uid() = id_usuario);
+
+-- ─────────────────────────────────────────────
+-- 13. STORAGE BUCKETS
+-- ─────────────────────────────────────────────
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('avatars', 'avatars', true) 
+ON CONFLICT DO NOTHING;
+
+-- Políticas de Storage para el bucket 'avatars'
+DROP POLICY IF EXISTS "Avatar Public Read" ON storage.objects;
+DROP POLICY IF EXISTS "Avatar Auth Insert" ON storage.objects;
+DROP POLICY IF EXISTS "Avatar Auth Update" ON storage.objects;
+DROP POLICY IF EXISTS "Avatar Auth Delete" ON storage.objects;
+
+CREATE POLICY "Avatar Public Read" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "Avatar Auth Insert" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'avatars');
+CREATE POLICY "Avatar Auth Update" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'avatars');
+CREATE POLICY "Avatar Auth Delete" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'avatars');
