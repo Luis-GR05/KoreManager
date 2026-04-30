@@ -60,7 +60,7 @@ serve(async (peticion) => {
 
     const tokenAcceso = await clienteJwt.getAccessToken();
     const gcpProject = credenciales.project_id;
-    const endpointVertex = `https://us-central1-aiplatform.googleapis.com/v1/projects/${gcpProject}/locations/us-central1/publishers/google/models/imagen-3.0-capability-001:predict`;
+    const endpointVertex = `https://us-central1-aiplatform.googleapis.com/v1/projects/${gcpProject}/locations/us-central1/publishers/google/models/imagen-3.0-generate-001:predict`;
 
     const respuestaVertex = await fetch(endpointVertex, {
       method: 'POST',
@@ -103,6 +103,6 @@ serve(async (peticion) => {
         mensaje_error: excepcion instanceof Error ? excepcion.message : 'Fallo en cascada desconocido'
       }).eq('id', idTareaGlobal);
     }
-    return new Response(JSON.stringify({ error: 'Operación abortada' }), { headers: cabecerasCors, status: 500 });
+    return new Response(JSON.stringify({ error: excepcion instanceof Error ? excepcion.message : 'Operación abortada', stack: excepcion instanceof Error ? excepcion.stack : '' }), { headers: cabecerasCors, status: 500 });
   }
 });
