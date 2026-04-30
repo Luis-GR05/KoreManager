@@ -196,7 +196,7 @@ export default function Layout({ children }) {
       </aside>
 
       {/* MAIN */}
-      <main className="relative md:pl-72">
+      <main className="relative md:pl-72 flex flex-col min-h-screen">
         {/* Topbar (sticky) */}
         <div className="sticky top-0 z-40 bg-[#0F0F1A]/75 backdrop-blur-xl border-b border-white/5">
           <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-4">
@@ -239,8 +239,10 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        <div className="p-6 md:p-8 pb-8 anim-popin">{children}</div>
-        <LegalFooter />
+        <div className="flex-1 p-6 md:p-8 pb-8 anim-popin">{children}</div>
+        <div className="mt-auto">
+          <LegalFooter />
+        </div>
       </main>
 
       {/* ══════════════════════════════════════════
