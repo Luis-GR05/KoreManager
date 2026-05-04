@@ -17,21 +17,26 @@ serve(async (peticion) => {
   const supabaseAdmin = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
 
   try {
-    // 2. Control de Seguridad Estricto (Sustituye al portero automático de Supabase)
-    const cabeceraAuth = peticion.headers.get('Authorization');
-    if (!cabeceraAuth) throw new Error('Acceso denegado: Faltan credenciales de autorización.');
-
-    const supabaseUsuario = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
-      global: { headers: { Authorization: cabeceraAuth } }
-    });
-
-    const { data: { user }, error: errorAuth } = await supabaseUsuario.auth.getUser();
-    if (errorAuth || !user) throw new Error('Acceso denegado: Token JWT manipulado o caducado.');
-
-    // 3. Ejecución de lógica de negocio
-    const { id_tarea } = await peticion.json();
+    // 2. Leer el body PRIMERO para poder marcar la tarea como error en el catch si algo falla
+    const cuerpo = await peticion.json();
+    const { id_tarea } = cuerpo;
     if (!id_tarea) throw new Error('Carga útil inválida: Falta id_tarea');
     idTareaGlobal = id_tarea;
+    console.log('[Auth] Iniciando verificación JWT para tarea:', id_tarea);
+
+    // 3. Control de Seguridad Estricto
+    // IMPORTANTE: En Deno Edge Functions, getUser() SIN token busca sesión local (no existe).
+    // Se debe extraer el token raw y pasarlo directamente como parámetro.
+    const cabeceraAuth = peticion.headers.get('Authorization');
+    console.log('[Auth] Header Authorization presente:', !!cabeceraAuth, '| Longitud:', cabeceraAuth?.length ?? 0);
+    if (!cabeceraAuth) throw new Error('Acceso denegado: Faltan credenciales de autorización.');
+
+    const tokenRaw = cabeceraAuth.replace('Bearer ', '').trim();
+    const supabaseUsuario = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? '');
+
+    const { data: { user }, error: errorAuth } = await supabaseUsuario.auth.getUser(tokenRaw);
+    console.log('[Auth] Resultado getUser — user_id:', user?.id ?? 'null', '| error:', errorAuth?.message ?? 'ninguno');
+    if (errorAuth || !user) throw new Error(`Acceso denegado: Token JWT inválido o caducado. Detalle: ${errorAuth?.message ?? 'user null'}`);
 
     await supabaseAdmin.from('tareas_ia').update({ estado: 'procesando' }).eq('id', id_tarea);
 
@@ -60,7 +65,27 @@ serve(async (peticion) => {
 
     const tokenAcceso = await clienteJwt.getAccessToken();
     const gcpProject = credenciales.project_id;
-    const endpointVertex = `https://us-central1-aiplatform.googleapis.com/v1/projects/${gcpProject}/locations/us-central1/publishers/google/models/imagen-3.0-generate-001:predict`;
+    const endpointVertex = `https://us-central1-aiplatform.googleapis.com/v1/projects/${gcpProject}/locations/us-central1/publishers/google/models/imagen-3.0-capability-001:predict`;
+
+    // REFERENCE_TYPE_SUBJECT + SUBJECT_TYPE_PERSON: preserva las facciones del usuario
+    // y aplica el prompt de estilo (Pixar, Cyberpunk, etc.) sobre su cara real.
+    // REFERENCE_TYPE_STYLE sólo extrae la calidad fotográfica de la imagen (iluminación,
+    // resolución, encuadre) y NO mantiene la identidad visual de la persona.
+    const cuerpoVertex = {
+      instances: [{
+        prompt: `${datosTarea.prompt_estilo}, portrait of person [1]`,
+        referenceImages: [{
+          referenceType: "REFERENCE_TYPE_SUBJECT",
+          referenceId: 1,
+          referenceImage: { bytesBase64Encoded: imagenBase64 },
+          subjectImageConfig: { subjectType: "SUBJECT_TYPE_PERSON" }
+        }]
+      }],
+      parameters: { sampleCount: 1 }
+    };
+
+    console.log('[Vertex AI] Enviando petición al endpoint:', endpointVertex);
+    console.log('[Vertex AI] Cuerpo (sin base64):', JSON.stringify({ ...cuerpoVertex, instances: [{ ...cuerpoVertex.instances[0], referenceImages: [{ ...cuerpoVertex.instances[0].referenceImages[0], referenceImage: { bytesBase64Encoded: '[OMITIDO]' } }] }] }));
 
     const respuestaVertex = await fetch(endpointVertex, {
       method: 'POST',
@@ -68,20 +93,14 @@ serve(async (peticion) => {
         'Authorization': `Bearer ${tokenAcceso.token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        instances: [{
-          prompt: `${datosTarea.prompt_estilo} usando la imagen [1]`,
-          referenceImages: [{
-            referenceType: "REFERENCE_TYPE_SUBJECT",
-            referenceId: 1,
-            referenceImage: { bytesBase64Encoded: imagenBase64 }
-          }]
-        }],
-        parameters: { sampleCount: 1, outputOptions: { mimeType: "image/png" } }
-      })
+      body: JSON.stringify(cuerpoVertex)
     });
 
-    if (!respuestaVertex.ok) throw new Error(await respuestaVertex.text());
+    if (!respuestaVertex.ok) {
+      const errorTexto = await respuestaVertex.text();
+      console.error(`[Vertex AI] HTTP ${respuestaVertex.status}:`, errorTexto);
+      throw new Error(`Vertex AI ${respuestaVertex.status}: ${errorTexto}`);
+    }
 
     const datosVertex = await respuestaVertex.json();
     const avatarGeneradoBase64 = datosVertex.predictions?.[0]?.bytesBase64Encoded;

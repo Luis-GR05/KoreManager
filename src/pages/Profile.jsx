@@ -301,8 +301,13 @@ export default function Profile() {
         .subscribe();
 
       // 3. Invocar la Edge Function pasándole el ID de la tarea
+      // Recuperamos el token de sesión activo para pasarlo manualmente,
+      // ya que la función fue desplegada con --no-verify-jwt y Supabase
+      // no lo inyecta automáticamente en ese modo.
+      const { data: { session } } = await supabase.auth.getSession();
       supabase.functions.invoke('generate-avatar', {
-        body: { id_tarea: tarea.id }
+        body: { id_tarea: tarea.id },
+        headers: { Authorization: `Bearer ${session?.access_token}` }
       }).catch(async (err) => {
         console.error('Fallo en la red o servidor:', err);
         // Desbloqueamos la UI a la fuerza
