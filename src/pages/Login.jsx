@@ -128,6 +128,12 @@ export default function Login() {
             </button>
           </div>
 
+          <div className="flex justify-end mt-1">
+            <Link to="/forgot-password" className="text-sm font-bold text-gray-400 hover:text-brand-lime transition-colors">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+
           <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
             Iniciar Sesión
             {!submitting && <ArrowRight size={20} />}

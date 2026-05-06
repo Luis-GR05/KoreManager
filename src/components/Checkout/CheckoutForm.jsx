@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import toast from 'react-hot-toast';
 import { supabase } from '../../supabaseClient';
+import { CheckCircle } from 'lucide-react';
 
 /**
  * Componente de formulario de pago integrado con Stripe y Supabase Edge Functions.
@@ -16,6 +17,7 @@ export const CheckoutForm = ({ amount, orderId }) => {
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   /**
    * Maneja la sumisión del formulario, solicita el client_secret a una Edge Function
@@ -65,9 +67,7 @@ export const CheckoutForm = ({ amount, orderId }) => {
         setPaymentError(stripeError.message);
         toast.error(`Pago denegado: ${stripeError.message}`);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        toast.success('¡Pago validado correctamente!');
-        // Aquí debe emitirse un evento o recargar para que la UI verifique el nuevo estado de la reserva.
-        window.location.href = '/historial';
+        setIsSuccess(true);
       }
 
     } catch (err) {
@@ -89,6 +89,28 @@ export const CheckoutForm = ({ amount, orderId }) => {
       invalid: { color: '#FF3B30' },
     },
   };
+
+  if (isSuccess) {
+    return (
+      <div className="w-full max-w-md mx-auto p-8 bg-[#1A1A2E] rounded-xl shadow-2xl border border-brand-lime/20 text-center flex flex-col items-center justify-center space-y-6 animate-fade-in">
+        <div className="w-24 h-24 bg-brand-lime/10 rounded-full flex items-center justify-center animate-bounce">
+          <CheckCircle className="w-12 h-12 text-brand-lime" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-black text-white mb-2">¡Pago Completado!</h3>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Tu pago ha sido validado correctamente. La reserva ya está confirmada en el sistema.
+          </p>
+        </div>
+        <button
+          onClick={() => window.history.back()}
+          className="w-full mt-4 py-4 px-4 bg-[#252538] hover:bg-[#2A2A40] border border-white/10 rounded-xl text-white font-bold transition-all"
+        >
+          Volver atrás
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto p-6 bg-white dark:bg-[#1A1A2E] rounded-xl shadow-md border border-gray-200 dark:border-white/5">

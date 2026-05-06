@@ -4,6 +4,7 @@ import { ArrowRight, Zap, Calendar, Users, Shield, Star, Clock, ChevronDown, Use
 import { GiPingPongBat, GiSoccerBall, GiTennisRacket } from 'react-icons/gi';
 import gsap from 'gsap';
 import Footer from '../components/Footer';
+import VideoCarousel3D from '../components/ui/VideoCarousel3D';
 
 /**
  * Dataset de deportes mostrado en la landing.
@@ -332,6 +333,22 @@ export default function Landing() {
               <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">{s.label}</span>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          CARRUSEL DE VÍDEOS
+      ══════════════════════════════════════════ */}
+      <section className="relative px-6 py-24 bg-[#0F0F1A] border-b border-white/5 overflow-hidden">
+        <GlowOrb className="w-[500px] h-[500px] bg-brand-lime/5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <SectionLabel>En Acción</SectionLabel>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              ¿Por qué <span className="text-brand-lime">KoreManager?</span>
+            </h2>
+          </div>
+          <VideoCarousel3D />
         </div>
       </section>
 
