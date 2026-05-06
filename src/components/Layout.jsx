@@ -22,10 +22,10 @@ export default function Layout({ children }) {
 
   const menuItems = [
     { icon: Home,       label: 'Inicio',        path: '/dashboard',    allowed: ['ciudadano', 'conserje', 'admin'] },
-    { icon: User,       label: 'Mi Perfil',     path: '/profile',      allowed: ['ciudadano', 'conserje', 'admin'] },
     { icon: Calendar,   label: 'Reservar',      path: '/reservar',     allowed: ['ciudadano', 'conserje', 'admin'] },
     { icon: Clock,      label: 'Historial',     path: '/historial',    allowed: ['ciudadano', 'conserje', 'admin'] },
     { icon: BarChart2,  label: 'Estadísticas',  path: '/estadisticas', allowed: ['ciudadano', 'conserje', 'admin'] },
+    { icon: User,       label: 'Mi Perfil',     path: '/profile',      allowed: ['ciudadano', 'conserje', 'admin'] },
     { icon: Package,    label: 'Inventario',    path: '/inventario',   allowed: ['conserje', 'admin'] },
     { icon: ShieldAlert,label: 'Panel Admin',   path: '/admin',        allowed: ['admin'] },
   ];
