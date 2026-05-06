@@ -204,16 +204,25 @@ CREATE TABLE IF NOT EXISTS reservas (
 );
 
 -- RPC segura: devuelve horarios ocupados sin exponer datos personales
+-- NOTA: Ahora también limpia reservas abandonadas (pendientes > 3h) para liberar el horario
 CREATE OR REPLACE FUNCTION public.get_occupied_slots(inst_id INT, date_in DATE)
 RETURNS TABLE (hora TEXT)
-LANGUAGE sql
+LANGUAGE plpgsql
 SECURITY DEFINER
-STABLE
 AS $$
+BEGIN
+  -- 1. Auto-limpieza: Eliminar reservas pendientes que no se han pagado en 3 horas
+  DELETE FROM reservas 
+  WHERE payment_status = 'pending' 
+    AND created_at < NOW() - INTERVAL '3 hours';
+
+  -- 2. Devolver franjas ocupadas
+  RETURN QUERY
   SELECT to_char(r.hora::time, 'HH24:MI') AS hora
   FROM reservas r
   WHERE r.installation_id = inst_id
     AND r.fecha = date_in;
+END;
 $$;
 
 REVOKE ALL ON FUNCTION public.get_occupied_slots(INT, DATE) FROM PUBLIC;

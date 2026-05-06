@@ -10,6 +10,8 @@ import Layout from './components/Layout';
 const Landing = lazy(() => import('./pages/Landing'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal'));
 const Privacidad = lazy(() => import('./pages/legal/Privacidad'));
 const Cookies = lazy(() => import('./pages/legal/Cookies'));
@@ -64,6 +66,8 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/legal/aviso-legal" element={<AvisoLegal />} />
             <Route path="/legal/privacidad" element={<Privacidad />} />
             <Route path="/legal/cookies" element={<Cookies />} />
