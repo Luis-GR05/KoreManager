@@ -292,12 +292,12 @@ export default function Dashboard() {
                     key={reserva.id}
                     className="bg-[#1F1F2E] p-4 rounded-2xl border border-white/5 flex items-center justify-between group hover:border-brand-lime/30 hover:shadow-[0_0_18px_rgba(204,255,0,0.10)] transition-all"
                   >
-                    <div className="flex items-center gap-4">
+                    <Link to="/historial" className="flex items-center gap-4 flex-1">
                       <div className="w-12 h-12 bg-brand-lime/10 rounded-xl flex items-center justify-center text-brand-lime font-bold text-lg">
                         {String(reserva.hora).split(':')[0]}h
                       </div>
                       <div>
-                        <h4 className="font-bold text-white">
+                        <h4 className="font-bold text-white group-hover:text-brand-lime transition-colors">
                           {reserva.instalaciones?.nombre || 'Pista Deportiva'}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
@@ -305,10 +305,10 @@ export default function Dashboard() {
                           <span className="flex items-center gap-1"><Clock size={12} /> {reserva.hora}</span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                     <button
                       onClick={() => cancelarReserva(reserva.id)}
-                      className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                      className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors shrink-0 ml-4"
                       title="Cancelar Reserva"
                     >
                       <Trash2 size={18} />

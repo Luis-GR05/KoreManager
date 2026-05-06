@@ -34,11 +34,19 @@ export const CheckoutForm = ({ amount, orderId }) => {
       // 1. Invocar Supabase Edge Function en lugar de un servidor externo.
       // Esto garantiza que el usuario autenticado es quien hace la petición.
       const { data, error: functionError } = await supabase.functions.invoke('create-payment-intent', {
-        body: { amount, orderId }
+        body: { reservaId: orderId }
       });
 
-      if (functionError || !data?.clientSecret) {
-        throw new Error(functionError?.message || 'Error al generar la intención de pago.');
+      if (functionError) {
+        throw new Error(`Error en el servidor: ${functionError.message || functionError}`);
+      }
+      
+      if (data?.error) {
+        throw new Error(`Detalle interno: ${data.details || data.error}`);
+      }
+
+      if (!data?.clientSecret) {
+        throw new Error('No se recibió el clientSecret de la pasarela.');
       }
 
       const clientSecret = data.clientSecret;
