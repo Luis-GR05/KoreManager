@@ -16,6 +16,13 @@ const corsHeaders = {
   "access-control-allow-methods": "POST, OPTIONS",
 };
 
+/**
+ * Genera una respuesta JSON con cabeceras CORS.
+ * 
+ * @param {unknown} data - Objeto o mensaje de respuesta.
+ * @param {number} [status=200] - Código de estado HTTP.
+ * @returns {Response} - Objeto Response formateado.
+ */
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -26,6 +33,12 @@ function json(data: unknown, status = 200) {
   });
 }
 
+/**
+ * Manejador principal de Webhooks de Stripe.
+ *
+ * Se encarga de procesar de forma segura los eventos enviados por Stripe
+ * mediante la verificación de firmas y actualizar la base de datos en consecuencia.
+ */
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -35,7 +48,7 @@ serve(async (req) => {
     if (!sig) return json({ error: "Missing signature" }, 400);
 
     const rawBody = await req.text();
-    const event = stripe.webhooks.constructEvent(rawBody, sig, STRIPE_WEBHOOK_SECRET);
+    const event = await stripe.webhooks.constructEventAsync(rawBody, sig, STRIPE_WEBHOOK_SECRET);
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
@@ -155,10 +168,37 @@ serve(async (req) => {
       }
     }
 
+    if (event.type === "payment_intent.succeeded") {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const reservaId = Number(paymentIntent.metadata?.reserva_id);
+
+      if (reservaId) {
+        // 1) Marcar reserva pagada
+        await supabaseAdmin
+          .from("reservas")
+          .update({
+            payment_status: "paid",
+            paid_at: new Date().toISOString(),
+            stripe_payment_intent_id: paymentIntent.id,
+          })
+          .eq("id", reservaId);
+
+        // 2) Marcar payment pagado
+        await supabaseAdmin
+          .from("payments")
+          .update({
+            status: "paid",
+            payment_intent_id: paymentIntent.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("reserva_id", reservaId)
+          .eq("payment_intent_id", paymentIntent.id);
+      }
+    }
+
     return json({ received: true });
-  } catch (err) {
-    console.error(err);
-    return json({ error: "Webhook error" }, 400);
+  } catch (err: any) {
+    return json({ error: "Webhook error", details: err.message }, 400);
   }
 });
 
