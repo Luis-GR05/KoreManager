@@ -432,6 +432,16 @@ export default function BookingHistory() {
                         {reserva.instalaciones?.nombre || 'Pista Deportiva'}
                       </h3>
                       <StatusBadge status={status} />
+                      <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                        reserva.payment_status === 'paid'
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                          : reserva.payment_status === 'pending'
+                          ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                          : 'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
+                        <CreditCard size={12} />
+                        {reserva.payment_status === 'paid' ? 'Pagada' : reserva.payment_status === 'pending' ? 'Pendiente Pago' : 'Cancelada'}
+                      </span>
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-400">
                       <span className="flex items-center gap-1.5">
