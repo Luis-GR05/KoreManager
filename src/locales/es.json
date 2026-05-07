@@ -1,0 +1,169 @@
+{
+  "layout": {
+    "title": "KORE MANAGER",
+    "subtitle": "Gestión deportiva",
+    "search": "Buscar...",
+    "logout": "Cerrar Sesión",
+    "settings": "Ajustes",
+    "language": "Idioma",
+    "theme": "Tema",
+    "changePassword": "Cambiar Contraseña",
+    "comingSoon": "Próximamente"
+  },
+  "menu": {
+    "dashboard": "Inicio",
+    "profile": "Mi Perfil",
+    "book": "Reservar",
+    "history": "Historial",
+    "stats": "Estadísticas",
+    "inventory": "Inventario",
+    "admin": "Panel Admin"
+  },
+  "landing": {
+    "nav": {
+      "sports": "Deportes",
+      "features": "Funciones",
+      "about": "Sobre nosotros",
+      "loginBtn": "Acceder"
+    },
+    "hero": {
+      "badge": "GESTIÓN MUNICIPAL INTELIGENTE",
+      "title1": "El deporte de tu ciudad,",
+      "title2": "a un clic de distancia.",
+      "desc": "Olvídate de las colas y las llamadas. Reserva tu pista, gestiona tu equipo y disfruta del deporte con la plataforma municipal más avanzada.",
+      "cta1": "Reserva tu pista ahora",
+      "cta2": "Ver estadísticas"
+    },
+    "stats": {
+      "members": "Socios activos",
+      "installations": "Instalaciones",
+      "availability": "Disponibilidad",
+      "time": "Para reservar"
+    },
+    "video": {
+      "badge": "En Acción",
+      "title1": "¿Por qué",
+      "title2": "KoreManager?"
+    },
+    "login": {
+      "success": "¡Sesión iniciada!",
+      "errorCreds": "Email o contraseña incorrectos.",
+      "back": "Volver a la landing",
+      "welcome": "Bienvenido de nuevo",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar Sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "register": "Regístrate Gratis"
+    },
+    "register": {
+      "errorMinChars": "La contraseña debe tener al menos 6 caracteres.",
+      "errorMatch": "Las contraseñas no coinciden. Por favor, asegúrate de escribirlas igual.",
+      "errorTerms": "Debes aceptar los Términos de uso y la Política de privacidad para registrarte.",
+      "success": "¡Registro exitoso! Ya puedes iniciar sesión.",
+      "back": "Volver a la landing",
+      "title": "Crea tu cuenta gratuita",
+      "fullName": "Nombre Completo",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "phone": "Teléfono (ej: +34 600000000)",
+      "dni": "DNI/NIE",
+      "address": "Dirección",
+      "postalCode": "Código postal",
+      "city": "Municipio",
+      "province": "Provincia",
+      "password": "Contraseña (mín. 6 caracteres)",
+      "confirmPassword": "Confirmar Contraseña",
+      "submit": "Crear Cuenta",
+      "acceptTermsPrefix": "Acepto los ",
+      "terms": "Términos de uso",
+      "acceptPrivacyPrefix": "He leído y acepto la ",
+      "privacy": "Política de privacidad",
+      "and": " y la ",
+      "cookies": "Política de cookies",
+      "legalWarning": "Tus datos se usarán para gestionar tu cuenta y tus reservas. Puedes ejercer tus derechos conforme al RGPD (España).",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "login": "Inicia Sesión"
+    },
+    "forgot": {
+      "toastSuccess": "Correo de recuperación enviado",
+      "toastError": "Error al enviar el correo.",
+      "backToLogin": "Volver al inicio de sesión",
+      "checkInbox": "Revisa tu bandeja",
+      "sentTo": "Hemos enviado un enlace de recuperación a ",
+      "clickToReset": ". Haz clic en él para establecer una nueva contraseña.",
+      "goToLogin": "Ir al Login",
+      "title": "Recuperar Contraseña",
+      "desc": "Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "submit": "Enviar enlace de recuperación"
+    },
+    "reset": {
+      "errorLink": "El enlace de recuperación no es válido o ha expirado.",
+      "errorMatch": "Las contraseñas no coinciden",
+      "errorMinChars": "La contraseña debe tener al menos 6 caracteres",
+      "toastSuccess": "Contraseña actualizada correctamente",
+      "toastError": "Error al actualizar la contraseña",
+      "successTitle": "¡Contraseña Guardada!",
+      "successDesc": "Tu contraseña ha sido actualizada con éxito. Serás redirigido al inicio de sesión en unos segundos...",
+      "title": "Nueva Contraseña",
+      "desc": "Introduce tu nueva contraseña segura para acceder a KoreManager.",
+      "password": "Nueva contraseña",
+      "confirmPassword": "Repetir contraseña",
+      "submit": "Guardar Contraseña"
+    },
+    "sports": {
+      "badge": "INSTALACIONES",
+      "title": "Deportes para todos",
+      "desc": "Nuestras instalaciones están preparadas para ofrecerte la mejor experiencia deportiva, sea cual sea tu nivel.",
+      "padel": {
+        "name": "Pádel",
+        "courts": "6 pistas",
+        "desc": "Pistas cubiertas y descubiertas con iluminación LED profesional."
+      },
+      "futsal": {
+        "name": "Fútbol Sala",
+        "courts": "3 campos",
+        "desc": "Campos de resina con marcaje oficial y cabinas de arbitraje."
+      },
+      "tennis": {
+        "name": "Tenis",
+        "courts": "4 pistas",
+        "desc": "Superficie de tierra batida y pista dura certificada."
+      }
+    },
+    "features": {
+      "badge": "VENTAJAS",
+      "title": "Diseñado para los ciudadanos",
+      "desc": "Una plataforma rápida, segura y fácil de usar que te da el control total sobre tu actividad deportiva.",
+      "f1": {
+        "title": "Reservas en tiempo real",
+        "desc": "Consulta el calendario en vivo y asegura tu pista sin esperas ni llamadas."
+      },
+      "f2": {
+        "title": "Confirmación instantánea",
+        "desc": "Recibe la confirmación al instante y el recordatorio antes de tu cita."
+      },
+      "f3": {
+        "title": "Gestión de equipos",
+        "desc": "Organiza ligas, torneos y partidos privados con tu grupo de amigos."
+      },
+      "f4": {
+        "title": "Historial deportivo",
+        "desc": "Accede a todas tus reservas pasadas y lleva el control de tus horas en pista."
+      },
+      "f5": {
+        "title": "Acceso seguro",
+        "desc": "Identifícate con tu cuenta personal protegida y datos siempre encriptados."
+      },
+      "f6": {
+        "title": "Novedades y ofertas",
+        "desc": "Recibe alertas del ayuntamiento sobre actividades, torneos y promociones."
+      }
+    },
+    "about": {
+      "badge": "EL PROYECTO",
+      "title": "KoreManager",
+      "desc": "Impulsando el deporte local con tecnología de vanguardia. Un sistema pensado para optimizar el uso de los recursos municipales y fomentar una vida saludable en nuestra comunidad."
+    }
+  }
+}

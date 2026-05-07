@@ -1,0 +1,169 @@
+{
+  "layout": {
+    "title": "KORE MANAGER",
+    "subtitle": "Sports Management",
+    "search": "Search...",
+    "logout": "Logout",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "changePassword": "Change Password",
+    "comingSoon": "Coming Soon"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "profile": "My Profile",
+    "book": "Book Now",
+    "history": "History",
+    "stats": "Statistics",
+    "inventory": "Inventory",
+    "admin": "Admin Panel"
+  },
+  "landing": {
+    "nav": {
+      "sports": "Sports",
+      "features": "Features",
+      "about": "About Us",
+      "loginBtn": "Login"
+    },
+    "hero": {
+      "badge": "SMART MUNICIPAL MANAGEMENT",
+      "title1": "Your city's sports,",
+      "title2": "just a click away.",
+      "desc": "Forget about queues and calls. Book your court, manage your team and enjoy sports with the most advanced municipal platform.",
+      "cta1": "Book your court now",
+      "cta2": "View statistics"
+    },
+    "stats": {
+      "members": "Active members",
+      "installations": "Installations",
+      "availability": "Availability",
+      "time": "To book"
+    },
+    "video": {
+      "badge": "In Action",
+      "title1": "Why",
+      "title2": "KoreManager?"
+    },
+    "login": {
+      "success": "Logged in successfully!",
+      "errorCreds": "Invalid email or password.",
+      "back": "Back to landing",
+      "welcome": "Welcome back",
+      "emailPlaceholder": "email@example.com",
+      "forgot": "Forgot your password?",
+      "submit": "Log In",
+      "noAccount": "Don't have an account?",
+      "register": "Sign Up for Free"
+    },
+    "register": {
+      "errorMinChars": "Password must be at least 6 characters long.",
+      "errorMatch": "Passwords do not match. Please ensure they are the same.",
+      "errorTerms": "You must accept the Terms of Use and Privacy Policy to register.",
+      "success": "Registration successful! You can now log in.",
+      "back": "Back to landing",
+      "title": "Create your free account",
+      "fullName": "Full Name",
+      "emailPlaceholder": "email@example.com",
+      "phone": "Phone (e.g. +44 700000000)",
+      "dni": "ID/Passport",
+      "address": "Address",
+      "postalCode": "Postal code",
+      "city": "City",
+      "province": "Province/State",
+      "password": "Password (min. 6 characters)",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "acceptTermsPrefix": "I accept the ",
+      "terms": "Terms of Use",
+      "acceptPrivacyPrefix": "I have read and accept the ",
+      "privacy": "Privacy Policy",
+      "and": " and the ",
+      "cookies": "Cookies Policy",
+      "legalWarning": "Your data will be used to manage your account and bookings. You can exercise your rights in accordance with the GDPR.",
+      "hasAccount": "Already have an account?",
+      "login": "Log In"
+    },
+    "forgot": {
+      "toastSuccess": "Recovery email sent",
+      "toastError": "Error sending email.",
+      "backToLogin": "Back to login",
+      "checkInbox": "Check your inbox",
+      "sentTo": "We have sent a recovery link to ",
+      "clickToReset": ". Click on it to set a new password.",
+      "goToLogin": "Go to Login",
+      "title": "Recover Password",
+      "desc": "Enter your email and we will send you a link to reset your password.",
+      "emailPlaceholder": "email@example.com",
+      "submit": "Send recovery link"
+    },
+    "reset": {
+      "errorLink": "The recovery link is invalid or has expired.",
+      "errorMatch": "Passwords do not match",
+      "errorMinChars": "Password must be at least 6 characters",
+      "toastSuccess": "Password successfully updated",
+      "toastError": "Error updating password",
+      "successTitle": "Password Saved!",
+      "successDesc": "Your password has been successfully updated. You will be redirected to the login page in a few seconds...",
+      "title": "New Password",
+      "desc": "Enter your new secure password to access KoreManager.",
+      "password": "New password",
+      "confirmPassword": "Repeat password",
+      "submit": "Save Password"
+    },
+    "sports": {
+      "badge": "INSTALLATIONS",
+      "title": "Sports for everyone",
+      "desc": "Our facilities are prepared to offer you the best sporting experience, whatever your level.",
+      "padel": {
+        "name": "Padel",
+        "courts": "6 courts",
+        "desc": "Indoor and outdoor courts with professional LED lighting."
+      },
+      "futsal": {
+        "name": "Futsal",
+        "courts": "3 pitches",
+        "desc": "Resin pitches with official markings and referee cabins."
+      },
+      "tennis": {
+        "name": "Tennis",
+        "courts": "4 courts",
+        "desc": "Clay surface and certified hard court."
+      }
+    },
+    "features": {
+      "badge": "BENEFITS",
+      "title": "Designed for citizens",
+      "desc": "A fast, secure and easy-to-use platform that gives you total control over your sports activity.",
+      "f1": {
+        "title": "Real-time bookings",
+        "desc": "Check the live calendar and secure your court without waiting or calling."
+      },
+      "f2": {
+        "title": "Instant confirmation",
+        "desc": "Receive instant confirmation and a reminder before your appointment."
+      },
+      "f3": {
+        "title": "Team management",
+        "desc": "Organize leagues, tournaments and private matches with your group of friends."
+      },
+      "f4": {
+        "title": "Sports history",
+        "desc": "Access all your past bookings and keep track of your hours on the court."
+      },
+      "f5": {
+        "title": "Secure access",
+        "desc": "Log in with your protected personal account and always encrypted data."
+      },
+      "f6": {
+        "title": "News and offers",
+        "desc": "Receive municipal alerts about activities, tournaments and promotions."
+      }
+    },
+    "about": {
+      "badge": "THE PROJECT",
+      "title": "KoreManager",
+      "desc": "Boosting local sports with cutting-edge technology. A system designed to optimize the use of municipal resources and promote a healthy lifestyle in our community."
+    }
+  }
+}

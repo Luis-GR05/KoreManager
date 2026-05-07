@@ -1,110 +1,13 @@
 import { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Zap, Calendar, Users, Shield, Star, Clock, ChevronDown, User } from 'lucide-react';
 import { GiPingPongBat, GiSoccerBall, GiTennisRacket } from 'react-icons/gi';
 import gsap from 'gsap';
 import Footer from '../components/Footer';
 import VideoCarousel3D from '../components/ui/VideoCarousel3D';
 
-/**
- * Dataset de deportes mostrado en la landing.
- * @type {Array<{name: string, icon: any, courts: string, accent: string, bg: string, border: string, description: string}>}
- */
-const SPORTS = [
-  {
-    name: 'Pádel',
-    icon: GiPingPongBat,
-    courts: '6 pistas',
-    accent: '#CCFF00',
-    bg: 'from-[#CCFF00]/10 to-transparent',
-    border: 'border-[#CCFF00]/20',
-    description: 'Pistas cubiertas y descubiertas con iluminación LED profesional.',
-  },
-  {
-    name: 'Fútbol Sala',
-    icon: GiSoccerBall,
-    courts: '3 campos',
-    accent: '#8A2BE2',
-    bg: 'from-[#8A2BE2]/10 to-transparent',
-    border: 'border-[#8A2BE2]/20',
-    description: 'Campos de resina con marcaje oficial y cabinas de arbitraje.',
-  },
-  {
-    name: 'Tenis',
-    icon: GiTennisRacket,
-    courts: '4 pistas',
-    accent: '#007AFF',
-    bg: 'from-[#007AFF]/10 to-transparent',
-    border: 'border-[#007AFF]/20',
-    description: 'Superficie de tierra batida y pista dura certificada.',
-  },
-];
 
-/**
- * Estadísticas de marketing mostradas en la landing.
- * @type {Array<{value: string, label: string}>}
- */
-const STATS = [
-  { value: '500+', label: 'Socios activos' },
-  { value: '13', label: 'Instalaciones' },
-  { value: '24/7', label: 'Disponibilidad' },
-  { value: '< 30s', label: 'Para reservar' },
-];
-
-/**
- * Feature cards de la landing.
- * @type {Array<{icon: any, title: string, desc: string, color: string, glow: string, border: string}>}
- */
-const FEATURES = [
-  {
-    icon: Calendar,
-    title: 'Reservas en tiempo real',
-    desc: 'Consulta el calendario en vivo y asegura tu pista sin esperas ni llamadas.',
-    color: 'text-brand-lime',
-    glow: 'from-brand-lime/10',
-    border: 'group-hover:border-brand-lime/30',
-  },
-  {
-    icon: Zap,
-    title: 'Confirmación instantánea',
-    desc: 'Recibe la confirmación al instante y el recordatorio antes de tu cita.',
-    color: 'text-brand-purple',
-    glow: 'from-brand-purple/10',
-    border: 'group-hover:border-brand-purple/30',
-  },
-  {
-    icon: Users,
-    title: 'Gestión de equipos',
-    desc: 'Organiza ligas, torneos y partidos privados con tu grupo de amigos.',
-    color: 'text-blue-400',
-    glow: 'from-blue-500/10',
-    border: 'group-hover:border-blue-400/30',
-  },
-  {
-    icon: Clock,
-    title: 'Historial deportivo',
-    desc: 'Accede a todas tus reservas pasadas y lleva el control de tus horas en pista.',
-    color: 'text-emerald-400',
-    glow: 'from-emerald-500/10',
-    border: 'group-hover:border-emerald-400/30',
-  },
-  {
-    icon: Shield,
-    title: 'Acceso seguro',
-    desc: 'Identifícate con tu cuenta personal protegida y datos siempre encriptados.',
-    color: 'text-orange-400',
-    glow: 'from-orange-500/10',
-    border: 'group-hover:border-orange-400/30',
-  },
-  {
-    icon: Star,
-    title: 'Novedades y ofertas',
-    desc: 'Recibe alertas del ayuntamiento sobre actividades, torneos y promociones.',
-    color: 'text-yellow-400',
-    glow: 'from-yellow-500/10',
-    border: 'group-hover:border-yellow-400/30',
-  },
-];
 
 /**
  * Etiqueta de sección (texto pequeño en mayúsculas).
@@ -138,11 +41,101 @@ function GlowOrb({ className }) {
  * @returns {import('react').JSX.Element}
  */
 export default function Landing() {
+  const { t, i18n } = useTranslation();
   const heroRef = useRef(null);
   const statsRef = useRef(null);
   const sportsRef = useRef(null);
   const featuresRef = useRef(null);
   const aboutRef = useRef(null);
+
+  // Dynamic arrays needing translation
+  const SPORTS = [
+    {
+      name: t('landing.sports.padel.name'),
+      icon: GiPingPongBat,
+      courts: t('landing.sports.padel.courts'),
+      accent: '#CCFF00',
+      bg: 'from-[#CCFF00]/10 to-transparent',
+      border: 'border-[#CCFF00]/20',
+      description: t('landing.sports.padel.desc'),
+    },
+    {
+      name: t('landing.sports.futsal.name'),
+      icon: GiSoccerBall,
+      courts: t('landing.sports.futsal.courts'),
+      accent: '#8A2BE2',
+      bg: 'from-[#8A2BE2]/10 to-transparent',
+      border: 'border-[#8A2BE2]/20',
+      description: t('landing.sports.futsal.desc'),
+    },
+    {
+      name: t('landing.sports.tennis.name'),
+      icon: GiTennisRacket,
+      courts: t('landing.sports.tennis.courts'),
+      accent: '#007AFF',
+      bg: 'from-[#007AFF]/10 to-transparent',
+      border: 'border-[#007AFF]/20',
+      description: t('landing.sports.tennis.desc'),
+    },
+  ];
+
+  const STATS = [
+    { value: '500+', label: t('landing.stats.members') },
+    { value: '13', label: t('landing.stats.installations') },
+    { value: '24/7', label: t('landing.stats.availability') },
+    { value: '< 30s', label: t('landing.stats.time') },
+  ];
+
+  const FEATURES = [
+    {
+      icon: Calendar,
+      title: t('landing.features.f1.title'),
+      desc: t('landing.features.f1.desc'),
+      color: 'text-brand-lime',
+      glow: 'from-brand-lime/10',
+      border: 'group-hover:border-brand-lime/30',
+    },
+    {
+      icon: Zap,
+      title: t('landing.features.f2.title'),
+      desc: t('landing.features.f2.desc'),
+      color: 'text-brand-purple',
+      glow: 'from-brand-purple/10',
+      border: 'group-hover:border-brand-purple/30',
+    },
+    {
+      icon: Users,
+      title: t('landing.features.f3.title'),
+      desc: t('landing.features.f3.desc'),
+      color: 'text-blue-400',
+      glow: 'from-blue-500/10',
+      border: 'group-hover:border-blue-400/30',
+    },
+    {
+      icon: Clock,
+      title: t('landing.features.f4.title'),
+      desc: t('landing.features.f4.desc'),
+      color: 'text-emerald-400',
+      glow: 'from-emerald-500/10',
+      border: 'group-hover:border-emerald-400/30',
+    },
+    {
+      icon: Shield,
+      title: t('landing.features.f5.title'),
+      desc: t('landing.features.f5.desc'),
+      color: 'text-orange-400',
+      glow: 'from-orange-500/10',
+      border: 'group-hover:border-orange-400/30',
+    },
+    {
+      icon: Star,
+      title: t('landing.features.f6.title'),
+      desc: t('landing.features.f6.desc'),
+      color: 'text-yellow-400',
+      glow: 'from-yellow-500/10',
+      border: 'group-hover:border-yellow-400/30',
+    },
+  ];
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -236,22 +229,39 @@ export default function Landing() {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-          <a href="#deportes" className="hover:text-white transition-colors duration-200">Deportes</a>
-          <a href="#funciones" className="hover:text-white transition-colors duration-200">Funciones</a>
-          <a href="#sobre" className="hover:text-white transition-colors duration-200">Sobre nosotros</a>
+          <a href="#deportes" className="hover:text-white transition-colors duration-200">{t('landing.nav.sports')}</a>
+          <a href="#funciones" className="hover:text-white transition-colors duration-200">{t('landing.nav.features')}</a>
+          <a href="#sobre" className="hover:text-white transition-colors duration-200">{t('landing.nav.about')}</a>
         </div>
 
-        <Link
-          to="/login"
-          className="px-4 md:px-6 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
-          transition-all duration-300 ease-out
-          hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.35)] hover:scale-105
-          flex items-center gap-2"
-          aria-label="Acceso Usuarios"
-        >
-          <User size={18} className="md:hidden" aria-hidden="true" />
-          <span className="hidden md:inline">Acceso Usuarios</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 bg-[#0F0F1A]/80 border border-white/10 rounded-full p-1 backdrop-blur-md">
+            <button 
+              onClick={() => i18n.changeLanguage('es')}
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${i18n.language === 'es' ? 'bg-brand-lime text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+              ES
+            </button>
+            <button 
+              onClick={() => i18n.changeLanguage('en')}
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${i18n.language === 'en' ? 'bg-brand-lime text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+              EN
+            </button>
+          </div>
+
+          <Link
+            to="/login"
+            className="px-4 md:px-6 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
+            transition-all duration-300 ease-out
+            hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.35)] hover:scale-105
+            flex items-center gap-2"
+            aria-label={t('landing.nav.loginBtn')}
+          >
+            <User size={18} className="md:hidden" aria-hidden="true" />
+            <span className="hidden md:inline">{t('landing.nav.loginBtn')}</span>
+          </Link>
+        </div>
       </nav>
 
       {/* ══════════════════════════════════════════
@@ -275,43 +285,40 @@ export default function Landing() {
         <div className="relative z-10 max-w-5xl mx-auto space-y-8">
 
           {/* Badge */}
-          <div data-hero className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-lime/5 border border-brand-lime/20 text-brand-lime text-xs font-bold uppercase tracking-wider">
+          <div data-hero className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-lime/30 bg-brand-lime/10 backdrop-blur-md mb-8">
             <span className="w-2 h-2 rounded-full bg-brand-lime animate-pulse" />
-            Sistema v1.4 — Ya disponible
+            <span className="text-[10px] md:text-xs font-bold text-brand-lime tracking-widest uppercase">
+              {t('landing.hero.badge')}
+            </span>
           </div>
 
           {/* Título principal */}
-          <h1 data-hero className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tight leading-[1.05]">
-            El deporte<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime via-emerald-400 to-brand-lime drop-shadow-lg bg-[length:200%] animate-[shimmer_3s_linear_infinite]">
-              ahora es digital.
+          <h1 data-hero className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[1.05] tracking-tight mb-6">
+            {t('landing.hero.title1')}<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime via-green-400 to-emerald-300">
+              {t('landing.hero.title2')}
             </span>
           </h1>
 
-          <p data-hero className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Olvídate de las llamadas y el papel. Reserva pistas de pádel, fútbol y tenis
-            en segundos desde cualquier dispositivo.
+          <p data-hero className="text-gray-400 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+            {t('landing.hero.desc')}
           </p>
 
           {/* CTAs */}
           <div data-hero className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               to="/login"
-              className="w-full sm:w-auto px-8 py-4 bg-brand-lime text-black rounded-full font-bold text-base
-              shadow-[0_0_20px_rgba(204,255,0,0.35)]
-              hover:scale-105 hover:shadow-[0_0_40px_rgba(204,255,0,0.6)]
-              transition-all duration-300 flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-lime text-black font-black flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-[0_0_20px_rgba(204,255,0,0.2)] hover:shadow-[0_0_30px_rgba(204,255,0,0.4)]"
             >
-              Reservar pista ahora
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} aria-hidden="true" />
+              {t('landing.hero.cta1')}
+              <ArrowRight size={20} />
             </Link>
 
             <a
               href="#deportes"
-              className="w-full sm:w-auto px-8 py-4 bg-transparent border border-white/15 text-white rounded-full font-bold text-base
-              hover:bg-white/5 hover:border-white/30 transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl border border-white/20 text-white font-bold flex items-center justify-center gap-3 hover:bg-white/5 transition-colors"
             >
-              Ver instalaciones
+              {t('landing.hero.cta2')}
             </a>
           </div>
 
@@ -343,9 +350,9 @@ export default function Landing() {
         <GlowOrb className="w-[500px] h-[500px] bg-brand-lime/5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <SectionLabel>En Acción</SectionLabel>
+            <SectionLabel>{t('landing.video.badge')}</SectionLabel>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              ¿Por qué <span className="text-brand-lime">KoreManager?</span>
+              {t('landing.video.title1')} <span className="text-brand-lime">{t('landing.video.title2')}</span>
             </h2>
           </div>
           <VideoCarousel3D />
@@ -358,15 +365,16 @@ export default function Landing() {
       <section ref={sportsRef} id="deportes" className="relative px-6 py-32 bg-[#0F0F1A]">
         <GlowOrb className="w-[600px] h-[600px] bg-brand-purple/10 top-1/2 left-0 -translate-y-1/2" />
 
-        <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <SectionLabel>Instalaciones</SectionLabel>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              Todos tus deportes,<br />
-              <span className="text-brand-lime">un solo lugar.</span>
-            </h2>
-            <p className="mt-4 text-gray-400 max-w-xl mx-auto">
-              Un complejo deportivo completo al alcance de tu mano. Elige tu deporte y comienza a jugar.
+        <div className="max-w-7xl mx-auto relative z-10 px-8">
+          <div className="flex flex-col md:flex-row gap-12 items-end justify-between mb-16">
+            <div className="max-w-2xl">
+              <SectionLabel>{t('landing.sports.badge')}</SectionLabel>
+              <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+                {t('landing.sports.title')}
+              </h2>
+            </div>
+            <p className="text-gray-400 max-w-md md:text-right">
+              {t('landing.sports.desc')}
             </p>
           </div>
 
@@ -406,7 +414,7 @@ export default function Landing() {
                     className="mt-6 inline-flex items-center gap-2 text-sm font-bold transition-all duration-200 group/link"
                     style={{ color: sport.accent }}
                   >
-                    Reservar ahora
+                    {t('landing.sports.cta')}
                     <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" aria-hidden="true" />
                   </Link>
                 </div>
@@ -422,13 +430,15 @@ export default function Landing() {
       <section ref={featuresRef} id="funciones" className="relative px-6 py-32 bg-gradient-to-b from-[#13131F] to-[#0F0F1A] border-t border-white/5">
         <GlowOrb className="w-[500px] h-[500px] bg-brand-lime/8 top-1/2 right-0 -translate-y-1/2" />
 
-        <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <SectionLabel>¿Por qué KoreManager?</SectionLabel>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              Todo lo que necesitas,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime to-emerald-400">nada más.</span>
+        <div className="max-w-7xl mx-auto px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <SectionLabel>{t('landing.features.badge')}</SectionLabel>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
+              {t('landing.features.title')}
             </h2>
+            <p className="text-gray-400 text-lg">
+              {t('landing.features.desc')}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

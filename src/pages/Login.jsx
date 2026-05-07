@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
@@ -15,6 +16,7 @@ import Input from '../components/ui/Input';
  * @returns {import('react').JSX.Element}
  */
 export default function Login() {
+  const { t } = useTranslation();
   const navigate  = useNavigate();
   const location  = useLocation();
   const { user, loading: authLoading } = useAuth();
@@ -58,11 +60,11 @@ export default function Login() {
 
       if (error) throw error;
 
-      toast.success('¡Sesión iniciada!', { duration: 2000 });
+      toast.success(t('login.success'), { duration: 2000 });
 
     } catch (error) {
       const msg = error.message === 'Invalid login credentials'
-        ? 'Email o contraseña incorrectos.'
+        ? t('login.errorCreds')
         : error.message;
       toast.error(msg);
     } finally {
@@ -85,7 +87,7 @@ export default function Login() {
             className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft size={16} />
-            Volver a la landing
+            {t('login.back')}
           </Link>
         </div>
 
@@ -93,7 +95,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
             KORE <span className="text-brand-lime">MANAGER</span>
           </h1>
-          <p className="text-gray-400 text-sm">Bienvenido de nuevo</p>
+          <p className="text-gray-400 text-sm">{t('login.welcome')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,7 +103,7 @@ export default function Login() {
             icon={Mail}
             name="email"
             type="email"
-            placeholder="correo@ejemplo.com"
+            placeholder={t('login.emailPlaceholder')}
             value={formData.email}
             onChange={handleChange}
             required
@@ -130,21 +132,21 @@ export default function Login() {
 
           <div className="flex justify-end mt-1">
             <Link to="/forgot-password" className="text-sm font-bold text-gray-400 hover:text-brand-lime transition-colors">
-              ¿Olvidaste tu contraseña?
+              {t('login.forgot')}
             </Link>
           </div>
 
           <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
-            Iniciar Sesión
+            {t('login.submit')}
             {!submitting && <ArrowRight size={20} />}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-500 text-sm">
-            ¿No tienes cuenta?
+            {t('login.noAccount')}
             <Link to="/register" className="ml-2 text-white font-bold hover:text-brand-lime transition-colors">
-              Regístrate Gratis
+              {t('login.register')}
             </Link>
           </p>
         </div>

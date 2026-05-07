@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -7,6 +8,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
 export default function ResetPassword() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,23 +20,23 @@ export default function ResetPassword() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        toast.error('El enlace de recuperación no es válido o ha expirado.');
+        toast.error(t('reset.errorLink'));
         navigate('/login');
       }
     });
-  }, [navigate]);
+  }, [navigate, t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
 
     if (password !== confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('reset.errorMatch'));
       return;
     }
 
     if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+      toast.error(t('reset.errorMinChars'));
       return;
     }
 
@@ -48,7 +50,7 @@ export default function ResetPassword() {
       if (error) throw error;
 
       setIsSuccess(true);
-      toast.success('Contraseña actualizada correctamente');
+      toast.success(t('reset.toastSuccess'));
       
       // Cerrar sesión para que el usuario tenga que logearse con la nueva contraseña
       await supabase.auth.signOut();
@@ -58,7 +60,7 @@ export default function ResetPassword() {
       }, 3000);
 
     } catch (error) {
-      toast.error(error.message || 'Error al actualizar la contraseña');
+      toast.error(error.message || t('reset.toastError'));
     } finally {
       setSubmitting(false);
     }
@@ -77,19 +79,19 @@ export default function ResetPassword() {
             <div className="w-20 h-20 bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
               <CheckCircle className="w-10 h-10 text-brand-lime" />
             </div>
-            <h2 className="text-2xl font-black text-white mb-3">¡Contraseña Guardada!</h2>
+            <h2 className="text-2xl font-black text-white mb-3">{t('reset.successTitle')}</h2>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Tu contraseña ha sido actualizada con éxito. Serás redirigido al inicio de sesión en unos segundos...
+              {t('reset.successDesc')}
             </p>
           </div>
         ) : (
           <>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-                Nueva Contraseña
+                {t('reset.title')}
               </h1>
               <p className="text-gray-400 text-sm">
-                Introduce tu nueva contraseña segura para acceder a KoreManager.
+                {t('reset.desc')}
               </p>
             </div>
 
@@ -99,7 +101,7 @@ export default function ResetPassword() {
                   icon={Lock}
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Nueva contraseña"
+                  placeholder={t('reset.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -120,7 +122,7 @@ export default function ResetPassword() {
                   icon={Lock}
                   name="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Repetir contraseña"
+                  placeholder={t('reset.confirmPassword')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -129,7 +131,7 @@ export default function ResetPassword() {
               </div>
 
               <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-4">
-                Guardar Contraseña
+                {t('reset.submit')}
               </Button>
             </form>
           </>

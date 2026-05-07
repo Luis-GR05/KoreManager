@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import { Mail, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -7,6 +8,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -24,9 +26,9 @@ export default function ForgotPassword() {
       if (error) throw error;
 
       setIsSuccess(true);
-      toast.success('Correo de recuperación enviado');
+      toast.success(t('forgot.toastSuccess'));
     } catch (error) {
-      toast.error(error.message || 'Error al enviar el correo.');
+      toast.error(error.message || t('forgot.toastError'));
     } finally {
       setSubmitting(false);
     }
@@ -45,7 +47,7 @@ export default function ForgotPassword() {
             className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft size={16} />
-            Volver al inicio de sesión
+            {t('forgot.backToLogin')}
           </Link>
         </div>
 
@@ -54,26 +56,25 @@ export default function ForgotPassword() {
             <div className="w-20 h-20 bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10 text-brand-lime" />
             </div>
-            <h2 className="text-2xl font-black text-white mb-3">Revisa tu bandeja</h2>
+            <h2 className="text-2xl font-black text-white mb-3">{t('forgot.checkInbox')}</h2>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Hemos enviado un enlace de recuperación a <strong className="text-white">{email}</strong>. 
-              Haz clic en él para establecer una nueva contraseña.
+              {t('forgot.sentTo')}<strong className="text-white">{email}</strong>{t('forgot.clickToReset')}
             </p>
             <Link
               to="/login"
               className="w-full inline-flex justify-center py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all border border-white/10"
             >
-              Ir al Login
+              {t('forgot.goToLogin')}
             </Link>
           </div>
         ) : (
           <>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-                Recuperar Contraseña
+                {t('forgot.title')}
               </h1>
               <p className="text-gray-400 text-sm">
-                Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.
+                {t('forgot.desc')}
               </p>
             </div>
 
@@ -82,14 +83,14 @@ export default function ForgotPassword() {
                 icon={Mail}
                 name="email"
                 type="email"
-                placeholder="correo@ejemplo.com"
+                placeholder={t('forgot.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
 
               <Button type="submit" variant="primary" isLoading={submitting} className="w-full">
-                Enviar enlace de recuperación
+                {t('forgot.submit')}
                 {!submitting && <ArrowRight size={20} />}
               </Button>
             </form>
