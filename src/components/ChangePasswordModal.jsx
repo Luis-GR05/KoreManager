@@ -22,12 +22,12 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     if (submitting) return;
 
     if (password !== confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('changePassword.errors.noMatch'));
       return;
     }
 
     if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+      toast.error(t('changePassword.errors.minChars'));
       return;
     }
 
@@ -38,7 +38,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
       if (error) throw error;
 
       setIsSuccess(true);
-      toast.success('Contraseña actualizada correctamente');
+      toast.success(t('changePassword.successToast'));
       
       setTimeout(() => {
         onClose();
@@ -48,7 +48,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
       }, 2000);
 
     } catch (error) {
-      toast.error(error.message || 'Error al actualizar la contraseña');
+      toast.error(error.message || t('changePassword.errors.updateError'));
     } finally {
       setSubmitting(false);
     }
@@ -69,14 +69,12 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             <div className="w-16 h-16 bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
               <CheckCircle className="w-8 h-8 text-brand-lime" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">¡Contraseña Guardada!</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{t('changePassword.successTitle')}</h3>
           </div>
         ) : (
           <>
-            <h3 className="text-xl font-bold text-white mb-2">Cambiar Contraseña</h3>
-            <p className="text-gray-400 text-sm mb-6">
-              Introduce tu nueva contraseña segura. La sesión actual se mantendrá abierta.
-            </p>
+            <h3 className="text-xl font-bold text-white mb-2">{t('changePassword.title')}</h3>
+            <p className="text-gray-400 text-sm mb-6">{t('changePassword.desc')}</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative group">
@@ -84,7 +82,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
                   icon={Lock}
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Nueva contraseña"
+                  placeholder={t('changePassword.newPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -105,7 +103,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
                   icon={Lock}
                   name="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Repetir contraseña"
+                  placeholder={t('changePassword.repeatPassword')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -114,7 +112,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
               </div>
 
               <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
-                Guardar Contraseña
+                {t('changePassword.save')}
               </Button>
             </form>
           </>

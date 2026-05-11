@@ -60,11 +60,11 @@ export default function Login() {
 
       if (error) throw error;
 
-      toast.success(t('login.success'), { duration: 2000 });
+      toast.success(t('landing.login.success'), { duration: 2000 });
 
     } catch (error) {
       const msg = error.message === 'Invalid login credentials'
-        ? t('login.errorCreds')
+        ? t('landing.login.errorCreds')
         : error.message;
       toast.error(msg);
     } finally {
@@ -87,7 +87,7 @@ export default function Login() {
             className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft size={16} />
-            {t('login.back')}
+            {t('landing.login.back')}
           </Link>
         </div>
 
@@ -95,7 +95,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
             KORE <span className="text-brand-lime">MANAGER</span>
           </h1>
-          <p className="text-gray-400 text-sm">{t('login.welcome')}</p>
+          <p className="text-gray-400 text-sm">{t('landing.login.welcome')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -103,7 +103,7 @@ export default function Login() {
             icon={Mail}
             name="email"
             type="email"
-            placeholder={t('login.emailPlaceholder')}
+            placeholder={t('landing.login.emailPlaceholder')}
             value={formData.email}
             onChange={handleChange}
             required
@@ -132,21 +132,21 @@ export default function Login() {
 
           <div className="flex justify-end mt-1">
             <Link to="/forgot-password" className="text-sm font-bold text-gray-400 hover:text-brand-lime transition-colors">
-              {t('login.forgot')}
+              {t('landing.login.forgot')}
             </Link>
           </div>
 
           <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
-            {t('login.submit')}
+            {t('landing.login.submit')}
             {!submitting && <ArrowRight size={20} />}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-500 text-sm">
-            {t('login.noAccount')}
+            {t('landing.login.noAccount')}
             <Link to="/register" className="ml-2 text-white font-bold hover:text-brand-lime transition-colors">
-              {t('login.register')}
+              {t('landing.login.register')}
             </Link>
           </p>
         </div>

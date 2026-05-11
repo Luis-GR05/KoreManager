@@ -4,6 +4,7 @@ import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star, Image as ImageIcon, ArrowUpRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Determina el nivel del jugador a partir de partidos completados.
@@ -30,34 +31,30 @@ function getNivel(total) {
  */
 export default function Dashboard() {
   const { user, profile } = useAuth();
+  const { t } = useTranslation();
 
   const [instalaciones, setInstalaciones] = useState([]);
   const [misReservas, setMisReservas]     = useState([]);
   const [avisos, setAvisos]               = useState([]);
   const [loading, setLoading]             = useState(true);
   const [partidosMes, setPartidosMes]     = useState(0);
-  const [totalJugados, setTotalJugados]   = useState(0); // partidos completados (pasados)
+  const [totalJugados, setTotalJugados]   = useState(0);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
 
   const META_PARTIDOS = 5;
   useEffect(() => {
-    // Usamos user.id (disponible desde el primer render del contexto)
-    // en lugar de profile.id (que requiere un fetch adicional a la BD).
-    // Así el panel carga inmediatamente sin depender del perfil.
     if (!user?.id) return;
     const hoy = new Date().toISOString().split('T')[0];
 
     const fetchData = async () => {
       const userId = user.id;
 
-      // Instalaciones
       const { data: dataInst } = await supabase
         .from('instalaciones')
         .select('*')
         .order('id');
       if (dataInst) setInstalaciones(dataInst);
 
-      // Mis próximas reservas (solo futuras)
       const { data: dataReservas } = await supabase
         .from('reservas')
         .select(`id, fecha, hora, instalaciones ( nombre )`)
@@ -66,7 +63,6 @@ export default function Dashboard() {
         .order('fecha', { ascending: true });
       if (dataReservas) setMisReservas(dataReservas);
 
-      // Partidos del mes actual
       const primerDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
         .toISOString().split('T')[0];
       const { count: countMes } = await supabase
@@ -76,7 +72,6 @@ export default function Dashboard() {
         .gte('fecha', primerDiaMes);
       setPartidosMes(countMes || 0);
 
-      // Total de partidos completados (fecha pasada)
       const { count: countTotal } = await supabase
         .from('reservas')
         .select('*', { count: 'exact', head: true })
@@ -84,7 +79,6 @@ export default function Dashboard() {
         .lt('fecha', hoy);
       setTotalJugados(countTotal || 0);
 
-      // Avisos activos
       const { data: dataAvisos } = await supabase
         .from('avisos')
         .select('*')
@@ -141,11 +135,11 @@ export default function Dashboard() {
   const cancelarReserva = async (id) => {
     const { error } = await supabase.from('reservas').delete().eq('id', id);
     if (error) {
-      toast.error('No se pudo cancelar la reserva.');
+      toast.error(t('dashboard.cancelError'));
     } else {
       setMisReservas(prev => prev.filter(r => r.id !== id));
       setPartidosMes(prev => Math.max(0, prev - 1));
-      toast.success('Reserva cancelada.');
+      toast.success(t('dashboard.cancelSuccess'));
     }
   };
 
@@ -165,7 +159,7 @@ export default function Dashboard() {
           <div className="h-24 w-full bg-white/5 rounded-3xl" />
         </div>
       </div>
-      <p className="text-brand-lime/80 text-sm font-bold animate-pulse">Cargando tu panel…</p>
+      <p className="text-brand-lime/80 text-sm font-bold animate-pulse">{t('dashboard.loading')}</p>
     </div>
   );
 
@@ -197,7 +191,6 @@ export default function Dashboard() {
 
         <div className="relative z-10 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
-            {/* Slot de imagen/escudo */}
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0 overflow-hidden">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -207,13 +200,13 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                Panel principal
+                {t('dashboard.panelLabel')}
               </p>
               <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
-                Hola, <span className="text-brand-lime">{firstName}</span>
+                {t('dashboard.greeting')} <span className="text-brand-lime">{firstName}</span>
               </h1>
               <p className="text-gray-400 text-sm mt-1 max-w-2xl">
-                Gestiona reservas, consulta avisos y controla el estado de las instalaciones en tiempo real.
+                {t('dashboard.subtitle')}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
@@ -221,7 +214,7 @@ export default function Dashboard() {
                   className="px-5 py-3 bg-brand-lime text-black rounded-2xl font-black hover:scale-[1.02] active:scale-[0.99] transition-all flex items-center gap-2 shadow-[0_0_18px_rgba(204,255,0,0.28)]"
                 >
                   <PlusCircle size={18} />
-                  Nueva reserva
+                  {t('dashboard.newBooking')}
                   <ArrowUpRight size={18} />
                 </Link>
                 <Link
@@ -229,7 +222,7 @@ export default function Dashboard() {
                   className="px-5 py-3 bg-white/5 border border-white/10 text-gray-200 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2"
                 >
                   <Clock size={18} />
-                  Ver historial
+                  {t('dashboard.viewHistory')}
                 </Link>
               </div>
             </div>
@@ -238,10 +231,10 @@ export default function Dashboard() {
           {/* KPI mini */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 w-full lg:w-[360px]">
             {[
-              { label: 'Este mes', value: partidosMes, icon: Calendar, color: 'text-brand-lime', bg: 'bg-brand-lime/10' },
-              { label: 'Completados', value: totalJugados, icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
-              { label: 'Próximos', value: misReservas.length, icon: Clock, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
-              { label: 'Avisos', value: avisos.length, icon: AlertTriangle, color: 'text-brand-red', bg: 'bg-brand-red/10' },
+              { label: t('dashboard.kpi.thisMonth'), value: partidosMes, icon: Calendar, color: 'text-brand-lime', bg: 'bg-brand-lime/10' },
+              { label: t('dashboard.kpi.completed'), value: totalJugados, icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+              { label: t('dashboard.kpi.upcoming'), value: misReservas.length, icon: Clock, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
+              { label: t('dashboard.kpi.alerts'), value: avisos.length, icon: AlertTriangle, color: 'text-brand-red', bg: 'bg-brand-red/10' },
             ].map(({ label, value, icon, color, bg }) => {
               const Icon = icon;
               return (
@@ -266,7 +259,7 @@ export default function Dashboard() {
           {/* PRÓXIMOS PARTIDOS */}
           <section>
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <Calendar className="text-brand-purple" /> Mis Próximos Partidos
+              <Calendar className="text-brand-purple" /> {t('dashboard.nextMatches')}
             </h3>
             {misReservas.length === 0 ? (
               <div className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 text-center relative overflow-hidden">
@@ -275,13 +268,13 @@ export default function Dashboard() {
                   <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 mx-auto mb-4">
                     <Calendar size={20} />
                   </div>
-                  <p className="text-gray-300 font-bold mb-1">No tienes reservas próximas</p>
-                  <p className="text-gray-500 text-sm mb-5">Elige pista y horario en menos de 30 segundos.</p>
+                  <p className="text-gray-300 font-bold mb-1">{t('dashboard.noBookings')}</p>
+                  <p className="text-gray-500 text-sm mb-5">{t('dashboard.noBookingsDesc')}</p>
                   <Link
                     to="/reservar"
                     className="inline-flex items-center gap-2 px-5 py-3 bg-brand-lime text-black rounded-2xl font-black hover:scale-[1.02] transition-all"
                   >
-                    <PlusCircle size={16} /> Reservar ahora
+                    <PlusCircle size={16} /> {t('dashboard.bookNow')}
                   </Link>
                 </div>
               </div>
@@ -298,7 +291,7 @@ export default function Dashboard() {
                       </div>
                       <div>
                         <h4 className="font-bold text-white group-hover:text-brand-lime transition-colors">
-                          {reserva.instalaciones?.nombre || 'Pista Deportiva'}
+                          {reserva.instalaciones?.nombre || t('dashboard.courtSport')}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
                           <span className="flex items-center gap-1"><Calendar size={12} /> {reserva.fecha}</span>
@@ -309,7 +302,7 @@ export default function Dashboard() {
                     <button
                       onClick={() => cancelarReserva(reserva.id)}
                       className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors shrink-0 ml-4"
-                      title="Cancelar Reserva"
+                      title={t('dashboard.cancelBooking')}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -322,7 +315,7 @@ export default function Dashboard() {
           {/* ESTADO DE PISTAS */}
           <section>
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <MapPin className="text-brand-lime" /> Estado de Pistas
+              <MapPin className="text-brand-lime" /> {t('dashboard.courtStatus')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {instalacionesUnique.map((item) => (
@@ -352,11 +345,11 @@ export default function Dashboard() {
           {/* AVISOS */}
           <div>
             <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-              <AlertTriangle className="text-brand-red" /> Avisos
+              <AlertTriangle className="text-brand-red" /> {t('dashboard.alerts')}
             </h3>
             {avisos.length === 0 ? (
               <div className="bg-[#1A1A2E] border border-white/5 rounded-3xl p-6 text-sm text-gray-500">
-                No hay avisos activos.
+                {t('dashboard.noAlerts')}
               </div>
             ) : (
               avisos.map((aviso) => (
@@ -368,14 +361,14 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* NIVEL DEL JUGADOR (mejorado) */}
+          {/* NIVEL DEL JUGADOR */}
           <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-brand-lime/10 rounded-xl flex items-center justify-center text-xl">
                 {nivel.emoji}
               </div>
               <div>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Tu nivel</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{t('dashboard.yourLevel')}</p>
                 <p className={`text-lg font-black ${nivel.color}`}>{nivel.nombre}</p>
               </div>
               <Link to="/estadisticas" className="ml-auto text-gray-500 hover:text-brand-lime transition-colors" title="Ver estadísticas completas">
@@ -385,8 +378,8 @@ export default function Dashboard() {
 
             <p className="text-xs text-gray-500 mb-3">
               {sigNivel
-                ? `${totalJugados} / ${sigNivel} partidos para subir de nivel`
-                : '¡Has alcanzado el nivel máximo!'}
+                ? `${totalJugados} / ${sigNivel} ${t('dashboard.progressLabel')}`
+                : t('dashboard.maxLevel')}
             </p>
             <div className="w-full bg-black/40 h-2.5 rounded-full overflow-hidden">
               <div
@@ -398,9 +391,9 @@ export default function Dashboard() {
 
           {/* META MENSUAL */}
           <div className="bg-gradient-to-br from-brand-lime/20 to-transparent p-6 rounded-3xl border border-brand-lime/20 text-center">
-            <h4 className="font-bold text-brand-lime text-lg mb-1">Meta del Mes</h4>
+            <h4 className="font-bold text-brand-lime text-lg mb-1">{t('dashboard.monthlyGoal')}</h4>
             <p className="text-xs text-gray-300 mb-4">
-              {partidosMes} de {META_PARTIDOS} partidos reservados
+              {partidosMes} {t('dashboard.monthlyGoalDesc', { meta: META_PARTIDOS })}
             </p>
             <div className="w-full bg-black/30 h-2 rounded-full overflow-hidden mb-2">
               <div

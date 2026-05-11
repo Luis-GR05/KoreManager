@@ -2,91 +2,31 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import {
-  BarChart2, Trophy, Calendar, Clock, MapPin,
-  Zap, Star, Target, TrendingUp, Award, PlusCircle
-} from 'lucide-react';
+import { BarChart2, Trophy, Calendar, Clock, MapPin, Zap, Star, Target, TrendingUp, Award, PlusCircle } from 'lucide-react';
 import { getReservaStatus } from '../lib/reservaStatus';
+import { useTranslation } from 'react-i18next';
 
-/**
- * Definición de logros (desbloqueados por nº de reservas completadas).
- * @type {Array<{id: string, titulo: string, desc: string, icon: string, threshold: number, color: string, bg: string, border: string}>}
- */
 const LOGROS = [
-  {
-    id: 'primer_partido',
-    titulo: '¡Primer Saque!',
-    desc: 'Completa tu primera reserva',
-    icon: '🎾',
-    threshold: 1,
-    color: 'text-brand-lime',
-    bg: 'bg-brand-lime/10',
-    border: 'border-brand-lime/30',
-  },
-  {
-    id: 'cinco_partidos',
-    titulo: 'En Forma',
-    desc: 'Completa 5 reservas',
-    icon: '💪',
-    threshold: 5,
-    color: 'text-blue-400',
-    bg: 'bg-blue-400/10',
-    border: 'border-blue-400/30',
-  },
-  {
-    id: 'diez_partidos',
-    titulo: 'Habitual',
-    desc: 'Completa 10 reservas',
-    icon: '🔥',
-    threshold: 10,
-    color: 'text-orange-400',
-    bg: 'bg-orange-400/10',
-    border: 'border-orange-400/30',
-  },
-  {
-    id: 'veinticinco_partidos',
-    titulo: 'Veterano',
-    desc: 'Completa 25 reservas',
-    icon: '⭐',
-    threshold: 25,
-    color: 'text-yellow-400',
-    bg: 'bg-yellow-400/10',
-    border: 'border-yellow-400/30',
-  },
-  {
-    id: 'cincuenta_partidos',
-    titulo: 'Leyenda',
-    desc: 'Completa 50 reservas',
-    icon: '🏆',
-    threshold: 50,
-    color: 'text-brand-lime',
-    bg: 'bg-brand-lime/10',
-    border: 'border-brand-lime/30',
-  },
+  { id: 'primer_partido',       icon: '🎾', threshold: 1,  color: 'text-brand-lime',   bg: 'bg-brand-lime/10',   border: 'border-brand-lime/30'   },
+  { id: 'cinco_partidos',       icon: '💪', threshold: 5,  color: 'text-blue-400',     bg: 'bg-blue-400/10',     border: 'border-blue-400/30'     },
+  { id: 'diez_partidos',        icon: '🔥', threshold: 10, color: 'text-orange-400',   bg: 'bg-orange-400/10',   border: 'border-orange-400/30'   },
+  { id: 'veinticinco_partidos', icon: '⭐', threshold: 25, color: 'text-yellow-400',   bg: 'bg-yellow-400/10',   border: 'border-yellow-400/30'   },
+  { id: 'cincuenta_partidos',   icon: '🏆', threshold: 50, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',   border: 'border-brand-lime/30'   },
 ];
 
-const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const DIAS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const DIAS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HORAS_LABEL = ['09', '10', '11', '12', '13', '16', '17', '18', '19', '20', '21'];
 
-/**
- * Calcula el nivel del jugador en base al número de reservas completadas.
- * @param {number} total
- * @returns {{nombre: string, color: string, bg: string, next: (number|null)}}
- */
 function getNivel(total) {
   if (total >= 50) return { nombre: 'Leyenda', color: 'text-brand-lime', bg: 'bg-brand-lime/20', next: null };
   if (total >= 25) return { nombre: 'Veterano', color: 'text-yellow-400', bg: 'bg-yellow-400/20', next: 50 };
   if (total >= 10) return { nombre: 'Habitual', color: 'text-orange-400', bg: 'bg-orange-400/20', next: 25 };
   if (total >= 5)  return { nombre: 'En Forma', color: 'text-blue-400',   bg: 'bg-blue-400/20',   next: 10 };
   if (total >= 1)  return { nombre: 'Novato',   color: 'text-gray-300',   bg: 'bg-white/10',      next: 5  };
-  return                  { nombre: 'Sin nivel', color: 'text-gray-500',   bg: 'bg-white/5',       next: 1  };
+  return                  { nombre: 'Sin nivel', color: 'text-gray-500',  bg: 'bg-white/5',       next: 1  };
 }
 
-/**
- * Tarjeta KPI simple.
- * @param {{icon: any, label: string, value: any, color: string, bg: string, isText?: boolean}} props
- * @returns {import('react').JSX.Element}
- */
 function StatCard({ icon, label, value, color, bg, isText = false }) {
   const Icon = icon;
   return (
@@ -102,11 +42,6 @@ function StatCard({ icon, label, value, color, bg, isText = false }) {
   );
 }
 
-/**
- * Gráfico de barras minimalista.
- * @param {{data: Array<{name: string, value: number}>, label: string}} props
- * @returns {import('react').JSX.Element}
- */
 function BarChartSimple({ data, label }) {
   const max = Math.max(...data.map(d => d.value), 1);
   return (
@@ -121,14 +56,10 @@ function BarChartSimple({ data, label }) {
             <div key={name} className="flex-1 flex flex-col items-center gap-1">
               <span className="text-[10px] text-gray-500 font-bold">{value > 0 ? value : ''}</span>
               <div className="w-full flex items-end" style={{ height: '88px' }}>
-                <div
-                  className="w-full rounded-t-lg bg-brand-lime/30 hover:bg-brand-lime transition-colors duration-300 relative group"
-                  style={{ height: `${Math.max(pct, value > 0 ? 4 : 0)}%` }}
-                >
-                  <div
-                    className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-lime transition-all duration-500"
-                    style={{ height: `${pct}%`, minHeight: value > 0 ? '4px' : '0' }}
-                  />
+                <div className="w-full flex items-end" style={{ height: '88px' }}>
+                  <div className="w-full rounded-t-lg bg-brand-lime/30 hover:bg-brand-lime transition-colors duration-300 relative group" style={{ height: `${Math.max(pct, value > 0 ? 4 : 0)}%` }}>
+                    <div className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-lime transition-all duration-500" style={{ height: `${pct}%`, minHeight: value > 0 ? '4px' : '0' }} />
+                  </div>
                 </div>
               </div>
               <span className="text-[10px] text-gray-600 font-medium">{name}</span>
@@ -140,45 +71,32 @@ function BarChartSimple({ data, label }) {
   );
 }
 
-/**
- * Tarjeta de logro.
- * @param {{logro: any, unlocked: boolean}} props
- * @returns {import('react').JSX.Element}
- */
-function LogroCard({ logro, unlocked }) {
+function LogroCard({ logro, unlocked, unlockedLabel }) {
+  const { t } = useTranslation();
+  const titulo = t(`stats.logros.${logro.id}.title`, { defaultValue: logro.id });
+  const desc   = t(`stats.logros.${logro.id}.desc`,  { defaultValue: '' });
   return (
-    <div
-      className={`rounded-2xl p-4 border transition-all ${
-        unlocked
-          ? `${logro.bg} ${logro.border}`
-          : 'bg-white/3 border-white/5 opacity-40 grayscale'
-      }`}
-    >
+    <div className={`rounded-2xl p-4 border transition-all ${unlocked ? `${logro.bg} ${logro.border}` : 'bg-white/3 border-white/5 opacity-40 grayscale'}`}>
       <div className="text-3xl mb-2">{logro.icon}</div>
-      <h4 className={`font-bold text-sm ${unlocked ? logro.color : 'text-gray-500'}`}>
-        {logro.titulo}
-      </h4>
-      <p className="text-[11px] text-gray-500 mt-0.5">{logro.desc}</p>
+      <h4 className={`font-bold text-sm ${unlocked ? logro.color : 'text-gray-500'}`}>{titulo}</h4>
+      <p className="text-[11px] text-gray-500 mt-0.5">{desc}</p>
       {unlocked && (
         <span className={`inline-block mt-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${logro.bg} ${logro.color}`}>
-          ✓ Desbloqueado
+          {unlockedLabel}
         </span>
       )}
     </div>
   );
 }
 
-/**
- * Página de estadísticas del usuario.
- * Agrega reservas y calcula métricas (nivel, logros, gráficos) en cliente.
- *
- * @returns {import('react').JSX.Element}
- */
 export default function Estadisticas() {
   const { user, profile, roleName } = useAuth();
+  const { t, i18n } = useTranslation();
 
-  const [loading, setLoading]     = useState(true);
-  const [reservas, setReservas]   = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [reservas, setReservas] = useState([]);
+
+  const DIAS = i18n.language === 'en' ? DIAS_EN : DIAS_ES;
 
   useEffect(() => {
     if (!user?.id || !roleName) return;
@@ -189,7 +107,6 @@ export default function Estadisticas() {
       try { return JSON.parse(sessionStorage.getItem(cacheKey) || 'null'); } catch { return null; }
     })();
 
-    // Pintar instantáneo si hay caché (y refrescar en background)
     if (cached?.data && Array.isArray(cached.data)) {
       setReservas(cached.data);
       setLoading(false);
@@ -202,9 +119,7 @@ export default function Estadisticas() {
         .select('id, fecha, hora, instalaciones ( nombre, tipo )')
         .order('fecha', { ascending: false });
 
-      if (!isAdmin) {
-        query = query.eq('user_id', user.id);
-      }
+      if (!isAdmin) query = query.eq('user_id', user.id);
 
       const { data } = await query;
 
@@ -218,7 +133,6 @@ export default function Estadisticas() {
     return () => { alive = false; };
   }, [user?.id]);
 
-  // ── Cálculos derivados ────────────────────────────────────────────────────
   const now = new Date();
   const pasadas = reservas.filter(r => getReservaStatus(r.fecha, r.hora, 60, now) === 'completed');
   const proximas = reservas.filter(r => {
@@ -226,17 +140,13 @@ export default function Estadisticas() {
     return s === 'upcoming' || s === 'in_progress';
   });
 
-  // Desglose por tipo de instalación (completadas)
   const porTipo = {};
   pasadas.forEach(r => {
     const tipo = r.instalaciones?.tipo || 'otro';
     porTipo[tipo] = (porTipo[tipo] || 0) + 1;
   });
-  const tipoData = Object.entries(porTipo)
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
+  const tipoData = Object.entries(porTipo).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
 
-  // Por día de la semana
   const porDia = Array(7).fill(0);
   reservas.forEach(r => {
     const d = new Date(r.fecha + 'T00:00:00').getDay();
@@ -244,7 +154,6 @@ export default function Estadisticas() {
   });
   const diaData = DIAS.map((name, i) => ({ name, value: porDia[i] }));
 
-  // Por hora
   const porHora = {};
   reservas.forEach(r => {
     const h = r.hora?.slice(0, 2);
@@ -252,7 +161,6 @@ export default function Estadisticas() {
   });
   const horaData = HORAS_LABEL.map(h => ({ name: `${h}h`, value: porHora[h] || 0 }));
 
-  // Instalación favorita
   const porInst = {};
   reservas.forEach(r => {
     const n = r.instalaciones?.nombre;
@@ -260,44 +168,37 @@ export default function Estadisticas() {
   });
   const instFavorita = Object.entries(porInst).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
-  // Nivel (por partidos completados)
   const nivel = getNivel(pasadas.length);
   const sigNivel = nivel.next;
-  const progresoNivel = sigNivel
-    ? Math.round((pasadas.length / sigNivel) * 100)
-    : 100;
+  const progresoNivel = sigNivel ? Math.round((pasadas.length / sigNivel) * 100) : 100;
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <p className="text-brand-lime animate-pulse text-lg font-medium">Cargando estadísticas...</p>
+      <p className="text-brand-lime animate-pulse text-lg font-medium">{t('stats.loading')}</p>
     </div>
   );
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
 
-      {/* CABECERA */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <BarChart2 className="text-brand-lime" size={32} />
-            {roleName === 'admin' ? 'Estadísticas Globales' : 'Mis Estadísticas'}
+            {roleName === 'admin' ? t('stats.titleAdmin') : t('stats.titleUser')}
           </h1>
           <p className="text-gray-400 text-sm mt-1">
-            {roleName === 'admin' 
-              ? 'Análisis global de las reservas de todos los ciudadanos del centro.'
-              : `Historial completo y análisis de tus partidos, ${profile?.full_name?.split(' ')[0] || 'jugador'}.`}
+            {roleName === 'admin'
+              ? t('stats.subtitleAdmin')
+              : `${t('stats.kpi.played')}: ${profile?.full_name?.split(' ')[0] || 'jugador'}`}
           </p>
         </div>
-        <Link
-          to="/reservar"
-          className="px-6 py-3 bg-brand-lime text-black rounded-full font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(204,255,0,0.25)]"
-        >
-          <PlusCircle size={18} /> Nueva Reserva
+        <Link to="/reservar" className="px-6 py-3 bg-brand-lime text-black rounded-full font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(204,255,0,0.25)]">
+          <PlusCircle size={18} /> {t('stats.newBooking')}
         </Link>
       </header>
 
-      {/* NIVEL DEL JUGADOR */}
+      {/* NIVEL */}
       <div className="bg-gradient-to-r from-[#1A1A2E] to-[#1F1F2E] rounded-3xl p-6 border border-white/5 flex flex-col md:flex-row items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-brand-lime/10 rounded-2xl flex items-center justify-center">
@@ -305,42 +206,39 @@ export default function Estadisticas() {
           </div>
           <div>
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">
-              {roleName === 'admin' ? 'Nivel del Centro' : 'Tu nivel actual'}
+              {roleName === 'admin' ? t('stats.level.center') : t('stats.level.current')}
             </p>
             <span className={`text-2xl font-black ${nivel.color}`}>{nivel.nombre}</span>
           </div>
         </div>
         <div className="flex-1 w-full">
           <div className="flex justify-between text-xs text-gray-500 mb-2">
-            <span>{pasadas.length} partidos completados</span>
-            {sigNivel && <span>Siguiente nivel: {sigNivel} partidos</span>}
-            {!sigNivel && <span className="text-brand-lime font-bold">¡Nivel máximo!</span>}
+            <span>{pasadas.length} {t('stats.level.completed')}</span>
+            {sigNivel && <span>{t('stats.level.nextLevel', { count: sigNivel })}</span>}
+            {!sigNivel && <span className="text-brand-lime font-bold">{t('stats.level.maxLevel')}</span>}
           </div>
           <div className="w-full bg-black/30 h-3 rounded-full overflow-hidden">
-            <div
-              className="bg-brand-lime h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(204,255,0,0.5)]"
-              style={{ width: `${progresoNivel}%` }}
-            />
+            <div className="bg-brand-lime h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(204,255,0,0.5)]" style={{ width: `${progresoNivel}%` }} />
           </div>
         </div>
       </div>
 
-      {/* STATS RÁPIDAS */}
+      {/* STATS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon={Trophy}     label="Partidos jugados"  value={pasadas.length}       color="text-brand-lime"   bg="bg-brand-lime/10" />
-        <StatCard icon={Calendar}   label="Próximas reservas" value={proximas.length}      color="text-brand-purple" bg="bg-brand-purple/10" />
-        <StatCard icon={MapPin}     label="Pista favorita"    value={instFavorita}         color="text-blue-400"     bg="bg-blue-400/10"  isText />
-        <StatCard icon={Target}     label="Total reservas"    value={reservas.length}      color="text-white"        bg="bg-white/10" />
+        <StatCard icon={Trophy}   label={t('stats.kpi.played')}   value={pasadas.length}    color="text-brand-lime"   bg="bg-brand-lime/10" />
+        <StatCard icon={Calendar} label={t('stats.kpi.upcoming')} value={proximas.length}   color="text-brand-purple" bg="bg-brand-purple/10" />
+        <StatCard icon={MapPin}   label={t('stats.kpi.favorite')} value={instFavorita}      color="text-blue-400"     bg="bg-blue-400/10"  isText />
+        <StatCard icon={Target}   label={t('stats.kpi.total')}    value={reservas.length}   color="text-white"        bg="bg-white/10" />
       </div>
 
       {/* GRÁFICOS */}
       {reservas.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <BarChartSimple data={diaData}  label="Reservas por día de la semana" />
-          <BarChartSimple data={horaData} label="Reservas por franja horaria" />
+          <BarChartSimple data={diaData}  label={t('stats.charts.byDay')} />
+          <BarChartSimple data={horaData} label={t('stats.charts.byHour')} />
           <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
             <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-              <TrendingUp size={18} className="text-brand-purple" /> Por tipo de pista
+              <TrendingUp size={18} className="text-brand-purple" /> {t('stats.charts.byType')}
             </h3>
             {tipoData.length > 0 ? (
               <div className="space-y-3">
@@ -353,30 +251,24 @@ export default function Estadisticas() {
                         <span>{value} ({pct}%)</span>
                       </div>
                       <div className="h-2 bg-black/30 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-brand-purple transition-all duration-700"
-                          style={{ width: `${pct}%` }}
-                        />
+                        <div className="h-full rounded-full bg-brand-purple transition-all duration-700" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">Aún no hay datos.</p>
+              <p className="text-gray-500 text-sm">{t('stats.empty.noData')}</p>
             )}
           </div>
         </div>
       ) : (
         <div className="bg-[#1A1A2E] rounded-3xl p-12 border border-white/5 text-center">
           <BarChart2 size={48} className="mx-auto text-gray-700 mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Sin estadísticas aún</h3>
-          <p className="text-gray-400 text-sm mb-6">Realiza tu primera reserva para empezar a ver tus datos.</p>
-          <Link
-            to="/reservar"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all"
-          >
-            <PlusCircle size={16} /> Hacer mi primera reserva
+          <h3 className="text-xl font-bold text-white mb-2">{t('stats.empty.title')}</h3>
+          <p className="text-gray-400 text-sm mb-6">{t('stats.empty.desc')}</p>
+          <Link to="/reservar" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all">
+            <PlusCircle size={16} /> {t('stats.empty.firstBooking')}
           </Link>
         </div>
       )}
@@ -384,7 +276,7 @@ export default function Estadisticas() {
       {/* LOGROS */}
       <div>
         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Award className="text-brand-lime" size={22} /> Logros
+          <Award className="text-brand-lime" size={22} /> {t('stats.achievements')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {LOGROS.map(logro => (
@@ -392,6 +284,7 @@ export default function Estadisticas() {
               key={logro.id}
               logro={logro}
               unlocked={pasadas.length >= logro.threshold}
+              unlockedLabel={t('stats.unlocked')}
             />
           ))}
         </div>

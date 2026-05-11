@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import {
   ShieldAlert, Users, Activity, Search, Bell, MapPin,
@@ -7,13 +8,15 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const TABS = [
-  { id: 'usuarios',      label: 'Usuarios',      icon: Users },
-  { id: 'reservas',      label: 'Reservas',       icon: Calendar },
-  { id: 'instalaciones', label: 'Instalaciones',  icon: MapPin },
-  { id: 'avisos',        label: 'Avisos',         icon: Bell },
-  { id: 'estadisticas',  label: 'Estadísticas',   icon: BarChart2 },
-];
+function getTabs(t) {
+  return [
+    { id: 'usuarios',      label: t('admin.tabs.users'),    icon: Users },
+    { id: 'reservas',      label: t('admin.tabs.bookings'), icon: Calendar },
+    { id: 'instalaciones', label: t('admin.tabs.courts'),   icon: MapPin },
+    { id: 'avisos',        label: t('admin.tabs.alerts'),   icon: Bell },
+    { id: 'estadisticas',  label: t('admin.tabs.stats'),    icon: BarChart2 },
+  ];
+}
 
 /**
  * Tab de gestión de usuarios:
@@ -72,16 +75,17 @@ function TabUsuarios() {
     u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <p className="text-brand-lime animate-pulse">Cargando usuarios...</p>;
+  const { t } = useTranslation();
+  if (loading) return <p className="text-brand-lime animate-pulse">{t('admin.users.loading')}</p>;
 
   return (
     <div className="space-y-6">
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: 'Total Usuarios',      value: usuarios.length,                              color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Users },
-          { label: 'Conserjes Activos',   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-400',     bg: 'bg-blue-500/10',     icon: Activity },
-          { label: 'Reservas Activas',    value: reservasCount,                               color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+          { label: t('admin.users.totalUsers'),    value: usuarios.length,                              color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Users },
+          { label: t('admin.users.activeStaff'),   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-400',     bg: 'bg-blue-500/10',     icon: Activity },
+          { label: t('admin.users.activeBookings'),    value: reservasCount,                               color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (
@@ -99,12 +103,12 @@ function TabUsuarios() {
       {/* Tabla */}
       <div className="bg-[#1A1A2E] rounded-3xl border border-white/5 overflow-hidden">
         <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <h2 className="text-lg font-bold text-white">Directorio de Usuarios</h2>
+          <h2 className="text-lg font-bold text-white">{t('admin.users.directory')}</h2>
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
             <input
               type="text"
-              placeholder="Buscar nombre o email..."
+              placeholder={t('admin.users.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white focus:border-brand-lime outline-none text-sm"
@@ -115,10 +119,10 @@ function TabUsuarios() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-[#0F0F1A] text-xs uppercase tracking-wider text-gray-500 border-b border-white/5">
-                <th className="p-4">Usuario</th>
-                <th className="p-4">Contacto</th>
-                <th className="p-4">Rol</th>
-                <th className="p-4">Registro</th>
+                <th className="p-4">{t('admin.users.table.user')}</th>
+                <th className="p-4">{t('admin.users.table.contact')}</th>
+                <th className="p-4">{t('admin.users.table.role')}</th>
+                <th className="p-4">{t('admin.users.table.registered')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -129,7 +133,7 @@ function TabUsuarios() {
                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
                         {(user.full_name || user.email || '?').charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-medium text-white text-sm">{user.full_name || 'Sin nombre'}</span>
+                      <span className="font-medium text-white text-sm">{user.full_name || t('admin.users.noName')}</span>
                     </div>
                   </td>
                   <td className="p-4 text-sm text-gray-400">
@@ -156,7 +160,7 @@ function TabUsuarios() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-gray-500 text-sm">No se encontraron usuarios.</td>
+                  <td colSpan="4" className="p-8 text-center text-gray-500 text-sm">{t('admin.users.notFound')}</td>
                 </tr>
               )}
             </tbody>
@@ -223,7 +227,8 @@ function TabInstalaciones() {
   const openEdit = (inst) => { setForm(inst); setIsFormOpen(true); };
   const openNew = () => { setForm({ id: null, nombre: '', tipo: 'padel', estado: 'disponible' }); setIsFormOpen(true); };
 
-  if (loading) return <p className="text-brand-lime animate-pulse">Cargando instalaciones...</p>;
+  const { t } = useTranslation();
+  if (loading) return <p className="text-brand-lime animate-pulse">{t('admin.courts.loading')}</p>;
 
   const colorEstado = (e) =>
     e === 'disponible'    ? 'text-brand-lime bg-brand-lime/10 border-brand-lime/20' :
@@ -236,18 +241,18 @@ function TabInstalaciones() {
       {/* Botón arriba a la derecha para crear */}
       <div className="flex justify-between items-center bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
         <div>
-          <h2 className="text-lg font-bold text-white">Gestión de Instalaciones</h2>
-          <p className="text-xs text-gray-500">Crea o modifica las pistas del centro deportivo.</p>
+          <h2 className="text-lg font-bold text-white">{t('admin.courts.title')}</h2>
+          <p className="text-xs text-gray-500">{t('admin.courts.desc')}</p>
         </div>
         <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-lime text-black font-bold rounded-xl hover:scale-105 transition-all text-sm">
-          <PlusCircle size={16} /> Nueva Pista
+          <PlusCircle size={16} /> {t('admin.courts.newCourt')}
         </button>
       </div>
 
       {/* Formulario Modal si isFormOpen está true */}
       {isFormOpen && (
         <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-brand-lime/30 space-y-4 mb-6">
-          <h3 className="font-bold text-white mb-2">{form.id ? 'Editar Pista' : 'Crear Pista'}</h3>
+          <h3 className="font-bold text-white mb-2">{form.id ? t('admin.courts.editCourt') : t('admin.courts.createCourt')}</h3>
           <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="col-span-2">
               <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Nombre</label>
@@ -368,13 +373,14 @@ function TabAvisos() {
     setSaving(false);
   };
 
-  if (loading) return <p className="text-brand-lime animate-pulse">Cargando avisos...</p>;
+  const { t } = useTranslation();
+  if (loading) return <p className="text-brand-lime animate-pulse">{t('admin.alerts.loading')}</p>;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Formulario */}
       <div>
-        <h3 className="text-lg font-bold text-white mb-4">Nuevo Aviso</h3>
+        <h3 className="text-lg font-bold text-white mb-4">{t('admin.alerts.newAlert')}</h3>
         <form onSubmit={createAviso} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 space-y-4">
           <div>
             <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Título</label>
@@ -408,9 +414,9 @@ function TabAvisos() {
 
       {/* Lista */}
       <div>
-        <h3 className="text-lg font-bold text-white mb-4">Avisos Publicados ({avisos.length})</h3>
+        <h3 className="text-lg font-bold text-white mb-4">{t('admin.alerts.published', { count: avisos.length })}</h3>
         <div className="space-y-4">
-          {avisos.length === 0 && <p className="text-gray-500 text-sm">No hay avisos aún.</p>}
+          {avisos.length === 0 && <p className="text-gray-500 text-sm">{t('admin.alerts.noAlerts')}</p>}
           {avisos.map(aviso => (
             <div
               key={aviso.id}
@@ -561,7 +567,8 @@ function TabReservas() {
   const proximas = reservas.filter(r => r.fecha >= hoy).length;
   const pasadas  = reservas.filter(r => r.fecha <  hoy).length;
 
-  if (loading) return <p className="text-brand-lime animate-pulse">Cargando reservas del sistema...</p>;
+  const { t } = useTranslation();
+  if (loading) return <p className="text-brand-lime animate-pulse">{t('admin.bookings.loading')}</p>;
 
   return (
     <div className="space-y-6">
@@ -570,23 +577,23 @@ function TabReservas() {
       {confirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">¿Cancelar esta reserva?</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{t('admin.bookings.cancelModal.title')}</h3>
             <p className="text-gray-400 text-sm mb-6">
-              Se eliminará permanentemente y el usuario perderá su franja horaria.
+              {t('admin.bookings.cancelModal.desc')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmId(null)}
                 className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 font-bold hover:bg-white/5 transition-colors"
               >
-                Volver
+                {t('admin.bookings.cancelModal.back')}
               </button>
               <button
                 onClick={handleCancel}
                 disabled={cancelling}
                 className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-bold hover:bg-red-500/30 transition-colors disabled:opacity-40"
               >
-                {cancelling ? 'Cancelando...' : 'Sí, cancelar'}
+                {cancelling ? t('admin.bookings.cancelModal.cancelling') : t('admin.bookings.cancelModal.confirm')}
               </button>
             </div>
           </div>
@@ -596,9 +603,9 @@ function TabReservas() {
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: 'Total reservas',   value: total,    color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
-          { label: 'Próximas',         value: proximas, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
-          { label: 'Completadas',      value: pasadas,  color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+          { label: t('admin.bookings.totalBookings'), value: total,    color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
+          { label: t('admin.bookings.upcoming'),        value: proximas, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
+          { label: t('admin.bookings.completed'),       value: pasadas,  color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (
@@ -653,12 +660,12 @@ function TabReservas() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-[#0F0F1A] text-xs uppercase tracking-wider text-gray-500 border-b border-white/5">
-                <th className="p-4">Usuario</th>
-                <th className="p-4">Instalación</th>
-                <th className="p-4">Fecha</th>
-                <th className="p-4">Hora</th>
-                <th className="p-4">Material</th>
-                <th className="p-4">Estado</th>
+                <th className="p-4">{t('admin.bookings.table.user')}</th>
+                <th className="p-4">{t('admin.bookings.table.court')}</th>
+                <th className="p-4">{t('admin.bookings.table.date')}</th>
+                <th className="p-4">{t('admin.bookings.table.time')}</th>
+                <th className="p-4">{t('admin.bookings.table.material')}</th>
+                <th className="p-4">{t('admin.bookings.table.status')}</th>
                 <th className="p-4"></th>
               </tr>
             </thead>
@@ -730,11 +737,11 @@ function TabReservas() {
                     <td className="p-4">
                       {isUpcoming ? (
                         <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-brand-lime/10 text-brand-lime border border-brand-lime/20">
-                          Próxima
+                          {t('admin.bookings.status.upcoming')}
                         </span>
                       ) : (
                         <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 text-gray-500 border border-white/10">
-                          Completada
+                          {t('admin.bookings.status.completed')}
                         </span>
                       )}
                     </td>
@@ -758,7 +765,7 @@ function TabReservas() {
               {filtradas.length === 0 && (
                 <tr>
                   <td colSpan="7" className="p-10 text-center text-gray-500 text-sm">
-                    {searchTerm ? 'No se encontraron reservas con ese criterio.' : 'No hay reservas en este período.'}
+                    {searchTerm ? t('admin.bookings.noResultsSearch') : t('admin.bookings.noResults')}
                   </td>
                 </tr>
               )}
@@ -827,7 +834,8 @@ function TabEstadisticasAdmin() {
     load();
   }, []);
 
-  if (loading) return <p className="text-brand-lime animate-pulse">Cargando estadísticas...</p>;
+  const { t } = useTranslation();
+  if (loading) return <p className="text-brand-lime animate-pulse">{t('admin.adminStats.loading')}</p>;
 
   const hoy = new Date().toISOString().split('T')[0];
   const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -1029,7 +1037,9 @@ function TabEstadisticasAdmin() {
 // PANEL PRINCIPAL
 // ─────────────────────────────────────────────
 export default function AdminPanel() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('usuarios');
+  const TABS = getTabs(t);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -1039,9 +1049,9 @@ export default function AdminPanel() {
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <ShieldAlert className="text-brand-red" size={32} />
-            Panel de Administración
+            {t('admin.title')}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Gestión global del sistema KORE MANAGER.</p>
+          <p className="text-gray-400 text-sm mt-1">{t('admin.subtitle')}</p>
         </div>
       </div>
 

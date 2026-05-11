@@ -414,7 +414,7 @@ export default function Landing() {
                     className="mt-6 inline-flex items-center gap-2 text-sm font-bold transition-all duration-200 group/link"
                     style={{ color: sport.accent }}
                   >
-                    {t('landing.sports.cta')}
+                    {t('landing.sports.cta') || 'Reservar ahora'}
                     <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" aria-hidden="true" />
                   </Link>
                 </div>
@@ -475,17 +475,15 @@ export default function Landing() {
         <GlowOrb className="w-[800px] h-[800px] bg-brand-purple/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
-          <SectionLabel>Sobre el proyecto</SectionLabel>
+          <SectionLabel>{t('landing.about.badge')}</SectionLabel>
 
           <h2 data-about className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-            Creado para modernizar<br />
-            <span className="text-brand-lime">la gestión deportiva local.</span>
+            {t('landing.about.title2')}<br />
+            <span className="text-brand-lime">{t('landing.about.title3')}</span>
           </h2>
 
           <p data-about className="text-gray-400 text-lg leading-relaxed">
-            KoreManager nació como un Trabajo de Fin de Grado con un objetivo claro: digitalizar
-            la reserva de instalaciones municipales. Adiós a las colas, los papeles y las llamadas.
-            Hola a la eficiencia, la transparencia y el deporte sin barreras.
+            {t('landing.about.desc')}
           </p>
 
           {/* Testimonial placeholder */}
@@ -496,10 +494,9 @@ export default function Landing() {
               ))}
             </div>
             <p className="text-gray-300 text-sm italic leading-relaxed">
-              "Antes tardaba 15 minutos en reservar una pista por teléfono. Con KoreManager lo hago
-              en 30 segundos desde el móvil. Es un antes y un después."
+              {t('landing.about.testimonial')}
             </p>
-            <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider">— Socio del Club, Sevilla</p>
+            <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider">{t('landing.about.testimonialAuthor')}</p>
           </div>
 
           {/* CTA final */}
@@ -511,7 +508,7 @@ export default function Landing() {
               hover:scale-105 hover:shadow-[0_0_40px_rgba(204,255,0,0.65)]
               transition-all duration-300 flex items-center justify-center gap-2 group"
             >
-              Empezar gratis
+              {t('landing.about.cta')}
               <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} aria-hidden="true" />
             </Link>
           </div>
