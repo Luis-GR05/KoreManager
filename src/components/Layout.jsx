@@ -143,10 +143,10 @@ export default function Layout({ children }) {
     <div className="min-h-screen bg-gray-50 dark:bg-[#0F0F1A] text-gray-900 dark:text-white transition-colors duration-300">
 
       {/* SIDEBAR — escritorio */}
-      <aside className="w-72 bg-white dark:bg-[#121222] border-r border-gray-200 dark:border-white/5 flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50 transition-colors duration-300">
-        <div className="h-20 flex items-center px-6 border-b border-gray-200 dark:border-white/5">
+      <aside className="w-72 bg-[#1e2030] dark:bg-[#121222] border-r border-[#2d3147] dark:border-white/5 flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50 transition-colors duration-300">
+        <div className="h-20 flex items-center px-6 border-b border-[#2d3147] dark:border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-16 h-16 rounded-3xl bg-gray-100 dark:bg-[#0F0F1A] border border-transparent flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-3xl bg-[#0F0F1A] dark:bg-[#0F0F1A] border border-transparent flex items-center justify-center overflow-hidden">
               <img
                 src="/images/logo.png"
                 alt="Kore Manager"
@@ -154,10 +154,10 @@ export default function Layout({ children }) {
               />
             </div>
             <div className="leading-tight">
-              <h1 className="text-xl font-black tracking-tight">
+              <h1 className="text-xl font-black tracking-tight text-white">
                 KORE<span className="text-brand-lime">MANAGER</span>
               </h1>
-              <p className="text-[11px] text-gray-500 font-semibold tracking-wider uppercase">
+              <p className="text-[11px] text-gray-400 font-semibold tracking-wider uppercase">
                 {t('layout.subtitle')}
               </p>
             </div>
@@ -165,18 +165,18 @@ export default function Layout({ children }) {
         </div>
 
         {/* Indicador de rol */}
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-white/5">
+        <div className="px-6 py-5 border-b border-[#2d3147] dark:border-white/5">
           <div className="flex items-center gap-3">
             {/* Slot de avatar */}
-            <div className="w-11 h-11 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="w-11 h-11 rounded-2xl bg-[#2d3147] dark:bg-white/5 border border-[#3d4263] dark:border-white/10 flex items-center justify-center overflow-hidden">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="text-gray-400 dark:text-gray-500"><ImageIcon size={18} /></div>
+                <div className="text-gray-400"><ImageIcon size={18} /></div>
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{displayName}</p>
+              <p className="text-sm font-bold text-white truncate">{displayName}</p>
               <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                 {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
                 {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
@@ -198,7 +198,7 @@ export default function Layout({ children }) {
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
                     ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.22)]'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    : 'text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-white/10 dark:hover:bg-white/5'
                 }`}
               >
                 <Icon size={20} />
@@ -209,10 +209,10 @@ export default function Layout({ children }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-[#2d3147] dark:border-white/5">
           <button
             onClick={signOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-semibold"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl text-gray-300 dark:text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-semibold"
           >
             <LogOut size={20} /> {t('layout.logout')}
           </button>
@@ -222,14 +222,14 @@ export default function Layout({ children }) {
       {/* MAIN */}
       <main className="relative md:pl-72 flex flex-col min-h-screen">
         {/* Topbar (sticky) */}
-        <div className="sticky top-0 z-40 bg-white/75 dark:bg-[#0F0F1A]/75 backdrop-blur-xl border-b border-gray-200 dark:border-white/5 transition-colors duration-300">
+        <div className="sticky top-0 z-40 bg-[#f0f2f5]/90 dark:bg-[#0F0F1A]/75 backdrop-blur-xl border-b border-gray-300 dark:border-white/5 transition-colors duration-300">
           <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               {/* Botón hamburguesa — solo móvil */}
               <button
                 onClick={() => setDrawerOpen(true)}
                 aria-label="Abrir menú"
-                className="md:hidden w-10 h-10 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
+                className="md:hidden w-10 h-10 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
               >
                 <Menu size={20} />
               </button>
@@ -316,7 +316,7 @@ export default function Layout({ children }) {
 
               <button
                 onClick={signOut}
-                className="px-4 py-2 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red hover:border-brand-red/40 hover:bg-brand-red/10 transition-all font-bold"
+                className="px-4 py-2 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red hover:border-brand-red/40 hover:bg-brand-red/10 transition-all font-bold"
               >
                 {t('layout.logout')}
               </button>
