@@ -267,7 +267,7 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-36 sm:pt-48">
+      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-28">
 
         {/* Orbes de fondo */}
         <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
