@@ -35,16 +35,16 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#0F0F1A] p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
       {/* Fondos decorativos */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-[#1A1A2E]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10 animate-fade-in">
+      <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10 animate-fade-in">
         <div className="flex items-center mb-6">
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold theme-faint hover:theme-text transition-colors"
           >
             <ArrowLeft size={16} />
             {t('forgot.backToLogin')}
@@ -53,16 +53,16 @@ export default function ForgotPassword() {
 
         {isSuccess ? (
           <div className="text-center py-6">
-            <div className="w-20 h-20 bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-brand-lime" />
+            <div className="w-20 h-20 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-brand-purple dark:text-brand-lime" />
             </div>
-            <h2 className="text-2xl font-black text-white mb-3">{t('forgot.checkInbox')}</h2>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              {t('forgot.sentTo')}<strong className="text-white">{email}</strong>{t('forgot.clickToReset')}
+            <h2 className="text-2xl font-black theme-text mb-3">{t('forgot.checkInbox')}</h2>
+            <p className="theme-faint text-sm leading-relaxed mb-6">
+              {t('forgot.sentTo')}<strong className="theme-text mx-1">{email}</strong>{t('forgot.clickToReset')}
             </p>
             <Link
               to="/login"
-              className="w-full inline-flex justify-center py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all border border-white/10"
+              className="w-full inline-flex justify-center py-4 rounded-xl theme-bg hover:bg-brand-purple/5 dark:hover:bg-white/5 theme-text font-bold transition-all border theme-border"
             >
               {t('forgot.goToLogin')}
             </Link>
@@ -70,10 +70,10 @@ export default function ForgotPassword() {
         ) : (
           <>
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+              <h1 className="text-3xl font-bold theme-text mb-2 tracking-tight">
                 {t('forgot.title')}
               </h1>
-              <p className="text-gray-400 text-sm">
+              <p className="theme-faint text-sm">
                 {t('forgot.desc')}
               </p>
             </div>

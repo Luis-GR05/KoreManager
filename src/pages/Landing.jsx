@@ -16,7 +16,7 @@ import VideoCarousel3D from '../components/ui/VideoCarousel3D';
  */
 function SectionLabel({ children }) {
   return (
-    <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-lime/70 mb-4">
+    <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-purple dark:text-brand-lime/70 mb-4">
       {children}
     </p>
   );
@@ -206,14 +206,14 @@ export default function Landing() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0F0F1A] text-white overflow-x-hidden selection:bg-brand-lime selection:text-black font-sans">
+    <main className="min-h-screen theme-bg theme-text overflow-x-hidden selection:bg-brand-lime selection:text-black font-sans">
 
       {/* ══════════════════════════════════════════
           NAVBAR
       ══════════════════════════════════════════ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 backdrop-blur-xl bg-[#0F0F1A]/70 border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 backdrop-blur-xl bg-light-base/70 dark:bg-[#0F0F1A]/70 border-b theme-border">
         <div className="flex items-center gap-3 cursor-default select-none">
-          <div className="w-12 h-12 rounded-3xl bg-[#0F0F1A] flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-12 rounded-3xl theme-bg flex items-center justify-center overflow-hidden border theme-border shadow-sm">
             <img
               src="/images/logo.png"
               alt="Kore Manager Logo"
@@ -223,28 +223,28 @@ export default function Landing() {
               style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.18)) drop-shadow(0 0 18px rgba(138,43,226,.10)) brightness(1.08)' }}
             />
           </div>
-          <div className="text-2xl font-extrabold tracking-tighter">
-            KORE<span className="text-brand-lime">MANAGER</span>
+          <div className="text-2xl font-extrabold tracking-tighter theme-text">
+            KORE<span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-          <a href="#deportes" className="hover:text-white transition-colors duration-200">{t('landing.nav.sports')}</a>
-          <a href="#funciones" className="hover:text-white transition-colors duration-200">{t('landing.nav.features')}</a>
-          <a href="#sobre" className="hover:text-white transition-colors duration-200">{t('landing.nav.about')}</a>
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium theme-faint">
+          <a href="#deportes" className="hover:theme-text transition-colors duration-200">{t('landing.nav.sports')}</a>
+          <a href="#funciones" className="hover:theme-text transition-colors duration-200">{t('landing.nav.features')}</a>
+          <a href="#sobre" className="hover:theme-text transition-colors duration-200">{t('landing.nav.about')}</a>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 bg-[#0F0F1A]/80 border border-white/10 rounded-full p-1 backdrop-blur-md">
+          <div className="flex items-center gap-1 theme-bg border theme-border rounded-full p-1 backdrop-blur-md">
             <button 
               onClick={() => i18n.changeLanguage('es')}
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${i18n.language === 'es' ? 'bg-brand-lime text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${i18n.language === 'es' ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black' : 'theme-faint hover:theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5'}`}
             >
               ES
             </button>
             <button 
               onClick={() => i18n.changeLanguage('en')}
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${i18n.language === 'en' ? 'bg-brand-lime text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${i18n.language === 'en' ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black' : 'theme-faint hover:theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5'}`}
             >
               EN
             </button>
@@ -252,9 +252,9 @@ export default function Landing() {
 
           <Link
             to="/login"
-            className="px-4 md:px-6 py-2.5 rounded-full text-sm font-bold border border-white/20 bg-white/5 backdrop-blur-sm
+            className="px-4 md:px-6 py-2.5 rounded-full text-sm font-bold border theme-border theme-bg backdrop-blur-sm
             transition-all duration-300 ease-out
-            hover:border-brand-lime hover:text-brand-lime hover:bg-brand-lime/10 hover:shadow-[0_0_20px_rgba(204,255,0,0.35)] hover:scale-105
+            hover:border-brand-purple dark:hover:border-brand-lime hover:text-brand-purple dark:hover:text-brand-lime hover:bg-brand-purple/5 dark:hover:bg-brand-lime/10 hover:shadow-lg hover:scale-105
             flex items-center gap-2"
             aria-label={t('landing.nav.loginBtn')}
           >
@@ -267,7 +267,7 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-20">
+      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-36 sm:pt-48">
 
         {/* Orbes de fondo */}
         <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -275,9 +275,9 @@ export default function Landing() {
 
         {/* Cuadrícula decorativa */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]"
           style={{
-            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)',
             backgroundSize: '80px 80px',
           }}
         />
@@ -285,22 +285,22 @@ export default function Landing() {
         <div className="relative z-10 max-w-5xl mx-auto space-y-8">
 
           {/* Badge */}
-          <div data-hero className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-lime/30 bg-brand-lime/10 backdrop-blur-md mb-8">
-            <span className="w-2 h-2 rounded-full bg-brand-lime animate-pulse" />
-            <span className="text-[10px] md:text-xs font-bold text-brand-lime tracking-widest uppercase">
+          <div data-hero className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-purple/30 dark:border-brand-lime/30 bg-brand-purple/5 dark:bg-brand-lime/10 backdrop-blur-md mb-12 mt-8 md:mt-12">
+            <span className="w-2 h-2 rounded-full bg-brand-purple dark:bg-brand-lime animate-pulse" />
+            <span className="text-[10px] md:text-xs font-bold text-brand-purple dark:text-brand-lime tracking-widest uppercase">
               {t('landing.hero.badge')}
             </span>
           </div>
 
           {/* Título principal */}
-          <h1 data-hero className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[1.05] tracking-tight mb-6">
+          <h1 data-hero className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black theme-text leading-[1.05] tracking-tight mb-6">
             {t('landing.hero.title1')}<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime via-green-400 to-emerald-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple dark:from-brand-lime via-indigo-500 dark:via-green-400 to-brand-purple dark:to-emerald-300">
               {t('landing.hero.title2')}
             </span>
           </h1>
 
-          <p data-hero className="text-gray-400 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+          <p data-hero className="theme-faint text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
             {t('landing.hero.desc')}
           </p>
 
@@ -308,7 +308,7 @@ export default function Landing() {
           <div data-hero className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               to="/login"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-lime text-black font-black flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-[0_0_20px_rgba(204,255,0,0.2)] hover:shadow-[0_0_30px_rgba(204,255,0,0.4)]"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-lg"
             >
               {t('landing.hero.cta1')}
               <ArrowRight size={20} />
@@ -316,14 +316,14 @@ export default function Landing() {
 
             <a
               href="#deportes"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl border border-white/20 text-white font-bold flex items-center justify-center gap-3 hover:bg-white/5 transition-colors"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl border theme-border theme-text font-bold flex items-center justify-center gap-3 hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors"
             >
               {t('landing.hero.cta2')}
             </a>
           </div>
 
           {/* Scroll hint */}
-          <div className="pt-12 flex flex-col items-center gap-2 text-gray-600 text-xs animate-bounce">
+          <div className="pt-12 flex flex-col items-center gap-2 theme-faint text-xs animate-bounce">
             <ChevronDown size={18} aria-hidden="true" />
           </div>
         </div>
@@ -332,12 +332,12 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           STATS BAR
       ══════════════════════════════════════════ */}
-      <section ref={statsRef} className="border-y border-white/5 bg-[#13131F]">
+      <section ref={statsRef} className="border-y theme-border theme-elevated">
         <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-px">
           {STATS.map((s, i) => (
             <div key={i} data-stat className="flex flex-col items-center gap-1 px-4 py-2">
-              <span className="text-3xl md:text-4xl font-extrabold text-brand-lime tabular-nums">{s.value}</span>
-              <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">{s.label}</span>
+              <span className="text-3xl md:text-4xl font-extrabold text-brand-purple dark:text-brand-lime tabular-nums">{s.value}</span>
+              <span className="text-xs theme-faint uppercase tracking-wider font-medium">{s.label}</span>
             </div>
           ))}
         </div>
@@ -351,8 +351,8 @@ export default function Landing() {
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <SectionLabel>{t('landing.video.badge')}</SectionLabel>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              {t('landing.video.title1')} <span className="text-brand-lime">{t('landing.video.title2')}</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight theme-text">
+              {t('landing.video.title1')} <span className="text-brand-purple dark:text-brand-lime">{t('landing.video.title2')}</span>
             </h2>
           </div>
           <VideoCarousel3D />
@@ -369,11 +369,11 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row gap-12 items-end justify-between mb-16">
             <div className="max-w-2xl">
               <SectionLabel>{t('landing.sports.badge')}</SectionLabel>
-              <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+              <h2 className="text-4xl md:text-6xl font-black theme-text tracking-tight">
                 {t('landing.sports.title')}
               </h2>
             </div>
-            <p className="text-gray-400 max-w-md md:text-right">
+            <p className="theme-faint max-w-md md:text-right">
               {t('landing.sports.desc')}
             </p>
           </div>
@@ -383,7 +383,7 @@ export default function Landing() {
               <div
                 key={sport.name}
                 data-sport
-                className={`group relative p-8 rounded-3xl bg-[#1A1A2E] border border-white/5 ${sport.border} overflow-hidden
+                className={`group relative p-8 rounded-3xl theme-card border theme-border overflow-hidden
                 transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl cursor-default`}
               >
                 {/* Gradient de hover */}
@@ -407,7 +407,7 @@ export default function Landing() {
                   </div>
 
                   <h3 className="text-2xl font-extrabold mb-3" style={{ color: sport.accent }}>{sport.name}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{sport.description}</p>
+                  <p className="theme-faint text-sm leading-relaxed">{sport.description}</p>
 
                   <Link
                     to="/login"
@@ -427,16 +427,16 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           FUNCIONES
       ══════════════════════════════════════════ */}
-      <section ref={featuresRef} id="funciones" className="relative px-6 py-32 bg-gradient-to-b from-[#13131F] to-[#0F0F1A] border-t border-white/5">
+      <section ref={featuresRef} id="funciones" className="relative px-6 py-32 bg-gradient-to-b from-brand-purple/5 dark:from-[#13131F] to-transparent dark:to-[#0F0F1A] border-t theme-border">
         <GlowOrb className="w-[500px] h-[500px] bg-brand-lime/8 top-1/2 right-0 -translate-y-1/2" />
 
         <div className="max-w-7xl mx-auto px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <SectionLabel>{t('landing.features.badge')}</SectionLabel>
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
+            <h2 className="text-4xl md:text-5xl font-black theme-text tracking-tight mb-6">
               {t('landing.features.title')}
             </h2>
-            <p className="text-gray-400 text-lg">
+            <p className="theme-faint text-lg">
               {t('landing.features.desc')}
             </p>
           </div>
@@ -448,18 +448,18 @@ export default function Landing() {
                 <div
                   key={title}
                   data-feature
-                  className={`group relative p-7 rounded-3xl bg-[#1A1A2E] border border-white/5 ${border}
+                  className={`group relative p-7 rounded-3xl theme-card border theme-border
                   overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-default`}
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${glow} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                   <div className="relative z-10">
-                    <div className={`w-12 h-12 rounded-2xl bg-[#252538] flex items-center justify-center mb-5 ${color}
-                    group-hover:scale-110 transition-transform duration-300 border border-white/5 ${border}`}>
+                    <div className={`w-12 h-12 rounded-2xl theme-bg flex items-center justify-center mb-5 ${color}
+                    group-hover:scale-110 transition-transform duration-300 border theme-border`}>
                       <Icon size={22} />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+                    <h3 className="text-lg font-bold theme-text mb-2">{title}</h3>
+                    <p className="theme-faint text-sm leading-relaxed">{desc}</p>
                   </div>
                 </div>
               );
@@ -471,42 +471,40 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           SOBRE NOSOTROS / CTA
       ══════════════════════════════════════════ */}
-      <section ref={aboutRef} id="sobre" className="relative px-6 py-32 border-t border-white/5 bg-[#0F0F1A]">
+      <section ref={aboutRef} id="sobre" className="relative px-6 py-32 border-t theme-border theme-bg">
         <GlowOrb className="w-[800px] h-[800px] bg-brand-purple/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
           <SectionLabel>{t('landing.about.badge')}</SectionLabel>
 
-          <h2 data-about className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+          <h2 data-about className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight theme-text">
             {t('landing.about.title2')}<br />
-            <span className="text-brand-lime">{t('landing.about.title3')}</span>
+            <span className="text-brand-purple dark:text-brand-lime">{t('landing.about.title3')}</span>
           </h2>
 
-          <p data-about className="text-gray-400 text-lg leading-relaxed">
+          <p data-about className="theme-faint text-lg leading-relaxed">
             {t('landing.about.desc')}
           </p>
 
           {/* Testimonial placeholder */}
-          <div data-about className="mt-4 p-6 rounded-2xl bg-[#1A1A2E] border border-white/8 text-left space-y-3">
+          <div data-about className="mt-4 p-6 rounded-2xl theme-card border theme-border text-left space-y-3 shadow-sm">
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={14} className="text-brand-lime fill-brand-lime" aria-hidden="true" />
+                <Star key={i} size={14} className="text-brand-purple dark:text-brand-lime fill-brand-purple dark:fill-brand-lime" aria-hidden="true" />
               ))}
             </div>
-            <p className="text-gray-300 text-sm italic leading-relaxed">
+            <p className="theme-text text-sm italic leading-relaxed">
               {t('landing.about.testimonial')}
             </p>
-            <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider">{t('landing.about.testimonialAuthor')}</p>
+            <p className="text-xs theme-faint font-semibold uppercase tracking-wider">{t('landing.about.testimonialAuthor')}</p>
           </div>
 
           {/* CTA final */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               to="/login"
-              className="w-full sm:w-auto px-10 py-4 bg-brand-lime text-black rounded-full font-bold text-base
-              shadow-[0_0_20px_rgba(204,255,0,0.35)]
-              hover:scale-105 hover:shadow-[0_0_40px_rgba(204,255,0,0.65)]
-              transition-all duration-300 flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-10 py-4 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-full font-bold text-base
+              shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 group"
             >
               {t('landing.about.cta')}
               <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} aria-hidden="true" />

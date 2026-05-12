@@ -140,13 +140,13 @@ export default function Layout({ children }) {
   }, [resolveAvatarUrl]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0F0F1A] text-gray-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen theme-bg theme-text transition-colors duration-300">
 
       {/* SIDEBAR — escritorio */}
-      <aside className="w-72 bg-[#1e2030] dark:bg-[#121222] border-r border-[#2d3147] dark:border-white/5 flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50 transition-colors duration-300">
-        <div className="h-20 flex items-center px-6 border-b border-[#2d3147] dark:border-white/5">
+      <aside className="w-72 theme-sidebar border-r theme-border flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50 transition-colors duration-300">
+        <div className="h-20 flex items-center px-6 border-b theme-border">
           <div className="flex items-center gap-3">
-            <div className="w-16 h-16 rounded-3xl bg-[#0F0F1A] dark:bg-[#0F0F1A] border border-transparent flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-3xl bg-black dark:bg-[#0F0F1A] border theme-border flex items-center justify-center overflow-hidden">
               <img
                 src="/images/logo.png"
                 alt="Kore Manager"
@@ -154,10 +154,10 @@ export default function Layout({ children }) {
               />
             </div>
             <div className="leading-tight">
-              <h1 className="text-xl font-black tracking-tight text-white">
-                KORE<span className="text-brand-lime">MANAGER</span>
+              <h1 className="text-xl font-black tracking-tight theme-text">
+                KORE<span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
               </h1>
-              <p className="text-[11px] text-gray-400 font-semibold tracking-wider uppercase">
+              <p className="text-[11px] theme-faint font-semibold tracking-wider uppercase">
                 {t('layout.subtitle')}
               </p>
             </div>
@@ -165,22 +165,22 @@ export default function Layout({ children }) {
         </div>
 
         {/* Indicador de rol */}
-        <div className="px-6 py-5 border-b border-[#2d3147] dark:border-white/5">
+        <div className="px-6 py-5 border-b theme-border">
           <div className="flex items-center gap-3">
             {/* Slot de avatar */}
-            <div className="w-11 h-11 rounded-2xl bg-[#2d3147] dark:bg-white/5 border border-[#3d4263] dark:border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="w-11 h-11 rounded-2xl theme-bg border theme-border flex items-center justify-center overflow-hidden">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="text-gray-400"><ImageIcon size={18} /></div>
+                <div className="theme-faint"><ImageIcon size={18} /></div>
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-white truncate">{displayName}</p>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
+              <p className="text-sm font-bold theme-text truncate">{displayName}</p>
+              <div className="flex items-center gap-2 text-[10px] font-bold theme-faint uppercase tracking-widest">
+                {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />}
                 {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-lime" />}
+                {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-purple dark:bg-brand-lime" />}
                 {roleName}
               </div>
             </div>
@@ -197,8 +197,8 @@ export default function Layout({ children }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
-                    ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.22)]'
-                    : 'text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white hover:bg-white/10 dark:hover:bg-white/5'
+                    ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-lg dark:shadow-[0_0_15px_rgba(204,255,0,0.22)]'
+                    : 'theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-white hover:bg-brand-purple/5 dark:hover:bg-white/5'
                 }`}
               >
                 <Icon size={20} />
@@ -209,10 +209,10 @@ export default function Layout({ children }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-[#2d3147] dark:border-white/5">
+        <div className="p-4 border-t theme-border">
           <button
             onClick={signOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl text-gray-300 dark:text-gray-400 hover:text-brand-red hover:bg-brand-red/10 transition-colors font-semibold"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl theme-faint hover:text-red-500 hover:bg-red-500/10 transition-colors font-semibold"
           >
             <LogOut size={20} /> {t('layout.logout')}
           </button>
@@ -222,22 +222,22 @@ export default function Layout({ children }) {
       {/* MAIN */}
       <main className="relative md:pl-72 flex flex-col min-h-screen">
         {/* Topbar (sticky) */}
-        <div className="sticky top-0 z-40 bg-[#f0f2f5]/90 dark:bg-[#0F0F1A]/75 backdrop-blur-xl border-b border-gray-300 dark:border-white/5 transition-colors duration-300">
+        <div className="sticky top-0 z-40 theme-bg/90 backdrop-blur-xl border-b theme-border transition-colors duration-300">
           <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               {/* Botón hamburguesa — solo móvil */}
               <button
                 onClick={() => setDrawerOpen(true)}
                 aria-label="Abrir menú"
-                className="md:hidden w-10 h-10 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
+                className="md:hidden w-10 h-10 rounded-2xl theme-bg border theme-border flex items-center justify-center theme-text hover:theme-elevated transition-all"
               >
                 <Menu size={20} />
               </button>
               <div className="min-w-0">
-                <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">
+                <p className="text-[11px] theme-faint font-bold uppercase tracking-widest">
                   Kore Manager
                 </p>
-                <p className="text-base md:text-lg font-black text-gray-900 dark:text-white truncate">
+                <p className="text-base md:text-lg font-black theme-text truncate">
                   {activeItem?.label || 'Panel'}
                 </p>
               </div>
@@ -247,8 +247,8 @@ export default function Layout({ children }) {
                 onClick={() => setSettingsOpen(!settingsOpen)}
                 className={`p-2.5 rounded-xl border transition-all ${
                   settingsOpen 
-                    ? 'bg-brand-lime text-black border-brand-lime shadow-[0_0_15px_rgba(204,255,0,0.3)]' 
-                    : 'bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/30 hover:bg-gray-200 dark:hover:bg-white/10'
+                    ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg' 
+                    : 'theme-bg theme-border theme-faint hover:theme-text hover:theme-elevated'
                 }`}
                 aria-label={t('layout.settings')}
               >
@@ -257,26 +257,26 @@ export default function Layout({ children }) {
 
               {/* Menú Desplegable de Ajustes */}
               {settingsOpen && (
-                <div className="absolute top-[120%] right-0 w-64 bg-white dark:bg-[#1A1A2E] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in slide-in-from-top-2 duration-200">
-                  <div className="px-3 py-2 mb-2 border-b border-gray-100 dark:border-white/5">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t('layout.settings')}</p>
+                <div className="absolute top-[120%] right-0 w-64 theme-card border theme-border shadow-2xl p-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                  <div className="px-3 py-2 mb-2 border-b theme-border">
+                    <p className="text-xs font-bold theme-faint uppercase tracking-widest">{t('layout.settings')}</p>
                   </div>
                   
                   {/* Idioma */}
                   <div className="mb-2">
-                    <div className="px-3 py-1.5 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-semibold">
-                      <Globe size={16} className="text-brand-lime" /> {t('layout.language')}
+                    <div className="px-3 py-1.5 flex items-center gap-2 text-sm theme-text font-semibold">
+                      <Globe size={16} className="text-brand-purple dark:text-brand-lime" /> {t('layout.language')}
                     </div>
                     <div className="grid grid-cols-2 gap-1 px-1">
                       <button 
                         onClick={() => changeLanguage('es')}
-                        className={`py-2 px-2 rounded-lg text-xs font-bold transition-colors ${i18n.language === 'es' ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                        className={`py-2 px-2 rounded-lg text-xs font-bold transition-colors ${i18n.language === 'es' ? 'theme-elevated theme-text' : 'theme-faint hover:theme-text hover:theme-elevated'}`}
                       >
                         🇪🇸 Español
                       </button>
                       <button 
                         onClick={() => changeLanguage('en')}
-                        className={`py-2 px-2 rounded-lg text-xs font-bold transition-colors ${i18n.language === 'en' ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                        className={`py-2 px-2 rounded-lg text-xs font-bold transition-colors ${i18n.language === 'en' ? 'theme-elevated theme-text' : 'theme-faint hover:theme-text hover:theme-elevated'}`}
                       >
                         🇬🇧 English
                       </button>
@@ -284,29 +284,29 @@ export default function Layout({ children }) {
                   </div>
 
                   {/* Tema */}
-                  <div className="mb-2 border-t border-gray-100 dark:border-white/5 pt-2">
+                  <div className="mb-2 border-t theme-border pt-2">
                     <button
                       onClick={toggleTheme}
-                      className="w-full px-3 py-2 flex items-center justify-between text-sm text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                      className="w-full px-3 py-2 flex items-center justify-between text-sm theme-text font-semibold rounded-xl hover:theme-elevated transition-colors"
                     >
                       <div className="flex items-center gap-2">
                         {theme === 'dark' ? <Moon size={16} className="text-brand-lime" /> : <Sun size={16} className="text-amber-500" />}
                         {t('layout.theme')}
                       </div>
-                      <div className="w-8 h-4 bg-gray-200 dark:bg-gray-700 rounded-full relative transition-colors">
-                        <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${theme === 'dark' ? 'left-4' : 'left-0.5'}`} />
+                      <div className="w-8 h-4 theme-elevated rounded-full relative transition-colors border theme-border">
+                        <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${theme === 'dark' ? 'left-4' : 'left-0.5'}`} />
                       </div>
                     </button>
                   </div>
 
                   {/* Cambiar Contraseña */}
-                  <div className="border-t border-gray-100 dark:border-white/5 pt-2">
+                  <div className="border-t theme-border pt-2">
                     <button
                       onClick={() => {
                         setSettingsOpen(false);
                         setPasswordModalOpen(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold theme-faint hover:theme-text hover:theme-elevated transition-colors"
                     >
                       <Key size={16} /> {t('layout.changePassword')}
                     </button>
@@ -316,7 +316,7 @@ export default function Layout({ children }) {
 
               <button
                 onClick={signOut}
-                className="px-4 py-2 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:text-brand-red dark:hover:text-brand-red hover:border-brand-red/40 hover:bg-brand-red/10 transition-all font-bold"
+                className="px-4 py-2 rounded-2xl theme-bg border theme-border theme-text hover:text-red-500 hover:border-red-500/40 hover:theme-elevated transition-all font-bold"
               >
                 {t('layout.logout')}
               </button>
@@ -345,51 +345,51 @@ export default function Layout({ children }) {
 
       {/* Panel lateral */}
       <div
-        className={`md:hidden fixed left-0 top-0 h-[100dvh] w-72 z-50 bg-white dark:bg-[#121222] border-r border-gray-200 dark:border-white/5
+        className={`md:hidden fixed left-0 top-0 h-[100dvh] w-72 z-50 theme-sidebar border-r theme-border
           flex flex-col shadow-2xl
           transition-transform duration-300 ease-out
           ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}`}
         aria-label="Menú de navegación"
       >
         {/* Cabecera del drawer */}
-        <div className="h-20 flex items-center justify-between px-5 border-b border-gray-200 dark:border-white/5">
+        <div className="h-20 flex items-center justify-between px-5 border-b theme-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-[#0F0F1A] flex items-center justify-center overflow-hidden">
+            <div className="w-10 h-10 rounded-2xl bg-black dark:bg-[#0F0F1A] flex items-center justify-center overflow-hidden border theme-border">
               <img
                 src="/images/logo.png"
                 alt="Kore Manager"
                 className="w-full h-full object-contain p-1.5 dark:drop-shadow-[0_0_8px_rgba(204,255,0,.22)] dark:brightness-110 drop-shadow-sm"
               />
             </div>
-            <span className="text-base font-black tracking-tight text-gray-900 dark:text-white">
-              KORE<span className="text-brand-lime">MANAGER</span>
+            <span className="text-base font-black tracking-tight theme-text">
+              KORE<span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
             </span>
           </div>
           <button
             onClick={() => setDrawerOpen(false)}
             aria-label="Cerrar menú"
-            className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            className="w-9 h-9 rounded-xl theme-bg border theme-border flex items-center justify-center theme-faint hover:theme-text hover:theme-elevated transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Info usuario */}
-        <div className="px-5 py-4 border-b border-gray-200 dark:border-white/5">
+        <div className="px-5 py-4 border-b theme-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="w-10 h-10 rounded-2xl theme-bg border theme-border flex items-center justify-center overflow-hidden">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="text-gray-400 dark:text-gray-500"><ImageIcon size={16} /></div>
+                <div className="theme-faint"><ImageIcon size={16} /></div>
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{displayName}</p>
-              <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
+              <p className="text-sm font-bold theme-text truncate">{displayName}</p>
+              <div className="flex items-center gap-1.5 text-[10px] font-bold theme-faint uppercase tracking-widest">
+                {roleName === 'admin'     && <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />}
                 {roleName === 'conserje'  && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-lime" />}
+                {roleName === 'ciudadano' && <div className="w-2 h-2 rounded-full bg-brand-purple dark:bg-brand-lime" />}
                 {roleName}
               </div>
             </div>
@@ -407,8 +407,8 @@ export default function Layout({ children }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
-                    ? 'bg-brand-lime text-black shadow-[0_0_15px_rgba(204,255,0,0.22)]'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
+                    ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-lg'
+                    : 'theme-text opacity-70 hover:opacity-100 hover:theme-elevated'
                 }`}
               >
                 <Icon size={20} />
@@ -420,10 +420,10 @@ export default function Layout({ children }) {
         </nav>
 
         {/* Cerrar sesión */}
-        <div className="p-4 border-t border-gray-200 dark:border-white/5">
+        <div className="p-4 border-t theme-border">
           <button
             onClick={signOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red hover:bg-brand-red/10 transition-colors font-semibold"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl theme-faint hover:text-red-500 hover:bg-red-500/10 transition-colors font-semibold"
           >
             <LogOut size={20} /> {t('layout.logout')}
           </button>

@@ -91,19 +91,19 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
   const { t } = useTranslation();
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-6 md:p-7 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="theme-card border theme-border p-6 md:p-7 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-lime/70">{t('booking.calendar.selectDay')}</p>
-            <h3 className="text-xl font-black text-white mt-1 flex items-center gap-2">
-              <Calendar size={18} className="text-brand-lime" />
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-purple dark:text-brand-lime/70">{t('booking.calendar.selectDay')}</p>
+            <h3 className="text-xl font-black theme-text mt-1 flex items-center gap-2">
+              <Calendar size={18} className="text-brand-purple dark:text-brand-lime" />
               {t('booking.calendar.title')}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-2xl border border-white/10 text-gray-300 hover:bg-white/5 transition-colors inline-flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors inline-flex items-center justify-center"
             aria-label="Cerrar calendario"
           >
             <X size={18} />
@@ -113,26 +113,26 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
         <div className="mt-5 flex items-center justify-between">
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-            className="w-10 h-10 rounded-2xl border border-white/10 text-gray-300 hover:bg-white/5 transition-colors inline-flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors inline-flex items-center justify-center"
             aria-label="Mes anterior"
           >
             <ChevronLeft size={18} />
           </button>
 
-          <div className="text-sm font-black text-white capitalize tracking-tight">
+          <div className="text-sm font-black theme-text capitalize tracking-tight">
             {monthLabel}
           </div>
 
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-            className="w-10 h-10 rounded-2xl border border-white/10 text-gray-300 hover:bg-white/5 transition-colors inline-flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors inline-flex items-center justify-center"
             aria-label="Mes siguiente"
           >
             <ChevronRight size={18} />
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-7 gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+        <div className="mt-4 grid grid-cols-7 gap-2 text-[11px] font-bold theme-faint uppercase tracking-wider">
           {t('booking.calendar.days', { returnObjects: true }).map((d) => (
             <div key={d} className="text-center">{d}</div>
           ))}
@@ -156,10 +156,10 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
                 }}
                 className={[
                   'h-11 rounded-2xl border text-sm font-black transition-all',
-                  disabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/5 hover:border-white/20',
-                  inMonth ? 'text-white' : 'text-gray-600',
-                  isSelected ? 'bg-brand-lime text-black border-brand-lime shadow-[0_0_14px_rgba(204,255,0,0.28)]' : 'bg-[#0F0F1A] border-white/10',
-                  !isSelected && isToday ? 'ring-1 ring-brand-lime/30' : '',
+                  disabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-brand-purple/5 dark:hover:bg-white/5 hover:border-brand-purple/30 dark:hover:border-white/20',
+                  inMonth ? 'theme-text' : 'theme-faint',
+                  isSelected ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg' : 'theme-bg theme-border',
+                  !isSelected && isToday ? 'ring-1 ring-brand-purple/30 dark:ring-brand-lime/30' : '',
                 ].join(' ')}
               >
                 {d.getDate()}
@@ -175,7 +175,7 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
               onSelect(toISODate(base));
               onClose();
             }}
-            className="flex-1 py-3 rounded-2xl border border-white/10 text-gray-300 font-black hover:bg-white/5 transition-colors"
+            className="flex-1 py-3 rounded-2xl border theme-border theme-text font-black hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors"
           >
             {t('booking.calendar.today')}
           </button>
@@ -184,7 +184,7 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
               onSelect(minDate);
               onClose();
             }}
-            className="flex-1 py-3 rounded-2xl bg-brand-lime text-black font-black hover:opacity-90 transition-opacity"
+            className="flex-1 py-3 rounded-2xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black hover:opacity-90 transition-opacity"
           >
             {t('booking.calendar.confirm')}
           </button>
@@ -203,27 +203,27 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
 function ConfirmBookingModal({ date, slots, instalacion, totalCents, onConfirm, onCancel }) {
   const { t } = useTranslation();
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="w-14 h-14 bg-brand-lime/10 rounded-2xl flex items-center justify-center mb-5 mx-auto">
-          <Calendar className="text-brand-lime" size={28} />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="theme-card border theme-border p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="w-14 h-14 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-2xl flex items-center justify-center mb-5 mx-auto">
+          <Calendar className="text-brand-purple dark:text-brand-lime" size={28} />
         </div>
-        <h3 className="text-xl font-bold text-white text-center mb-1">{t('booking.confirmTitle')}</h3>
-        <p className="text-gray-400 text-sm text-center mb-6">
+        <h3 className="text-xl font-bold theme-text text-center mb-1">{t('booking.confirmTitle')}</h3>
+        <p className="theme-faint text-sm text-center mb-6">
           {t('booking.confirmDesc', { court: instalacion, date, slots: slots.join(', ') })}
           <br /><br />
-          {t('booking.totalToPay')} <strong className="text-white">{(totalCents / 100).toFixed(2)} €</strong>
+          {t('booking.totalToPay')} <strong className="theme-text">{(totalCents / 100).toFixed(2)} €</strong>
         </p>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 font-bold hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 rounded-xl border theme-border theme-text font-bold hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
           >
             <X size={16} /> {t('booking.cancelBtn')}
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3 rounded-xl bg-brand-lime text-black font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="flex-1 py-3 rounded-xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
             <CheckCircle size={16} /> {t('booking.confirmBtn')}
           </button>
@@ -502,19 +502,19 @@ export default function NewBooking() {
     return (
       <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
         <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-8 text-center space-y-4">
-          <div className="w-14 h-14 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto text-red-500">
+          <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto text-red-500">
             <AlertCircle size={28} />
           </div>
-          <h2 className="text-xl font-bold text-white">{t('booking.pendingTitle')}</h2>
-          <p className="text-gray-400">
+          <h2 className="text-xl font-bold theme-text">{t('booking.pendingTitle')}</h2>
+          <p className="theme-faint">
             {t('booking.pendingDesc', { hours: 3 })}<br />
             <span className="text-sm mt-2 block">{t('booking.pendingWarning')}</span>
           </p>
           {pendingBookingData && (
             <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/10 inline-block text-left mt-2">
-              <p className="text-sm text-gray-300"><strong>{t('booking.pendingDate')}</strong> {pendingBookingData.fecha}</p>
-              <p className="text-sm text-gray-300"><strong>{t('booking.pendingTime')}</strong> {String(pendingBookingData.hora).slice(0, 5)}</p>
-              <p className="text-xs text-gray-500 mt-1">ID: {pendingBookingData.id} | Ref: {pendingBookingData.currency}</p>
+              <p className="text-sm theme-text"><strong>{t('booking.pendingDate')}</strong> {pendingBookingData.fecha}</p>
+              <p className="text-sm theme-text"><strong>{t('booking.pendingTime')}</strong> {String(pendingBookingData.hora).slice(0, 5)}</p>
+              <p className="text-xs theme-faint mt-1">ID: {pendingBookingData.id} | Ref: {pendingBookingData.currency}</p>
             </div>
           )}
           <div className="pt-4">
@@ -552,19 +552,19 @@ export default function NewBooking() {
 
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
         <div>
-          <h1 className="text-3xl font-bold text-white">{t('booking.title')}</h1>
-          <p className="text-gray-400 text-sm mt-1">{t('booking.subtitle')}</p>
+          <h1 className="text-3xl font-bold theme-text">{t('booking.title')}</h1>
+          <p className="theme-faint text-sm mt-1">{t('booking.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 theme-card p-6">
           <div>
-            <label className="text-gray-400 text-sm font-bold mb-3 block">{t('booking.selectCourt')}</label>
+            <label className="theme-faint text-sm font-bold mb-3 block">{t('booking.selectCourt')}</label>
             <div className="relative">
-              <ChevronsUpDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+              <ChevronsUpDown className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint" size={18} />
               <select
                 value={selectedInst ?? ''}
                 onChange={(e) => handleSelectInst(e.target.value)}
-                className="w-full appearance-none bg-[#0F0F1A] border border-white/10 text-white rounded-2xl p-3 pr-12 font-bold focus:border-brand-lime outline-none transition-colors"
+                className="w-full appearance-none theme-bg border theme-border theme-text rounded-2xl p-3 pr-12 font-bold focus:border-brand-purple dark:focus:border-brand-lime outline-none transition-colors"
               >
                 {instalaciones.map(inst => (
                   <option key={inst.id} value={inst.id}>
@@ -576,17 +576,17 @@ export default function NewBooking() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm font-bold mb-3 block">{t('booking.date')}</label>
+            <label className="theme-faint text-sm font-bold mb-3 block">{t('booking.date')}</label>
             <button
               onClick={() => setCalendarOpen(true)}
-              className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-2xl p-3 font-black focus:border-brand-lime outline-none
-              hover:bg-white/5 hover:border-white/20 transition-colors flex items-center justify-between"
+              className="w-full theme-bg border theme-border theme-text rounded-2xl p-3 font-black focus:border-brand-purple dark:focus:border-brand-lime outline-none
+              hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between"
             >
               <span className="flex items-center gap-2">
-                <Calendar size={18} className="text-brand-lime" />
+                <Calendar size={18} className="text-brand-purple dark:text-brand-lime" />
                 {date}
               </span>
-              <span className="text-gray-500 text-sm font-bold">{t('booking.openCalendar')}</span>
+              <span className="theme-faint text-sm font-bold">{t('booking.openCalendar')}</span>
             </button>
 
             {selectedInstData?.estado === 'mantenimiento' && (
@@ -598,19 +598,19 @@ export default function NewBooking() {
           </div>
         </div>
 
-        <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
-          <h3 className="text-white font-bold mb-1 flex items-center gap-2">
-            <Package className="text-brand-purple" size={18} />
+        <div className="theme-card p-6">
+          <h3 className="theme-text font-bold mb-1 flex items-center gap-2">
+            <Package className="text-brand-purple dark:text-brand-lime" size={18} />
             {t('booking.material')}
           </h3>
-          <p className="text-xs text-gray-500 mb-5">
+          <p className="text-xs theme-faint mb-5">
             {t('booking.materialDesc')}
           </p>
 
           {loadingInventory ? (
-            <p className="text-brand-lime animate-pulse text-sm">{t('booking.loadingInventory')}</p>
+            <p className="text-brand-purple dark:text-brand-lime animate-pulse text-sm">{t('booking.loadingInventory')}</p>
           ) : inventory.length === 0 ? (
-            <p className="text-gray-500 text-sm">{t('booking.noMaterial')}</p>
+            <p className="theme-faint text-sm">{t('booking.noMaterial')}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {inventory.map((it) => {
@@ -620,13 +620,13 @@ export default function NewBooking() {
                 return (
                   <div
                     key={it.id}
-                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${disabled ? 'bg-white/3 border-white/5 opacity-50' : 'bg-[#0F0F1A] border-white/10 hover:border-white/20'
+                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${disabled ? 'theme-elevated theme-border opacity-50' : 'theme-bg theme-border hover:border-brand-purple dark:hover:border-brand-lime transition-colors'
                       }`}
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{it.nombre}</p>
-                      <p className="text-[11px] text-gray-500">
-                        {t('booking.stock')} <span className="text-gray-300 font-bold">{maxQty}</span>
+                      <p className="text-sm font-bold theme-text truncate">{it.nombre}</p>
+                      <p className="text-[11px] theme-faint">
+                        {t('booking.stock')} <span className="theme-text font-bold">{maxQty}</span>
                       </p>
                     </div>
 
@@ -635,19 +635,19 @@ export default function NewBooking() {
                         type="button"
                         disabled={disabled || current <= 0}
                         onClick={() => setReqQty(it.id, current - 1, maxQty)}
-                        className="w-10 h-10 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 disabled:opacity-30 transition-colors"
+                        className="w-10 h-10 rounded-xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 disabled:opacity-30 transition-colors"
                         aria-label="Restar"
                       >
                         −
                       </button>
-                      <div className="w-10 text-center font-black text-white tabular-nums">
+                      <div className="w-10 text-center font-black theme-text tabular-nums">
                         {current}
                       </div>
                       <button
                         type="button"
                         disabled={disabled || current >= maxQty}
                         onClick={() => setReqQty(it.id, current + 1, maxQty)}
-                        className="w-10 h-10 rounded-xl bg-brand-lime/10 border border-brand-lime/20 text-brand-lime hover:bg-brand-lime hover:text-black disabled:opacity-30 transition-colors"
+                        className="w-10 h-10 rounded-xl bg-brand-purple/10 dark:bg-brand-lime/10 border border-brand-purple/20 dark:border-brand-lime/20 text-brand-purple dark:text-brand-lime hover:bg-brand-purple dark:hover:bg-brand-lime hover:text-white dark:hover:text-black disabled:opacity-30 transition-colors"
                         aria-label="Sumar"
                       >
                         +
@@ -661,8 +661,8 @@ export default function NewBooking() {
         </div>
 
         <div>
-          <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-            <Clock className="text-brand-lime" /> {t('booking.availableSlots')}
+          <h3 className="theme-text font-bold mb-4 flex items-center gap-2">
+            <Clock className="text-brand-purple dark:text-brand-lime" /> {t('booking.availableSlots')}
           </h3>
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {TIME_SLOTS.filter((time) => {
@@ -680,8 +680,8 @@ export default function NewBooking() {
                   className={`py-4 rounded-2xl font-bold text-lg transition-all ${isOccupied
                       ? 'bg-red-500/10 text-red-500 border border-red-500/20 cursor-not-allowed opacity-50'
                       : isSelected
-                        ? 'bg-brand-lime text-black border border-brand-lime shadow-[0_0_15px_rgba(204,255,0,0.4)]'
-                        : 'bg-[#1F1F2E] text-white border border-brand-lime/20 hover:border-brand-lime/50 disabled:opacity-30'
+                        ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg scale-105'
+                        : 'theme-elevated theme-text border theme-border hover:border-brand-purple dark:hover:border-brand-lime/50 disabled:opacity-30'
                     }`}
                 >
                   {time}
@@ -693,15 +693,15 @@ export default function NewBooking() {
           </div>
 
           {selectedSlots.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div>
-                <p className="text-gray-400 text-sm">{t('booking.slotsSelected')} <strong className="text-white">{selectedSlots.length}</strong></p>
-                <p className="text-2xl font-black text-brand-lime">{(totalCents / 100).toFixed(2)} €</p>
+            <div className="mt-8 pt-6 border-t theme-border flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div>
+                <p className="theme-faint text-sm">{t('booking.slotsSelected')} <strong className="theme-text">{selectedSlots.length}</strong></p>
+                <p className="text-2xl font-black text-brand-purple dark:text-brand-lime">{(totalCents / 100).toFixed(2)} €</p>
               </div>
               <button
                 onClick={() => setIsConfirming(true)}
                 disabled={loading}
-                className="w-full sm:w-auto px-8 py-3 bg-brand-lime text-black rounded-xl font-black shadow-[0_0_20px_rgba(204,255,0,0.2)] hover:scale-105 hover:shadow-[0_0_30px_rgba(204,255,0,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full sm:w-auto px-8 py-3 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-xl font-black shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {selectedSlots.length > 1 ? t('booking.bookSlots') : t('booking.bookSlot')}
                 <CheckCircle size={18} />

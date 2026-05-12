@@ -8,23 +8,23 @@ export default function PaymentSuccess() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-dark-base text-white flex items-center justify-center px-6">
-      <div className="max-w-md w-full bg-dark-surface/80 border border-white/10 rounded-3xl p-8 text-center space-y-4 anim-popin">
-        <div className="w-14 h-14 rounded-2xl bg-semantic-success/10 border border-semantic-success/20 mx-auto flex items-center justify-center text-semantic-success">
+    <div className="min-h-screen theme-bg theme-text flex items-center justify-center px-6">
+      <div className="max-w-md w-full theme-card border theme-border p-8 text-center space-y-4 anim-popin">
+        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 dark:bg-brand-lime/10 border border-brand-purple/20 dark:border-brand-lime/20 mx-auto flex items-center justify-center text-brand-purple dark:text-brand-lime">
           <CheckCircle2 size={28} />
         </div>
-        <h1 className="text-2xl font-black">{t('payment.success.title')}</h1>
-        <p className="text-sm text-gray-400">
+        <h1 className="text-2xl font-black theme-text">{t('payment.success.title')}</h1>
+        <p className="text-sm theme-faint">
           {t('payment.success.desc')}
         </p>
         {sessionId && (
-          <p className="text-xs text-gray-600 break-all">Session: {sessionId}</p>
+          <p className="text-xs theme-faint break-all">Session: {sessionId}</p>
         )}
         <div className="flex flex-col gap-3 pt-2">
-          <Link to="/dashboard" className="px-5 py-3 rounded-2xl bg-brand-lime text-black font-black">
+          <Link to="/dashboard" className="px-5 py-3 rounded-2xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black shadow-lg">
             {t('payment.success.goToDashboard')}
           </Link>
-          <Link to="/historial" className="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-gray-200 font-bold">
+          <Link to="/historial" className="px-5 py-3 rounded-2xl theme-bg border theme-border theme-text font-bold">
             {t('payment.success.viewHistory')}
           </Link>
         </div>

@@ -75,6 +75,26 @@ export default function Register() {
       return;
     }
 
+    // VALIDACIONES DE SEGURIDAD
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error(t('register.errorEmail'));
+      return;
+    }
+
+    const phoneRegex = /^[0-9+]{9,15}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error(t('register.errorPhone'));
+      return;
+    }
+
+    const dniRegex = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    const nieRegex = /^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    if (!dniRegex.test(formData.dni) && !nieRegex.test(formData.dni)) {
+      toast.error(t('register.errorDni'));
+      return;
+    }
+
     if (!formData.acceptTerms || !formData.acceptPrivacy) {
       toast.error(t('register.errorTerms'));
       return;
@@ -140,17 +160,17 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-dark-base p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
       {/* Fondos decorativos */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-dark-surface/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10 my-8">
+      <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10 my-8">
 
         <div className="flex items-center justify-between mb-6">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold theme-faint hover:theme-text transition-colors"
           >
             <ArrowLeft size={16} />
             {t('register.back')}
@@ -158,10 +178,10 @@ export default function Register() {
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            KORE <span className="text-brand-lime">MANAGER</span>
+          <h1 className="text-3xl font-bold theme-text mb-2 tracking-tight">
+            KORE <span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
           </h1>
-          <p className="text-gray-400 text-sm">{t('register.title')}</p>
+          <p className="theme-faint text-sm">{t('register.title')}</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
@@ -268,7 +288,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
               tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -290,7 +310,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
               tabIndex={-1}
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -303,7 +323,7 @@ export default function Register() {
           </Button>
         </form>
 
-        <div className="mt-4 space-y-3 text-xs text-gray-400">
+        <div className="mt-4 space-y-3 text-xs theme-faint">
           <label className="flex items-start gap-2 select-none">
             <input
               type="checkbox"
@@ -314,7 +334,7 @@ export default function Register() {
             />
             <span>
               {t('register.acceptTermsPrefix')}
-              <Link to="/legal/terminos" className="text-white font-bold hover:text-brand-lime transition-colors">
+              <Link to="/legal/terminos" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('register.terms')}
               </Link>
               .
@@ -330,11 +350,11 @@ export default function Register() {
             />
             <span>
               {t('register.acceptPrivacyPrefix')}
-              <Link to="/legal/privacidad" className="text-white font-bold hover:text-brand-lime transition-colors">
+              <Link to="/legal/privacidad" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('register.privacy')}
               </Link>
               {t('register.and')}
-              <Link to="/legal/cookies" className="text-white font-bold hover:text-brand-lime transition-colors">
+              <Link to="/legal/cookies" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('register.cookies')}
               </Link>
               .
@@ -346,9 +366,9 @@ export default function Register() {
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-500 text-sm">
+          <p className="theme-faint text-sm">
             {t('register.hasAccount')}{' '}
-            <Link to="/login" className="text-white font-bold hover:text-brand-lime transition-colors">
+            <Link to="/login" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
               {t('register.login')}
             </Link>
           </p>

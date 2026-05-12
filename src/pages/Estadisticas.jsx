@@ -7,11 +7,11 @@ import { getReservaStatus } from '../lib/reservaStatus';
 import { useTranslation } from 'react-i18next';
 
 const LOGROS = [
-  { id: 'primer_partido',       icon: '🎾', threshold: 1,  color: 'text-brand-lime',   bg: 'bg-brand-lime/10',   border: 'border-brand-lime/30'   },
-  { id: 'cinco_partidos',       icon: '💪', threshold: 5,  color: 'text-blue-400',     bg: 'bg-blue-400/10',     border: 'border-blue-400/30'     },
-  { id: 'diez_partidos',        icon: '🔥', threshold: 10, color: 'text-orange-400',   bg: 'bg-orange-400/10',   border: 'border-orange-400/30'   },
-  { id: 'veinticinco_partidos', icon: '⭐', threshold: 25, color: 'text-yellow-400',   bg: 'bg-yellow-400/10',   border: 'border-yellow-400/30'   },
-  { id: 'cincuenta_partidos',   icon: '🏆', threshold: 50, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',   border: 'border-brand-lime/30'   },
+  { id: 'primer_partido',       icon: '🎾', threshold: 1,  color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',   border: 'border-brand-purple/30 dark:border-brand-lime/30'   },
+  { id: 'cinco_partidos',       icon: '💪', threshold: 5,  color: 'text-blue-500 dark:text-blue-400',     bg: 'bg-blue-500/10 dark:bg-blue-400/10',     border: 'border-blue-500/30 dark:border-blue-400/30'     },
+  { id: 'diez_partidos',        icon: '🔥', threshold: 10, color: 'text-orange-500 dark:text-orange-400',   bg: 'bg-orange-500/10 dark:bg-orange-400/10',   border: 'border-orange-500/30 dark:border-orange-400/30'   },
+  { id: 'veinticinco_partidos', icon: '⭐', threshold: 25, color: 'text-yellow-600 dark:text-yellow-400',   bg: 'bg-yellow-600/10 dark:bg-yellow-400/10',   border: 'border-yellow-600/30 dark:border-yellow-400/30'   },
+  { id: 'cincuenta_partidos',   icon: '🏆', threshold: 50, color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',   border: 'border-brand-purple/30 dark:border-brand-lime/30'   },
 ];
 
 const DIAS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -19,24 +19,24 @@ const DIAS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HORAS_LABEL = ['09', '10', '11', '12', '13', '16', '17', '18', '19', '20', '21'];
 
 function getNivel(total) {
-  if (total >= 50) return { nombre: 'Leyenda', color: 'text-brand-lime', bg: 'bg-brand-lime/20', next: null };
-  if (total >= 25) return { nombre: 'Veterano', color: 'text-yellow-400', bg: 'bg-yellow-400/20', next: 50 };
-  if (total >= 10) return { nombre: 'Habitual', color: 'text-orange-400', bg: 'bg-orange-400/20', next: 25 };
-  if (total >= 5)  return { nombre: 'En Forma', color: 'text-blue-400',   bg: 'bg-blue-400/20',   next: 10 };
-  if (total >= 1)  return { nombre: 'Novato',   color: 'text-gray-300',   bg: 'bg-white/10',      next: 5  };
-  return                  { nombre: 'Sin nivel', color: 'text-gray-500',  bg: 'bg-white/5',       next: 1  };
+  if (total >= 50) return { nombre: 'Leyenda', color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/20 dark:bg-brand-lime/20', next: null };
+  if (total >= 25) return { nombre: 'Veterano', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-600/20 dark:bg-yellow-400/20', next: 50 };
+  if (total >= 10) return { nombre: 'Habitual', color: 'text-orange-500 dark:text-orange-400', bg: 'bg-orange-500/20 dark:bg-orange-400/20', next: 25 };
+  if (total >= 5)  return { nombre: 'En Forma', color: 'text-blue-500 dark:text-blue-400',   bg: 'bg-blue-500/20 dark:bg-blue-400/20',   next: 10 };
+  if (total >= 1)  return { nombre: 'Novato',   color: 'theme-text',   bg: 'theme-elevated',      next: 5  };
+  return                  { nombre: 'Sin nivel', color: 'theme-faint',  bg: 'theme-bg',       next: 1  };
 }
 
 function StatCard({ icon, label, value, color, bg, isText = false }) {
   const Icon = icon;
   return (
-    <div className="bg-[#1A1A2E] rounded-2xl p-5 border border-white/5 flex items-center gap-4">
+    <div className="theme-card p-5 border theme-border flex items-center gap-4">
       <div className={`p-3 rounded-xl ${bg} ${color} shrink-0`}>
         <Icon size={22} />
       </div>
       <div>
-        <p className={`font-bold ${isText ? 'text-base' : 'text-3xl'} text-white`}>{value}</p>
-        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-0.5">{label}</p>
+        <p className={`font-bold ${isText ? 'text-base' : 'text-3xl'} theme-text`}>{value}</p>
+        <p className="text-xs theme-faint font-bold uppercase tracking-wider mt-0.5">{label}</p>
       </div>
     </div>
   );
@@ -45,24 +45,24 @@ function StatCard({ icon, label, value, color, bg, isText = false }) {
 function BarChartSimple({ data, label }) {
   const max = Math.max(...data.map(d => d.value), 1);
   return (
-    <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
-      <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-        <BarChart2 size={18} className="text-brand-lime" /> {label}
+    <div className="theme-card p-6 border theme-border">
+      <h3 className="text-base font-bold theme-text mb-6 flex items-center gap-2">
+        <BarChart2 size={18} className="text-brand-purple dark:text-brand-lime" /> {label}
       </h3>
       <div className="flex items-end gap-2 h-32">
         {data.map(({ name, value }) => {
           const pct = max > 0 ? Math.round((value / max) * 100) : 0;
           return (
             <div key={name} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-[10px] text-gray-500 font-bold">{value > 0 ? value : ''}</span>
+              <span className="text-[10px] theme-faint font-bold">{value > 0 ? value : ''}</span>
               <div className="w-full flex items-end" style={{ height: '88px' }}>
                 <div className="w-full flex items-end" style={{ height: '88px' }}>
-                  <div className="w-full rounded-t-lg bg-brand-lime/30 hover:bg-brand-lime transition-colors duration-300 relative group" style={{ height: `${Math.max(pct, value > 0 ? 4 : 0)}%` }}>
-                    <div className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-lime transition-all duration-500" style={{ height: `${pct}%`, minHeight: value > 0 ? '4px' : '0' }} />
+                  <div className="w-full rounded-t-lg bg-brand-purple/20 dark:bg-brand-lime/30 hover:bg-brand-purple dark:hover:bg-brand-lime transition-colors duration-300 relative group" style={{ height: `${Math.max(pct, value > 0 ? 4 : 0)}%` }}>
+                    <div className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-purple dark:bg-brand-lime transition-all duration-500" style={{ height: `${pct}%`, minHeight: value > 0 ? '4px' : '0' }} />
                   </div>
                 </div>
               </div>
-              <span className="text-[10px] text-gray-600 font-medium">{name}</span>
+              <span className="text-[10px] theme-faint font-medium">{name}</span>
             </div>
           );
         })}
@@ -76,10 +76,10 @@ function LogroCard({ logro, unlocked, unlockedLabel }) {
   const titulo = t(`stats.logros.${logro.id}.title`, { defaultValue: logro.id });
   const desc   = t(`stats.logros.${logro.id}.desc`,  { defaultValue: '' });
   return (
-    <div className={`rounded-2xl p-4 border transition-all ${unlocked ? `${logro.bg} ${logro.border}` : 'bg-white/3 border-white/5 opacity-40 grayscale'}`}>
+    <div className={`rounded-2xl p-4 border transition-all ${unlocked ? `${logro.bg} ${logro.border}` : 'theme-bg theme-border opacity-40 grayscale'}`}>
       <div className="text-3xl mb-2">{logro.icon}</div>
-      <h4 className={`font-bold text-sm ${unlocked ? logro.color : 'text-gray-500'}`}>{titulo}</h4>
-      <p className="text-[11px] text-gray-500 mt-0.5">{desc}</p>
+      <h4 className={`font-bold text-sm ${unlocked ? logro.color : 'theme-faint'}`}>{titulo}</h4>
+      <p className="text-[11px] theme-faint mt-0.5">{desc}</p>
       {unlocked && (
         <span className={`inline-block mt-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${logro.bg} ${logro.color}`}>
           {unlockedLabel}
@@ -181,54 +181,54 @@ export default function Estadisticas() {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
 
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b theme-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <BarChart2 className="text-brand-lime" size={32} />
+          <h1 className="text-3xl font-bold theme-text flex items-center gap-3">
+            <BarChart2 className="text-brand-purple dark:text-brand-lime" size={32} />
             {roleName === 'admin' ? t('stats.titleAdmin') : t('stats.titleUser')}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="theme-faint text-sm mt-1">
             {roleName === 'admin'
               ? t('stats.subtitleAdmin')
               : `${t('stats.kpi.played')}: ${profile?.full_name?.split(' ')[0] || 'jugador'}`}
           </p>
         </div>
-        <Link to="/reservar" className="px-6 py-3 bg-brand-lime text-black rounded-full font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(204,255,0,0.25)]">
+        <Link to="/reservar" className="px-6 py-3 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-full font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-lg">
           <PlusCircle size={18} /> {t('stats.newBooking')}
         </Link>
       </header>
 
       {/* NIVEL */}
-      <div className="bg-gradient-to-r from-[#1A1A2E] to-[#1F1F2E] rounded-3xl p-6 border border-white/5 flex flex-col md:flex-row items-start md:items-center gap-6">
+      <div className="bg-gradient-to-r from-brand-purple/10 dark:from-[#1A1A2E] to-transparent dark:to-[#1F1F2E] rounded-3xl p-6 border theme-border flex flex-col md:flex-row items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-brand-lime/10 rounded-2xl flex items-center justify-center">
-            <Star className="text-brand-lime" size={32} />
+          <div className="w-16 h-16 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-2xl flex items-center justify-center">
+            <Star className="text-brand-purple dark:text-brand-lime" size={32} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">
+            <p className="text-xs theme-faint font-bold uppercase tracking-wider mb-1">
               {roleName === 'admin' ? t('stats.level.center') : t('stats.level.current')}
             </p>
             <span className={`text-2xl font-black ${nivel.color}`}>{nivel.nombre}</span>
           </div>
         </div>
         <div className="flex-1 w-full">
-          <div className="flex justify-between text-xs text-gray-500 mb-2">
+          <div className="flex justify-between text-xs theme-faint mb-2">
             <span>{pasadas.length} {t('stats.level.completed')}</span>
             {sigNivel && <span>{t('stats.level.nextLevel', { count: sigNivel })}</span>}
-            {!sigNivel && <span className="text-brand-lime font-bold">{t('stats.level.maxLevel')}</span>}
+            {!sigNivel && <span className="text-brand-purple dark:text-brand-lime font-bold">{t('stats.level.maxLevel')}</span>}
           </div>
-          <div className="w-full bg-black/30 h-3 rounded-full overflow-hidden">
-            <div className="bg-brand-lime h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(204,255,0,0.5)]" style={{ width: `${progresoNivel}%` }} />
+          <div className="w-full theme-bg h-3 rounded-full overflow-hidden">
+            <div className="bg-brand-purple dark:bg-brand-lime h-full rounded-full transition-all duration-1000 shadow-sm" style={{ width: `${progresoNivel}%` }} />
           </div>
         </div>
       </div>
 
       {/* STATS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon={Trophy}   label={t('stats.kpi.played')}   value={pasadas.length}    color="text-brand-lime"   bg="bg-brand-lime/10" />
-        <StatCard icon={Calendar} label={t('stats.kpi.upcoming')} value={proximas.length}   color="text-brand-purple" bg="bg-brand-purple/10" />
-        <StatCard icon={MapPin}   label={t('stats.kpi.favorite')} value={instFavorita}      color="text-blue-400"     bg="bg-blue-400/10"  isText />
-        <StatCard icon={Target}   label={t('stats.kpi.total')}    value={reservas.length}   color="text-white"        bg="bg-white/10" />
+        <StatCard icon={Trophy}   label={t('stats.kpi.played')}   value={pasadas.length}    color="text-brand-purple dark:text-brand-lime"   bg="bg-brand-purple/10 dark:bg-brand-lime/10" />
+        <StatCard icon={Calendar} label={t('stats.kpi.upcoming')} value={proximas.length}   color="text-blue-500 dark:text-blue-400" bg="bg-blue-500/10 dark:bg-blue-400/10" />
+        <StatCard icon={MapPin}   label={t('stats.kpi.favorite')} value={instFavorita}      color="text-orange-500 dark:text-orange-400"     bg="bg-orange-500/10 dark:bg-orange-400/10"  isText />
+        <StatCard icon={Target}   label={t('stats.kpi.total')}    value={reservas.length}   color="theme-text"        bg="theme-elevated" />
       </div>
 
       {/* GRÁFICOS */}
@@ -236,8 +236,8 @@ export default function Estadisticas() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <BarChartSimple data={diaData}  label={t('stats.charts.byDay')} />
           <BarChartSimple data={horaData} label={t('stats.charts.byHour')} />
-          <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
-            <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
+          <div className="theme-card p-6 border theme-border">
+            <h3 className="text-base font-bold theme-text mb-6 flex items-center gap-2">
               <TrendingUp size={18} className="text-brand-purple" /> {t('stats.charts.byType')}
             </h3>
             {tipoData.length > 0 ? (
@@ -246,11 +246,11 @@ export default function Estadisticas() {
                   const pct = pasadas.length > 0 ? Math.round((value / pasadas.length) * 100) : 0;
                   return (
                     <div key={name}>
-                      <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                        <span className="font-medium text-white capitalize">{name}</span>
+                      <div className="flex justify-between text-xs theme-faint mb-1.5">
+                        <span className="font-medium theme-text capitalize">{name}</span>
                         <span>{value} ({pct}%)</span>
                       </div>
-                      <div className="h-2 bg-black/30 rounded-full overflow-hidden">
+                      <div className="h-2 theme-bg rounded-full overflow-hidden">
                         <div className="h-full rounded-full bg-brand-purple transition-all duration-700" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
@@ -263,11 +263,11 @@ export default function Estadisticas() {
           </div>
         </div>
       ) : (
-        <div className="bg-[#1A1A2E] rounded-3xl p-12 border border-white/5 text-center">
-          <BarChart2 size={48} className="mx-auto text-gray-700 mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">{t('stats.empty.title')}</h3>
-          <p className="text-gray-400 text-sm mb-6">{t('stats.empty.desc')}</p>
-          <Link to="/reservar" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all">
+        <div className="theme-card p-12 border theme-border text-center">
+          <BarChart2 size={48} className="mx-auto theme-faint mb-4" />
+          <h3 className="text-xl font-bold theme-text mb-2">{t('stats.empty.title')}</h3>
+          <p className="theme-faint text-sm mb-6">{t('stats.empty.desc')}</p>
+          <Link to="/reservar" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-full font-bold text-sm hover:scale-105 transition-all shadow-lg">
             <PlusCircle size={16} /> {t('stats.empty.firstBooking')}
           </Link>
         </div>
@@ -275,8 +275,8 @@ export default function Estadisticas() {
 
       {/* LOGROS */}
       <div>
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Award className="text-brand-lime" size={22} /> {t('stats.achievements')}
+        <h2 className="text-xl font-bold theme-text mb-4 flex items-center gap-2">
+          <Award className="text-brand-purple dark:text-brand-lime" size={22} /> {t('stats.achievements')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {LOGROS.map(logro => (

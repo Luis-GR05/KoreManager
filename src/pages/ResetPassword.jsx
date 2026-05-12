@@ -67,30 +67,30 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#0F0F1A] p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
       {/* Fondos decorativos */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-[#1A1A2E]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10 animate-fade-in">
+      <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10 animate-fade-in">
         
         {isSuccess ? (
           <div className="text-center py-6">
-            <div className="w-20 h-20 bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-              <CheckCircle className="w-10 h-10 text-brand-lime" />
+            <div className="w-20 h-20 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+              <CheckCircle className="w-10 h-10 text-brand-purple dark:text-brand-lime" />
             </div>
-            <h2 className="text-2xl font-black text-white mb-3">{t('reset.successTitle')}</h2>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+            <h2 className="text-2xl font-black theme-text mb-3">{t('reset.successTitle')}</h2>
+            <p className="theme-faint text-sm leading-relaxed mb-6">
               {t('reset.successDesc')}
             </p>
           </div>
         ) : (
           <>
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+              <h1 className="text-3xl font-bold theme-text mb-2 tracking-tight">
                 {t('reset.title')}
               </h1>
-              <p className="text-gray-400 text-sm">
+              <p className="theme-faint text-sm">
                 {t('reset.desc')}
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function ResetPassword() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

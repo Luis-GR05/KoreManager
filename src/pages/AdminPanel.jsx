@@ -83,17 +83,17 @@ function TabUsuarios() {
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: t('admin.users.totalUsers'),    value: usuarios.length,                              color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Users },
-          { label: t('admin.users.activeStaff'),   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-400',     bg: 'bg-blue-500/10',     icon: Activity },
-          { label: t('admin.users.activeBookings'),    value: reservasCount,                               color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+          { label: t('admin.users.totalUsers'),    value: usuarios.length,                              color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',    icon: Users },
+          { label: t('admin.users.activeStaff'),   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-500 dark:text-blue-400',     bg: 'bg-blue-500/10 dark:bg-blue-400/10',     icon: Activity },
+          { label: t('admin.users.activeBookings'),    value: reservasCount,                               color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',  icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (
-            <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
+            <div key={label} className="theme-card p-6 flex items-center gap-4 border-none shadow-md">
               <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
               <div>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
-                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-xs theme-faint font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-bold theme-text">{value}</p>
               </div>
             </div>
           );
@@ -101,24 +101,24 @@ function TabUsuarios() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-[#1A1A2E] rounded-3xl border border-white/5 overflow-hidden">
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <h2 className="text-lg font-bold text-white">{t('admin.users.directory')}</h2>
+      <div className="theme-card overflow-hidden">
+        <div className="p-6 border-b theme-border flex flex-col md:flex-row justify-between items-center gap-4">
+          <h2 className="text-lg font-bold theme-text">{t('admin.users.directory')}</h2>
           <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 theme-faint" size={18} />
             <input
               type="text"
               placeholder={t('admin.users.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white focus:border-brand-lime outline-none text-sm"
+              className="w-full theme-bg border theme-border rounded-xl py-2 pl-10 pr-4 theme-text focus:border-brand-purple dark:focus:border-brand-lime outline-none text-sm"
             />
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-[#0F0F1A] text-xs uppercase tracking-wider text-gray-500 border-b border-white/5">
+              <tr className="theme-bg text-xs uppercase tracking-wider theme-faint border-b theme-border">
                 <th className="p-4">{t('admin.users.table.user')}</th>
                 <th className="p-4">{t('admin.users.table.contact')}</th>
                 <th className="p-4">{t('admin.users.table.role')}</th>
@@ -127,33 +127,33 @@ function TabUsuarios() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.map((user) => (
-                <tr key={user.id} className="hover:bg-white/5 transition-colors">
+                <tr key={user.id} className="hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors border-b theme-border">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
+                      <div className="w-8 h-8 rounded-full bg-brand-purple/10 dark:bg-white/10 flex items-center justify-center text-xs font-bold theme-text">
                         {(user.full_name || user.email || '?').charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-medium text-white text-sm">{user.full_name || t('admin.users.noName')}</span>
+                      <span className="font-medium theme-text text-sm">{user.full_name || t('admin.users.noName')}</span>
                     </div>
                   </td>
-                  <td className="p-4 text-sm text-gray-400">
+                  <td className="p-4 text-sm theme-faint">
                     <div className="flex flex-col">
-                      <span>{user.email}</span>
-                      <span className="text-xs text-gray-600">{user.telefono || '—'}</span>
+                      <span className="theme-text">{user.email}</span>
+                      <span className="text-xs theme-faint">{user.telefono || '—'}</span>
                     </div>
                   </td>
                   <td className="p-4">
                     <select
                       value={user.rol_id}
                       onChange={(e) => changeRole(user.id, e.target.value)}
-                      className="bg-[#0F0F1A] border border-white/10 text-white text-xs rounded-lg px-2 py-1 focus:border-brand-lime outline-none cursor-pointer"
+                      className="theme-bg border theme-border theme-text text-xs rounded-lg px-2 py-1 focus:border-brand-purple dark:focus:border-brand-lime outline-none cursor-pointer"
                     >
                       {roles.map(r => (
                         <option key={r.id} value={r.id}>{r.nombre}</option>
                       ))}
                     </select>
                   </td>
-                  <td className="p-4 text-sm text-gray-500">
+                  <td className="p-4 text-sm theme-faint">
                     {new Date(user.created_at).toLocaleDateString('es-ES')}
                   </td>
                 </tr>
@@ -198,7 +198,8 @@ function TabInstalaciones() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.nombre.trim()) return toast.error('El nombre es obligatorio');
+    if (!form.nombre.trim()) return toast.error(t('admin.courts.nameRequired'));
+    if (!form.tipo) return toast.error('El tipo es obligatorio');
     setSaving(true);
 
     if (form.id) {
@@ -239,43 +240,43 @@ function TabInstalaciones() {
     <div className="space-y-6">
       
       {/* Botón arriba a la derecha para crear */}
-      <div className="flex justify-between items-center bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
+      <div className="flex justify-between items-center theme-card p-6">
         <div>
-          <h2 className="text-lg font-bold text-white">{t('admin.courts.title')}</h2>
-          <p className="text-xs text-gray-500">{t('admin.courts.desc')}</p>
+          <h2 className="text-lg font-bold theme-text">{t('admin.courts.title')}</h2>
+          <p className="text-xs theme-faint">{t('admin.courts.desc')}</p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-lime text-black font-bold rounded-xl hover:scale-105 transition-all text-sm">
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-bold rounded-xl hover:scale-105 transition-all text-sm shadow-md">
           <PlusCircle size={16} /> {t('admin.courts.newCourt')}
         </button>
       </div>
 
       {/* Formulario Modal si isFormOpen está true */}
       {isFormOpen && (
-        <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-brand-lime/30 space-y-4 mb-6">
-          <h3 className="font-bold text-white mb-2">{form.id ? t('admin.courts.editCourt') : t('admin.courts.createCourt')}</h3>
+        <div className="theme-elevated p-6 rounded-3xl border theme-border space-y-4 mb-6">
+          <h3 className="font-bold theme-text mb-2">{form.id ? t('admin.courts.editCourt') : t('admin.courts.createCourt')}</h3>
           <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="col-span-2">
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Nombre</label>
-              <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})} className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-2 focus:border-brand-lime outline-none text-sm" placeholder="Ej: Pista 1 Centro" required />
+              <label className="text-xs font-bold theme-faint uppercase block mb-1">Nombre</label>
+              <input type="text" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})} className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-2 focus:border-brand-purple dark:focus:border-brand-lime outline-none text-sm" placeholder="Ej: Pista 1 Centro" required />
             </div>
             
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Tipo</label>
-              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-2 focus:border-brand-lime outline-none text-sm capitalize">
+              <label className="text-xs font-bold theme-faint uppercase block mb-1">Tipo</label>
+              <select value={form.tipo} onChange={e => setForm({...form, tipo: e.target.value})} className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-2 focus:border-brand-purple dark:focus:border-brand-lime outline-none text-sm capitalize cursor-pointer">
                 {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-1">Estado</label>
-              <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-2 focus:border-brand-lime outline-none text-sm capitalize">
+              <label className="text-xs font-bold theme-faint uppercase block mb-1">Estado</label>
+              <select value={form.estado} onChange={e => setForm({...form, estado: e.target.value})} className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-2 focus:border-brand-purple dark:focus:border-brand-lime outline-none text-sm capitalize cursor-pointer">
                 {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
 
             <div className="md:col-span-4 flex justify-end gap-3 mt-2">
-              <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 rounded-xl text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5">Cancelar</button>
-              <button type="submit" disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-lime text-black text-sm font-bold disabled:opacity-50 hover:bg-brand-lime/80">
+              <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 rounded-xl text-sm font-bold theme-faint hover:theme-text hover:theme-elevated transition-colors">Cancelar</button>
+              <button type="submit" disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black text-sm font-bold disabled:opacity-50 hover:scale-105 transition-all shadow-md">
                 <Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}
               </button>
             </div>
@@ -286,28 +287,28 @@ function TabInstalaciones() {
       {/* Grid de Pistas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {instalaciones.map(inst => (
-          <div key={inst.id} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors group">
+          <div key={inst.id} className="theme-card p-6 border theme-border space-y-4 hover:border-brand-purple/30 dark:hover:border-brand-lime/30 transition-colors group">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="font-bold text-white text-lg">{inst.nombre}</h3>
-                <p className="text-xs text-gray-500 uppercase mt-0.5">Tipo: {inst.tipo || 'general'}</p>
+                <h3 className="font-bold theme-text text-lg">{inst.nombre}</h3>
+                <p className="text-xs theme-faint uppercase mt-0.5">Tipo: {inst.tipo || 'general'}</p>
               </div>
-              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase ${colorEstado(inst.estado)} shrink-0`}>
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase ${colorEstado(inst.estado)} shrink-0 shadow-sm`}>
                 {inst.estado}
               </span>
             </div>
 
-            <div className="flex gap-2 pt-2 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+            <div className="flex gap-2 pt-2 border-t theme-border opacity-80 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => openEdit(inst)}
-                className="flex items-center justify-center flex-1 gap-2 py-2 text-xs font-bold text-gray-400 border border-white/10 rounded-xl hover:text-brand-lime hover:border-brand-lime/30 transition-colors"
+                className="flex items-center justify-center flex-1 gap-2 py-2 text-xs font-bold theme-faint border theme-border rounded-xl hover:text-brand-purple dark:hover:text-brand-lime hover:border-brand-purple/30 dark:hover:border-brand-lime/30 transition-colors"
                 title="Editar pista"
               >
                 <Edit3 size={14} /> Editar
               </button>
               <button
                 onClick={() => handleDelete(inst.id)}
-                className="flex items-center justify-center flex-none px-3 py-2 text-xs font-bold text-gray-400 border border-white/10 rounded-xl hover:text-red-400 hover:border-red-400/30 transition-colors"
+                className="flex items-center justify-center flex-none px-3 py-2 text-xs font-bold theme-faint border theme-border rounded-xl hover:text-red-400 hover:border-red-400/30 transition-colors"
                 title="Borrar pista"
               >
                 <Trash2 size={14} />
@@ -358,7 +359,8 @@ function TabAvisos() {
 
   const createAviso = async (e) => {
     e.preventDefault();
-    if (!form.titulo.trim()) { toast.error('El título es obligatorio.'); return; }
+    if (!form.titulo.trim()) { toast.error(t('admin.alerts.titleRequired')); return; }
+    if (!form.mensaje.trim()) { toast.error('El mensaje no puede estar vacío.'); return; }
     setSaving(true);
     const { error } = await supabase.from('avisos').insert([{ titulo: form.titulo, mensaje: form.mensaje, activo: true }]);
     if (error) {
@@ -380,32 +382,32 @@ function TabAvisos() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Formulario */}
       <div>
-        <h3 className="text-lg font-bold text-white mb-4">{t('admin.alerts.newAlert')}</h3>
-        <form onSubmit={createAviso} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 space-y-4">
+        <h3 className="text-lg font-bold theme-text mb-4">{t('admin.alerts.newAlert')}</h3>
+        <form onSubmit={createAviso} className="theme-card p-6 space-y-4">
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Título</label>
+            <label className="text-xs font-bold theme-faint uppercase block mb-2">Título</label>
             <input
               type="text"
               value={form.titulo}
               onChange={e => setForm({ ...form, titulo: e.target.value })}
               placeholder="Título del aviso"
-              className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
+              className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-3 focus:border-brand-purple dark:focus:border-brand-lime outline-none"
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase block mb-2">Mensaje</label>
+            <label className="text-xs font-bold theme-faint uppercase block mb-2">Mensaje</label>
             <textarea
               value={form.mensaje}
               onChange={e => setForm({ ...form, mensaje: e.target.value })}
               placeholder="Descripción detallada..."
               rows={4}
-              className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none resize-none"
+              className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-3 focus:border-brand-purple dark:focus:border-brand-lime outline-none resize-none"
             />
           </div>
           <button
             type="submit"
             disabled={saving}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-brand-lime text-black font-bold rounded-xl hover:scale-[1.02] transition-all disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-bold rounded-xl hover:scale-[1.02] transition-all disabled:opacity-50 shadow-md"
           >
             <PlusCircle size={18} /> {saving ? 'Publicando...' : 'Publicar Aviso'}
           </button>
@@ -414,22 +416,22 @@ function TabAvisos() {
 
       {/* Lista */}
       <div>
-        <h3 className="text-lg font-bold text-white mb-4">{t('admin.alerts.published', { count: avisos.length })}</h3>
+        <h3 className="text-lg font-bold theme-text mb-4">{t('admin.alerts.published', { count: avisos.length })}</h3>
         <div className="space-y-4">
           {avisos.length === 0 && <p className="text-gray-500 text-sm">{t('admin.alerts.noAlerts')}</p>}
           {avisos.map(aviso => (
             <div
               key={aviso.id}
               className={`p-5 rounded-2xl border transition-all ${aviso.activo
-                ? 'bg-brand-purple/5 border-brand-purple/20'
-                : 'bg-white/2 border-white/5 opacity-50'
+                ? 'bg-brand-purple/5 dark:bg-brand-lime/5 border-brand-purple/20 dark:border-brand-lime/20'
+                : 'theme-elevated opacity-50'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h4 className="font-bold text-white text-sm">{aviso.titulo}</h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">{aviso.mensaje}</p>
-                  <p className="text-[10px] text-gray-600 mt-2">
+                  <h4 className="font-bold theme-text text-sm">{aviso.titulo}</h4>
+                  <p className="text-xs theme-faint mt-1 leading-relaxed">{aviso.mensaje}</p>
+                  <p className="text-[10px] theme-faint mt-2">
                     {new Date(aviso.created_at).toLocaleDateString('es-ES')}
                   </p>
                 </div>
@@ -437,16 +439,16 @@ function TabAvisos() {
                   <button
                     onClick={() => toggleAviso(aviso.id, aviso.activo)}
                     title={aviso.activo ? 'Desactivar' : 'Activar'}
-                    className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                    className="p-2 rounded-lg hover:theme-elevated transition-colors"
                   >
                     {aviso.activo
-                      ? <CheckCircle2 size={18} className="text-brand-lime" />
-                      : <XCircle size={18} className="text-gray-500" />
+                      ? <CheckCircle2 size={18} className="text-brand-purple dark:text-brand-lime" />
+                      : <XCircle size={18} className="theme-faint" />
                     }
                   </button>
                   <button
                     onClick={() => deleteAviso(aviso.id)}
-                    className="p-2 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-500 transition-colors"
+                    className="p-2 rounded-lg hover:bg-red-500/10 theme-faint hover:text-red-500 transition-colors"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -575,16 +577,16 @@ function TabReservas() {
 
       {/* Modal de confirmación */}
       {confirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">{t('admin.bookings.cancelModal.title')}</h3>
-            <p className="text-gray-400 text-sm mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="theme-card border theme-border p-8 max-w-sm w-full mx-4 shadow-2xl">
+            <h3 className="text-xl font-bold theme-text mb-2">{t('admin.bookings.cancelModal.title')}</h3>
+            <p className="theme-faint text-sm mb-6">
               {t('admin.bookings.cancelModal.desc')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmId(null)}
-                className="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 font-bold hover:bg-white/5 transition-colors"
+                className="flex-1 py-3 rounded-xl border theme-border theme-faint font-bold hover:theme-elevated transition-colors"
               >
                 {t('admin.bookings.cancelModal.back')}
               </button>
@@ -603,17 +605,17 @@ function TabReservas() {
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: t('admin.bookings.totalBookings'), value: total,    color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
-          { label: t('admin.bookings.upcoming'),        value: proximas, color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
-          { label: t('admin.bookings.completed'),       value: pasadas,  color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
+          { label: t('admin.bookings.totalBookings'), value: total,    color: 'text-brand-purple dark:text-brand-lime',        bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',          icon: Calendar },
+          { label: t('admin.bookings.upcoming'),        value: proximas, color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',    icon: Clock },
+          { label: t('admin.bookings.completed'),       value: pasadas,  color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',  icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (
-            <div key={label} className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5 flex items-center gap-4">
+            <div key={label} className="theme-card p-6 flex items-center gap-4">
               <div className={`p-4 ${bg} rounded-2xl ${color}`}><Icon size={24} /></div>
               <div>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
-                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-xs theme-faint font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-bold theme-text">{value}</p>
               </div>
             </div>
           );
@@ -623,17 +625,17 @@ function TabReservas() {
       {/* Controles: búsqueda + filtro fecha */}
       <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 theme-faint" size={18} />
           <input
             type="text"
             placeholder="Buscar usuario o pista..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1A1A2E] border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white focus:border-brand-lime outline-none text-sm"
+            className="w-full theme-bg border theme-border rounded-xl py-2 pl-10 pr-4 theme-text focus:border-brand-purple dark:focus:border-brand-lime outline-none text-sm"
           />
         </div>
 
-        <div className="flex gap-2 bg-[#1A1A2E] p-1 rounded-2xl border border-white/5">
+        <div className="flex gap-2 theme-elevated p-1 rounded-2xl border theme-border">
           {[
             { id: 'proximas', label: 'Próximas' },
             { id: 'pasadas',  label: 'Pasadas'  },
@@ -644,8 +646,8 @@ function TabReservas() {
               onClick={() => setFiltroFecha(id)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 filtroFecha === id
-                  ? 'bg-brand-lime text-black'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-sm'
+                  : 'theme-faint hover:theme-text'
               }`}
             >
               {label}
@@ -655,11 +657,11 @@ function TabReservas() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-[#1A1A2E] rounded-3xl border border-white/5 overflow-hidden">
+      <div className="theme-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-[#0F0F1A] text-xs uppercase tracking-wider text-gray-500 border-b border-white/5">
+              <tr className="theme-bg text-xs uppercase tracking-wider theme-faint border-b theme-border">
                 <th className="p-4">{t('admin.bookings.table.user')}</th>
                 <th className="p-4">{t('admin.bookings.table.court')}</th>
                 <th className="p-4">{t('admin.bookings.table.date')}</th>
@@ -679,26 +681,26 @@ function TabReservas() {
                     {/* Usuario */}
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                        <div className="w-8 h-8 rounded-full theme-elevated flex items-center justify-center text-xs font-bold theme-text shrink-0 border theme-border">
                           {(r.profiles?.full_name || r.profiles?.email || '?').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">
+                          <p className="text-sm font-medium theme-text">
                             {r.profiles?.full_name || 'Sin nombre'}
                           </p>
-                          <p className="text-xs text-gray-500">{r.profiles?.email}</p>
+                          <p className="text-xs theme-faint">{r.profiles?.email}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Instalación */}
                     <td className="p-4">
-                      <p className="text-sm text-white">{r.instalaciones?.nombre || '—'}</p>
-                      <p className="text-xs text-gray-500 capitalize">{r.instalaciones?.tipo || ''}</p>
+                      <p className="text-sm theme-text">{r.instalaciones?.nombre || '—'}</p>
+                      <p className="text-xs theme-faint capitalize">{r.instalaciones?.tipo || ''}</p>
                     </td>
 
                     {/* Fecha */}
-                    <td className="p-4 text-sm text-gray-300">
+                    <td className="p-4 text-sm theme-text">
                       {new Date(r.fecha + 'T00:00:00').toLocaleDateString('es-ES', {
                         weekday: 'short', day: 'numeric', month: 'short'
                       })}
@@ -706,8 +708,8 @@ function TabReservas() {
 
                     {/* Hora */}
                     <td className="p-4">
-                      <span className="flex items-center gap-1.5 text-sm text-gray-300">
-                        <Clock size={14} className="text-brand-purple" />
+                      <span className="flex items-center gap-1.5 text-sm theme-text">
+                        <Clock size={14} className="text-brand-purple dark:text-brand-lime" />
                         {r.hora?.slice(0, 5)}h
                       </span>
                     </td>
@@ -720,8 +722,8 @@ function TabReservas() {
                         <div className="space-y-1">
                           {mat.slice(0, 3).map((m, idx) => (
                             <div key={idx} className="text-xs">
-                              <span className="text-gray-300 font-bold">{m.cantidad}×</span>{' '}
-                              <span className="text-gray-400">{m.inventario?.nombre || 'Material'}</span>
+                              <span className="theme-text font-bold">{m.cantidad}×</span>{' '}
+                              <span className="theme-faint">{m.inventario?.nombre || 'Material'}</span>
                             </div>
                           ))}
                           {mat.length > 3 && (
@@ -736,11 +738,11 @@ function TabReservas() {
                     {/* Estado */}
                     <td className="p-4">
                       {isUpcoming ? (
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-brand-lime/10 text-brand-lime border border-brand-lime/20">
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-brand-purple/10 dark:bg-brand-lime/10 text-brand-purple dark:text-brand-lime border border-brand-purple/20 dark:border-brand-lime/20 shadow-sm">
                           {t('admin.bookings.status.upcoming')}
                         </span>
                       ) : (
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 text-gray-500 border border-white/10">
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full theme-elevated theme-faint border theme-border">
                           {t('admin.bookings.status.completed')}
                         </span>
                       )}
@@ -751,7 +753,7 @@ function TabReservas() {
                       {isUpcoming && (
                         <button
                           onClick={() => setConfirmId(r.id)}
-                          className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          className="p-2 rounded-lg theme-faint hover:text-red-400 hover:bg-red-500/10 transition-colors"
                           title="Cancelar reserva"
                         >
                           <Trash2 size={16} />
@@ -792,7 +794,7 @@ function TabReservas() {
                   }
                 }}
                 disabled={loadingMore}
-                className="px-4 py-2 rounded-xl bg-[#0F0F1A] border border-white/10 text-gray-300 font-bold hover:bg-white/5 hover:border-white/20 transition-colors disabled:opacity-50 w-fit"
+                className="px-4 py-2 rounded-xl theme-bg border theme-border theme-text font-bold hover:theme-elevated transition-colors disabled:opacity-50 w-fit"
               >
                 {loadingMore ? 'Cargando...' : 'Cargar más'}
               </button>
@@ -888,18 +890,18 @@ function TabEstadisticasAdmin() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Reservas',      value: reservas.length, color: 'text-white',        bg: 'bg-white/5',          icon: Calendar },
-          { label: 'Próximas',            value: proximas,        color: 'text-brand-lime',   bg: 'bg-brand-lime/10',    icon: Clock },
-          { label: 'Completadas',         value: pasadas,         color: 'text-brand-purple', bg: 'bg-brand-purple/10',  icon: CheckCircle2 },
-          { label: 'Media por usuario',   value: mediaOcupacion,  color: 'text-blue-400',     bg: 'bg-blue-400/10',      icon: TrendingUp },
+          { label: 'Total Reservas',      value: reservas.length, color: 'text-brand-purple dark:text-brand-lime',        bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',          icon: Calendar },
+          { label: 'Próximas',            value: proximas,        color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',    icon: Clock },
+          { label: 'Completadas',         value: pasadas,         color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',  icon: CheckCircle2 },
+          { label: 'Media por usuario',   value: mediaOcupacion,  color: 'text-blue-500 dark:text-blue-400',     bg: 'bg-blue-500/10 dark:bg-blue-400/10',      icon: TrendingUp },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (
-            <div key={label} className="bg-[#1A1A2E] p-5 rounded-3xl border border-white/5 flex items-center gap-3">
+            <div key={label} className="theme-card p-5 border theme-border shadow-sm flex items-center gap-3">
               <div className={`p-3 ${bg} rounded-xl ${color}`}><Icon size={20} /></div>
               <div>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{label}</p>
-                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-xs theme-faint font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-2xl font-bold theme-text">{value}</p>
               </div>
             </div>
           );
@@ -909,9 +911,9 @@ function TabEstadisticasAdmin() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* Reservas por día de la semana */}
-        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
-          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-            <BarChart2 size={18} className="text-brand-lime" />
+        <div className="theme-card p-6">
+          <h3 className="text-base font-bold theme-text mb-6 flex items-center gap-2">
+            <BarChart2 size={18} className="text-brand-purple dark:text-brand-lime" />
             Reservas por día de la semana
           </h3>
           <div className="flex items-end gap-2 h-40">
@@ -920,16 +922,16 @@ function TabEstadisticasAdmin() {
               const pct = Math.round((val / maxDia) * 100);
               return (
                 <div key={dia} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] text-gray-500 font-bold">{val > 0 ? val : ''}</span>
+                  <span className="text-[10px] theme-faint font-bold">{val > 0 ? val : ''}</span>
                   <div className="w-full flex items-end" style={{ height: '112px' }}>
                     <div className="w-full relative" style={{ height: '112px' }}>
                       <div
-                        className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-lime/80 hover:bg-brand-lime transition-colors duration-300"
+                        className="absolute bottom-0 left-0 right-0 rounded-t-lg bg-brand-purple/80 dark:bg-brand-lime/80 hover:bg-brand-purple dark:hover:bg-brand-lime transition-colors duration-300"
                         style={{ height: `${Math.max(pct, val > 0 ? 4 : 0)}%` }}
                       />
                     </div>
                   </div>
-                  <span className="text-[10px] text-gray-600 font-medium">{dia}</span>
+                  <span className="text-[10px] theme-faint font-medium">{dia}</span>
                 </div>
               );
             })}
@@ -937,26 +939,26 @@ function TabEstadisticasAdmin() {
         </div>
 
         {/* Instalación más reservada */}
-        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
-          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-            <MapPin size={18} className="text-brand-purple" /> Ranking de instalaciones
+        <div className="theme-card p-6 border theme-border">
+          <h3 className="text-base font-bold theme-text mb-6 flex items-center gap-2">
+            <MapPin size={18} className="text-brand-purple dark:text-brand-lime" /> Ranking de instalaciones
           </h3>
           <div className="space-y-4">
-            {instRanking.length === 0 && <p className="text-gray-500 text-sm">Sin datos aún.</p>}
+            {instRanking.length === 0 && <p className="theme-faint text-sm">Sin datos aún.</p>}
             {instRanking.map(([nombre, count], idx) => {
               const pct = Math.round((count / maxInst) * 100);
               return (
                 <div key={nombre}>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-white font-medium flex items-center gap-2">
-                      {idx === 0 && <Trophy size={12} className="text-brand-lime" />}
+                    <span className="theme-text font-medium flex items-center gap-2">
+                      {idx === 0 && <Trophy size={12} className="text-brand-purple dark:text-brand-lime" />}
                       {nombre}
                     </span>
-                    <span className="text-gray-500">{count} reservas</span>
+                    <span className="theme-faint">{count} reservas</span>
                   </div>
-                  <div className="h-2 bg-black/30 rounded-full overflow-hidden">
+                  <div className="h-2 theme-bg rounded-full overflow-hidden border theme-border">
                     <div
-                      className="h-full rounded-full bg-brand-purple transition-all duration-700"
+                      className="h-full rounded-full bg-brand-purple dark:bg-brand-lime transition-all duration-700"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -967,11 +969,11 @@ function TabEstadisticasAdmin() {
         </div>
 
         {/* Top usuarios más activos */}
-        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
-          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-            <Trophy size={18} className="text-yellow-400" /> Top 5 Usuarios Activos
+        <div className="theme-card p-6 border theme-border">
+          <h3 className="text-base font-bold theme-text mb-6 flex items-center gap-2">
+            <Trophy size={18} className="text-brand-purple dark:text-brand-lime" /> Top 5 Usuarios Activos
           </h3>
-          {topUsers.length === 0 && <p className="text-gray-500 text-sm">Sin actividad aún.</p>}
+          {topUsers.length === 0 && <p className="theme-faint text-sm">Sin actividad aún.</p>}
           <div className="space-y-3">
             {topUsers.map(({ name, count }, idx) => {
               const pct = Math.round((count / maxUser) * 100);
@@ -981,12 +983,12 @@ function TabEstadisticasAdmin() {
                   <span className="text-xl w-8 text-center">{medals[idx]}</span>
                   <div className="flex-1">
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-white font-medium truncate max-w-[140px]">{name}</span>
-                      <span className="text-gray-500 shrink-0">{count} partidos</span>
+                      <span className="theme-text font-medium truncate max-w-[140px]">{name}</span>
+                      <span className="theme-faint shrink-0">{count} partidos</span>
                     </div>
-                    <div className="h-1.5 bg-black/30 rounded-full overflow-hidden">
+                    <div className="h-1.5 theme-bg rounded-full overflow-hidden border theme-border">
                       <div
-                        className="h-full rounded-full bg-brand-lime transition-all duration-700"
+                        className="h-full rounded-full bg-brand-purple dark:bg-brand-lime transition-all duration-700"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -998,11 +1000,11 @@ function TabEstadisticasAdmin() {
         </div>
 
         {/* Distribución por tipo de pista */}
-        <div className="bg-[#1A1A2E] rounded-3xl p-6 border border-white/5">
-          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
-            <TrendingUp size={18} className="text-blue-400" /> Distribución por tipo
+        <div className="theme-card p-6 border theme-border">
+          <h3 className="text-base font-bold theme-text mb-6 flex items-center gap-2">
+            <TrendingUp size={18} className="theme-faint" /> Distribución por tipo
           </h3>
-          {Object.keys(porTipo).length === 0 && <p className="text-gray-500 text-sm">Sin datos aún.</p>}
+          {Object.keys(porTipo).length === 0 && <p className="theme-faint text-sm">Sin datos aún.</p>}
           <div className="space-y-4">
             {Object.entries(porTipo)
               .sort((a, b) => b[1] - a[1])
@@ -1013,12 +1015,12 @@ function TabEstadisticasAdmin() {
                 return (
                   <div key={tipo}>
                     <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-white capitalize font-medium">{tipo}</span>
-                      <span className="text-gray-500">{pct}% — {count} reservas</span>
+                      <span className="theme-text capitalize font-medium">{tipo}</span>
+                      <span className="theme-faint">{pct}% — {count} reservas</span>
                     </div>
-                    <div className="h-2.5 bg-black/30 rounded-full overflow-hidden">
+                    <div className="h-2.5 theme-bg rounded-full overflow-hidden border theme-border">
                       <div
-                        className={`h-full rounded-full ${color} transition-all duration-700`}
+                        className={`h-full rounded-full ${color} transition-all duration-700 shadow-sm`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -1045,18 +1047,18 @@ export default function AdminPanel() {
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
 
       {/* Cabecera */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b theme-border pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <ShieldAlert className="text-brand-red" size={32} />
+          <h1 className="text-3xl font-bold theme-text flex items-center gap-3">
+            <ShieldAlert className="text-red-500" size={32} />
             {t('admin.title')}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">{t('admin.subtitle')}</p>
+          <p className="theme-faint text-sm mt-1">{t('admin.subtitle')}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-[#1A1A2E] p-1 rounded-2xl border border-white/5 w-fit">
+      <div className="flex flex-wrap gap-2 theme-card p-1 border theme-border w-fit shadow-sm">
         {TABS.map(({ id, label, icon }) => {
           const Icon = icon;
           return (
@@ -1065,8 +1067,8 @@ export default function AdminPanel() {
               onClick={() => setActiveTab(id)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
                 activeTab === id
-                  ? 'bg-brand-lime text-black shadow-sm'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-sm'
+                  : 'theme-faint hover:theme-text'
               }`}
             >
               <Icon size={16} />

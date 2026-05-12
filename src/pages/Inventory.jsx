@@ -145,26 +145,26 @@ export default function Inventory() {
     <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Box className="text-brand-lime" size={32} />
+          <h1 className="text-3xl font-bold theme-text flex items-center gap-3">
+            <Box className="text-brand-purple dark:text-brand-lime" size={32} />
             {t('inventory.title')}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">{t('inventory.subtitle')}</p>
+          <p className="theme-faint text-sm mt-1">{t('inventory.subtitle')}</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 theme-faint" size={18} />
             <input
               type="text"
               placeholder={t('inventory.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#1A1A2E] border border-white/10 rounded-full py-2 pl-10 pr-4 text-white focus:border-brand-lime outline-none text-sm"
+              className="w-full theme-bg border theme-border rounded-full py-2 pl-10 pr-4 theme-text focus:border-brand-purple dark:focus:border-brand-lime outline-none text-sm"
             />
           </div>
           <button
             onClick={fetchInventory}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#1A1A2E] border border-white/10 text-white rounded-full font-bold text-sm hover:bg-white/5 hover:border-white/20 transition-colors"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 theme-bg border theme-border theme-text rounded-full font-bold text-sm hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors"
             title={t('inventory.refresh')}
           >
             <RefreshCw size={16} /> {t('inventory.refresh')}
@@ -172,7 +172,7 @@ export default function Inventory() {
           {isAdmin && (
             <button
               onClick={() => setShowForm(!showForm)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-brand-lime text-black rounded-full font-bold text-sm hover:scale-105 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-full font-bold text-sm hover:scale-105 transition-all shadow-lg"
             >
               <PlusCircle size={18} /> {t('inventory.add')}
             </button>
@@ -181,24 +181,24 @@ export default function Inventory() {
       </div>
 
       {showForm && isAdmin && (
-        <form onSubmit={addItem} className="bg-[#1A1A2E] p-6 rounded-2xl border border-brand-lime/20 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <form onSubmit={addItem} className="theme-card p-6 border-brand-purple/20 dark:border-brand-lime/20 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="md:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase block mb-2">{t('inventory.formTitle')}</label>
+            <label className="text-xs font-bold theme-faint uppercase block mb-2">{t('inventory.formTitle')}</label>
             <input
               type="text"
               value={newItem.nombre}
               onChange={e => setNewItem({ ...newItem, nombre: e.target.value })}
               placeholder={t('inventory.formPlaceholder')}
-              className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
+              className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-3 focus:border-brand-purple dark:focus:border-brand-lime outline-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">{t('inventory.formType')}</label>
+              <label className="text-xs font-bold theme-faint uppercase block mb-2">{t('inventory.formType')}</label>
               <select
                 value={newItem.tipo_pista}
                 onChange={e => setNewItem({ ...newItem, tipo_pista: e.target.value })}
-                className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
+                className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-3 focus:border-brand-purple dark:focus:border-brand-lime outline-none"
               >
                 <option value="padel">{t('inventory.types.padel')}</option>
                 <option value="tenis">{t('inventory.types.tennis')}</option>
@@ -207,19 +207,19 @@ export default function Inventory() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase block mb-2">{t('inventory.formQty')}</label>
+              <label className="text-xs font-bold theme-faint uppercase block mb-2">{t('inventory.formQty')}</label>
               <input
                 type="number"
                 min="0"
                 value={newItem.cantidad}
                 onChange={e => setNewItem({ ...newItem, cantidad: e.target.value })}
-                className="w-full bg-[#0F0F1A] border border-white/10 text-white rounded-xl px-4 py-3 focus:border-brand-lime outline-none"
+                className="w-full theme-bg border theme-border theme-text rounded-xl px-4 py-3 focus:border-brand-purple dark:focus:border-brand-lime outline-none"
               />
             </div>
           </div>
           <div className="md:col-span-3 flex gap-3 justify-end">
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-gray-400 hover:text-white text-sm">{t('inventory.formCancel')}</button>
-            <button type="submit" disabled={saving} className="px-6 py-2 bg-brand-lime text-black rounded-xl font-bold text-sm disabled:opacity-50">
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 theme-faint hover:theme-text text-sm">{t('inventory.formCancel')}</button>
+            <button type="submit" disabled={saving} className="px-6 py-2 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-xl font-bold text-sm disabled:opacity-50">
               {saving ? t('inventory.formSaving') : t('inventory.formSave')}
             </button>
           </div>
@@ -242,7 +242,7 @@ export default function Inventory() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
-            <div key={item.id} className="bg-[#1F1F2E] p-6 rounded-3xl border border-white/5 relative">
+            <div key={item.id} className="theme-elevated p-6 rounded-3xl border theme-border relative group hover:border-brand-purple/30 dark:hover:border-brand-lime/30 transition-colors">
               {isLowStock(item.cantidad) && (
                 <span className="absolute top-4 right-4 flex items-center gap-1 text-[10px] font-bold text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded-full">
                   <AlertTriangle size={10} /> {t('inventory.lowStock')}
@@ -255,31 +255,31 @@ export default function Inventory() {
               )}
 
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-[#0F0F1A] rounded-xl flex items-center justify-center text-brand-purple">
+                <div className="w-12 h-12 theme-bg rounded-xl flex items-center justify-center text-brand-purple">
                   <Package size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">{item.nombre}</h3>
-                  <p className="text-xs text-gray-500">
+                  <h3 className="text-lg font-bold theme-text">{item.nombre}</h3>
+                  <p className="text-xs theme-faint">
                     {(hasTipoPista ? (item.tipo_pista || 'general') : 'sin-tipo')} • {item.estado || 'activo'}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between bg-[#0F0F1A] p-2 rounded-2xl border border-white/5">
+              <div className="flex items-center justify-between theme-bg p-2 rounded-2xl border theme-border">
                 <button
                   onClick={() => updateStock(item.id, item.cantidad, -1)}
                   disabled={item.cantidad === 0}
-                  className="w-10 h-10 rounded-xl bg-[#1F1F2E] text-white hover:bg-red-500/20 hover:text-red-500 flex items-center justify-center disabled:opacity-30 transition-colors"
+                  className="w-10 h-10 rounded-xl theme-elevated theme-text hover:bg-red-500/20 hover:text-red-500 flex items-center justify-center disabled:opacity-30 transition-colors"
                 >
                   <Minus size={18} />
                 </button>
-                <span className={`text-2xl font-mono font-bold ${item.cantidad === 0 ? 'text-red-500' : isLowStock(item.cantidad) ? 'text-yellow-500' : 'text-white'}`}>
+                <span className={`text-2xl font-mono font-bold ${item.cantidad === 0 ? 'text-red-500' : isLowStock(item.cantidad) ? 'text-yellow-500' : 'theme-text'}`}>
                   {item.cantidad}
                 </span>
                 <button
                   onClick={() => updateStock(item.id, item.cantidad, 1)}
-                  className="w-10 h-10 rounded-xl bg-[#1F1F2E] text-white hover:bg-brand-lime hover:text-black flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-xl theme-elevated theme-text hover:bg-brand-purple dark:hover:bg-brand-lime hover:text-white dark:hover:text-black flex items-center justify-center transition-colors"
                 >
                   <Plus size={18} />
                 </button>

@@ -158,6 +158,21 @@ export default function Profile() {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // VALIDACIONES DE SEGURIDAD
+    const phoneRegex = /^[0-9+]{9,15}$/;
+    if (formData.telefono && !phoneRegex.test(formData.telefono)) {
+      toast.error(t('register.errorPhone'));
+      return;
+    }
+
+    const dniRegex = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    const nieRegex = /^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    if (formData.dni && !dniRegex.test(formData.dni) && !nieRegex.test(formData.dni)) {
+      toast.error(t('register.errorDni'));
+      return;
+    }
+
     await updateProfile(formData);
   };
 
@@ -305,22 +320,22 @@ export default function Profile() {
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">{t('profile.loading')}</div>;
 
   const statsCards = [
-    { label: t('profile.stats.totalMatches'), value: stats.total, icon: Trophy, color: 'text-brand-lime', bg: 'bg-brand-lime/10' },
-    { label: t('profile.stats.upcoming'), value: stats.proximas, icon: Calendar, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
-    { label: t('profile.stats.favoriteCourt'), value: stats.favorita, icon: MapPin, color: 'text-blue-400', bg: 'bg-blue-400/10', isText: true },
+    { label: t('profile.stats.totalMatches'), value: stats.total, icon: Trophy, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10' },
+    { label: t('profile.stats.upcoming'), value: stats.proximas, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10' },
+    { label: t('profile.stats.favoriteCourt'), value: stats.favorita, icon: MapPin, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10', isText: true },
   ];
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* HEADER / COVER */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-brand-purple/12 via-white/0 to-brand-lime/10 p-6 md:p-8 anim-shine">
+      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/12 via-transparent to-brand-lime/10">
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/12 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/8 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
           {/* Avatar slot */}
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
+            <div className="w-20 h-20 rounded-3xl theme-bg border theme-border flex items-center justify-center theme-faint shrink-0">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover rounded-3xl" />
               ) : (
@@ -328,16 +343,16 @@ export default function Profile() {
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{t('profile.myProfile')}</p>
-              <h1 className="text-3xl md:text-4xl font-black text-white truncate">
+              <p className="text-[11px] font-bold theme-faint uppercase tracking-widest">{t('profile.myProfile')}</p>
+              <h1 className="text-3xl md:text-4xl font-black theme-text truncate">
                 {profile?.full_name || 'Usuario'}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-black text-gray-200 uppercase tracking-widest">
-                  <ShieldCheck size={14} className="text-brand-lime" />
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full theme-elevated border theme-border text-xs font-black theme-text uppercase tracking-widest">
+                  <ShieldCheck size={14} className="text-brand-purple dark:text-brand-lime" />
                   {roleName}
                 </span>
-                <span className="text-xs text-gray-500 font-semibold truncate">
+                <span className="text-xs theme-faint font-semibold truncate">
                   {profile?.email}
                 </span>
               </div>
@@ -351,7 +366,7 @@ export default function Profile() {
         {statsCards.map(({ label, value, icon, color, bg, isText }) => {
           const Icon = icon;
           return (
-            <div key={label} className="bg-[#1A1A2E] rounded-3xl p-5 border border-white/5 flex items-center gap-4 hover:border-white/10 transition-colors">
+            <div key={label} className="theme-card p-5 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-colors">
               <div className={`p-2.5 rounded-xl ${bg} ${color} shrink-0`}>
                 <Icon size={18} />
               </div>
@@ -359,7 +374,7 @@ export default function Profile() {
                 <p className={`font-bold ${isText ? 'text-sm truncate' : 'text-2xl'} ${color}`}>
                   {loadingStats ? '—' : value}
                 </p>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-[10px] theme-faint font-bold uppercase tracking-wider">{label}</p>
               </div>
             </div>
           );
@@ -369,19 +384,19 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* COLUMNA IZQUIERDA — Foto de perfil */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-white/5 text-center relative overflow-hidden">
+          <div className="theme-card p-6 text-center relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10">
-              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">{t('profile.photoSection')}</p>
-              <div className="w-44 h-44 rounded-3xl bg-white/5 border border-white/10 mx-auto overflow-hidden flex items-center justify-center text-gray-400 mb-5 anim-shine">
+              <p className="text-xs font-black theme-faint uppercase tracking-widest mb-3">{t('profile.photoSection')}</p>
+              <div className="w-44 h-44 rounded-3xl theme-elevated border theme-border mx-auto overflow-hidden flex items-center justify-center theme-faint mb-5 anim-shine">
                 {avatarDisplayUrl ? (
                   <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <ImageIcon size={28} />
                 )}
               </div>
-              <p className="text-sm font-bold text-white mb-1">{t('profile.yourPhoto')}</p>
-              <p className="text-xs text-gray-500 mb-5">
+              <p className="text-sm font-bold theme-text mb-1">{t('profile.yourPhoto')}</p>
+              <p className="text-xs theme-faint mb-5">
                 {t('profile.photoDesc')}
               </p>
 
@@ -400,24 +415,24 @@ export default function Profile() {
           </div>
 
           {/* Generación con IA */}
-          <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-brand-purple/20 text-center relative overflow-hidden group">
-            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-purple/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="theme-card p-6 border-brand-purple/20 dark:border-brand-lime/20 text-center relative overflow-hidden group">
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Sparkles size={18} className="text-brand-purple" />
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{t('profile.aiAvatar')}</p>
+                <Sparkles size={18} className="text-brand-purple dark:text-brand-lime" />
+                <p className="text-xs font-black theme-faint uppercase tracking-widest">{t('profile.aiAvatar')}</p>
               </div>
 
               <div className="space-y-4">
                 <div className="text-left">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1.5 block">
+                  <label className="text-[10px] font-bold theme-faint uppercase tracking-wider ml-1 mb-1.5 block">
                     {t('profile.aiStyleLabel')}
                   </label>
                   <textarea
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
                     placeholder={t('profile.aiPlaceholder')}
-                    className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:border-brand-purple outline-none resize-none transition-colors"
+                    className="w-full theme-bg border theme-border rounded-xl px-3 py-2 text-xs theme-text focus:border-brand-purple dark:focus:border-brand-lime outline-none resize-none transition-colors"
                     rows={2}
                   />
                 </div>
@@ -425,7 +440,7 @@ export default function Profile() {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="w-full bg-gradient-to-r from-brand-purple/20 to-brand-lime/10 border-brand-purple/30 text-white hover:border-brand-purple/60"
+                  className="w-full bg-gradient-to-r from-brand-purple/20 to-brand-lime/10 border-brand-purple/30 dark:border-brand-lime/30 theme-text hover:border-brand-purple/60 dark:hover:border-brand-lime/60"
                   isLoading={generatingIA}
                   onClick={handleGenerateAIAvatar}
                 >
@@ -437,13 +452,13 @@ export default function Profile() {
                 </Button>
 
                 {iaStatus && (
-                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-lime animate-pulse" aria-live="polite">
+                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-purple dark:text-brand-lime animate-pulse" aria-live="polite">
                     <Loader2 size={12} className="animate-spin" />
                     <span className="text-[10px] font-bold uppercase">{iaStatus}</span>
                   </div>
                 )}
 
-                <p className="text-[10px] text-gray-600 mt-4 leading-relaxed italic">
+                <p className="text-[10px] theme-faint mt-4 leading-relaxed italic">
                   {t('profile.aiNote')}
                 </p>
               </div>
@@ -453,24 +468,24 @@ export default function Profile() {
 
         {/* COLUMNA DERECHA — Formulario */}
         <div className="lg:col-span-2 space-y-6">
-          <form onSubmit={handleSubmit} className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 space-y-6">
+          <form onSubmit={handleSubmit} className="theme-card p-8 space-y-6">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-black text-white">{t('profile.personalData')}</h3>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('profile.editable')}</span>
+              <h3 className="text-lg font-black theme-text">{t('profile.personalData')}</h3>
+              <span className="text-[10px] font-bold uppercase tracking-widest theme-faint">{t('profile.editable')}</span>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">
                 {t('profile.email')}
               </label>
-              <div className="flex items-center gap-3 bg-[#0F0F1A] p-4 rounded-xl border border-white/5 opacity-70">
-                <Mail className="text-gray-400" size={20} />
-                <span className="text-gray-300 text-sm">{profile?.email}</span>
+              <div className="flex items-center gap-3 theme-bg p-4 rounded-xl border theme-border opacity-70">
+                <Mail className="theme-faint" size={20} />
+                <span className="theme-text text-sm">{profile?.email}</span>
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">
                 {t('profile.fullName')}
               </label>
               <Input
@@ -483,7 +498,7 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.phone')}</label>
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.phone')}</label>
               <Input
                 icon={Phone}
                 type="tel"
@@ -495,7 +510,7 @@ export default function Profile() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.dni')}</label>
+                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.dni')}</label>
                 <Input
                   icon={User}
                   type="text"
@@ -506,7 +521,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.birthDate')}</label>
+                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.birthDate')}</label>
                 <Input
                   icon={Calendar}
                   type="date"
@@ -518,7 +533,7 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.address')}</label>
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.address')}</label>
               <Input
                 icon={MapPin}
                 type="text"
@@ -531,7 +546,7 @@ export default function Profile() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.postalCode')}</label>
+                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.postalCode')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
@@ -542,7 +557,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.city')}</label>
+                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.city')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
@@ -553,7 +568,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">{t('profile.province')}</label>
+                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.province')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
@@ -572,22 +587,22 @@ export default function Profile() {
           </form>
 
           {/* Legal / privacidad */}
-          <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
-            <p className="text-sm font-black text-white mb-2">{t('profile.legal')}</p>
-            <p className="text-xs text-gray-500">
+          <div className="theme-card p-6">
+            <p className="text-sm font-black theme-text mb-2">{t('profile.legal')}</p>
+            <p className="text-xs theme-faint">
               {t('profile.legalDesc')}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Link to="/legal/aviso-legal" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
+              <Link to="/legal/aviso-legal" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.legalNotice')}
               </Link>
-              <Link to="/legal/privacidad" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
+              <Link to="/legal/privacidad" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.privacyPolicy')}
               </Link>
-              <Link to="/legal/cookies" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
+              <Link to="/legal/cookies" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.cookiesPolicy')}
               </Link>
-              <Link to="/legal/terminos" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
+              <Link to="/legal/terminos" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.terms')}
               </Link>
             </div>

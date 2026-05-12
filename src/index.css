@@ -25,23 +25,23 @@
 }
 
 /* ─────────────────────────────────────────────────────
-   MODO CLARO — paleta completa con contraste real
+   MODO CLARO — paleta premium con alto contraste
 ───────────────────────────────────────────────────── */
 html:not(.dark) {
-  --color-bg:          #f0f2f5;
-  --color-surface:     #ffffff;
-  --color-elevated:    #f7f8fa;
-  --color-border:      #d1d5db;
-  --color-text:        #111827;
-  --color-text-muted:  #374151;
-  --color-text-faint:  #6b7280;
-  --color-sidebar-bg:  #1e2030;
-  --color-topbar-bg:   rgba(240,242,245,0.92);
-  --color-card-bg:     #ffffff;
-  --color-input-bg:    #f7f8fa;
-  --color-hover:       #f3f4f6;
-  --color-hover-text:  #111827;
-  --shadow-card:       0 2px 12px rgba(0,0,0,0.10);
+  --color-bg:          #F8F9FA;
+  --color-surface:     #FFFFFF;
+  --color-elevated:    #E9ECEF;
+  --color-border:      #dee2e6;
+  --color-text:        #1A1A2E;
+  --color-text-muted:  #495057;
+  --color-text-faint:  #6c757d;
+  --color-sidebar-bg:  #FFFFFF;
+  --color-topbar-bg:   rgba(248,249,250,0.92);
+  --color-card-bg:     #FFFFFF;
+  --color-input-bg:    #FFFFFF;
+  --color-hover:       #f1f3f5;
+  --color-hover-text:  #8A2BE2; /* Púrpura para resaltar en claro */
+  --shadow-card:       0 8px 30px rgba(0,0,0,0.04);
 }
 
 body {
@@ -70,116 +70,17 @@ body {
 .theme-text      { color: var(--color-text); }
 .theme-muted     { color: var(--color-text-muted); }
 .theme-faint     { color: var(--color-text-faint); }
-.theme-card      { background-color: var(--color-card-bg); box-shadow: var(--shadow-card); }
+.theme-card      { background-color: var(--color-card-bg); box-shadow: var(--shadow-card); border: 1px solid var(--color-border); border-radius: 1.5rem; }
 .theme-input     { background-color: var(--color-input-bg); border-color: var(--color-border); color: var(--color-text); }
 .theme-hover:hover { background-color: var(--color-hover); color: var(--color-hover-text); }
+.theme-sidebar   { background-color: var(--color-sidebar-bg); border-color: var(--color-border); }
 
-/* ─────────────────────────────────────────────────────
-   MODO CLARO — overrides para componentes específicos
-───────────────────────────────────────────────────── */
-
-/* Tarjetas y paneles con fondo blanco */
-html:not(.dark) .bg-\[\#1A1A2E\],
-html:not(.dark) .bg-\[\#1F1F2E\],
-html:not(.dark) .bg-\[\#1a1a2e\],
-html:not(.dark) .bg-\[\#13131F\] {
-  background-color: #ffffff !important;
-  border-color: #d1d5db !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+/* Orbes decorativos — sutiles en ambos modos */
+[class*="bg-brand-lime/"],
+[class*="bg-brand-purple/"] {
+  opacity: 0.15;
 }
-
-/* Fondo principal de páginas */
-html:not(.dark) .bg-\[\#0F0F1A\],
-html:not(.dark) .bg-\[\#0f0f1a\] {
-  background-color: #f0f2f5 !important;
-}
-
-/* Inputs y campos */
-html:not(.dark) .bg-\[\#0F0F1A\] input,
-html:not(.dark) input.bg-\[\#0F0F1A\] {
-  background-color: #f7f8fa !important;
-  color: #111827 !important;
-}
-
-/* Textos blancos en modo oscuro → oscuros en modo claro */
-html:not(.dark) .text-white {
-  color: #111827 !important;
-}
-
-html:not(.dark) .text-gray-400 {
-  color: #4b5563 !important;
-}
-
-html:not(.dark) .text-gray-500 {
-  color: #374151 !important;
-}
-
-html:not(.dark) .text-gray-300 {
-  color: #374151 !important;
-}
-
-html:not(.dark) .text-gray-600 {
-  color: #1f2937 !important;
-}
-
-/* Bordes blancos tenues → gris visible */
-html:not(.dark) .border-white\/5,
-html:not(.dark) .border-white\/10,
-html:not(.dark) .border-white\/8 {
-  border-color: #d1d5db !important;
-}
-
-/* Backgrounds con opacidad blanca → grises claros */
-html:not(.dark) .bg-white\/5 {
-  background-color: #f3f4f6 !important;
-}
-
-html:not(.dark) .bg-white\/10 {
-  background-color: #e5e7eb !important;
-}
-
-html:not(.dark) .bg-black\/30,
-html:not(.dark) .bg-black\/60 {
-  background-color: rgba(0,0,0,0.06) !important;
-}
-
-/* Hover oscuro */
-html:not(.dark) .hover\:bg-white\/5:hover {
-  background-color: #f3f4f6 !important;
-}
-html:not(.dark) .hover\:text-white:hover {
-  color: #111827 !important;
-}
-
-/* Brand lime en modo claro: texto negro siempre ok */
-html:not(.dark) .text-brand-lime {
-  color: #5c8500 !important;
-}
-html:not(.dark) .bg-brand-lime {
-  background-color: #CCFF00 !important;
-}
-html:not(.dark) .bg-brand-lime .text-black {
-  color: #000000 !important;
-}
-
-/* Orbes decorativos — invisibles en modo claro */
-html:not(.dark) [class*="bg-brand-lime/"],
-html:not(.dark) [class*="bg-brand-purple/"] {
-  opacity: 0.12;
-}
-
-/* Footer en modo claro */
-html:not(.dark) footer {
-  background-color: #1e2030 !important;
-  border-top-color: #374151 !important;
-}
-html:not(.dark) footer p,
-html:not(.dark) footer a {
-  color: #9ca3af !important;
-}
-html:not(.dark) footer a:hover {
-  color: #CCFF00 !important;
-}
+html:not(.dark) [class*="bg-brand-lime/"] { opacity: 0.08; }
 
 /* ─────────────────────────────────────────────────────
    ANIMACIONES
