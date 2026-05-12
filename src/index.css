@@ -4,13 +4,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────
+   MODO OSCURO (por defecto — clase `.dark` en <html>)
+───────────────────────────────────────────────────── */
+:root {
+  --color-bg:          #0F0F1A;
+  --color-surface:     #1A1A2E;
+  --color-elevated:    #1F1F2E;
+  --color-border:      rgba(255,255,255,0.08);
+  --color-text:        #ffffff;
+  --color-text-muted:  #9ca3af;
+  --color-text-faint:  #6b7280;
+  --color-sidebar-bg:  #121222;
+  --color-topbar-bg:   rgba(15,15,26,0.80);
+  --color-card-bg:     #1A1A2E;
+  --color-input-bg:    #0F0F1A;
+  --color-hover:       rgba(255,255,255,0.05);
+  --color-hover-text:  #ffffff;
+  --shadow-card:       0 4px 24px rgba(0,0,0,0.35);
+}
+
+/* ─────────────────────────────────────────────────────
+   MODO CLARO — paleta premium con alto contraste
+───────────────────────────────────────────────────── */
+html:not(.dark) {
+  --color-bg:          #F8F9FA;
+  --color-surface:     #FFFFFF;
+  --color-elevated:    #E9ECEF;
+  --color-border:      #dee2e6;
+  --color-text:        #1A1A2E;
+  --color-text-muted:  #343a40;
+  --color-text-faint:  #495057;
+  --color-sidebar-bg:  #FFFFFF;
+  --color-topbar-bg:   rgba(248,249,250,0.92);
+  --color-card-bg:     #FFFFFF;
+  --color-input-bg:    #FFFFFF;
+  --color-hover:       #f1f3f5;
+  --color-hover-text:  #8A2BE2; /* Púrpura para resaltar en claro */
+  --shadow-card:       0 8px 30px rgba(0,0,0,0.04);
+}
+
 body {
-  background-color: #0F0F1A;
-  color: white;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 #root {
@@ -19,14 +60,46 @@ body {
   flex: 1;
 }
 
-/* Animación shimmer para el degradado del título hero */
+/* ─────────────────────────────────────────────────────
+   CLASES UTILITARIAS DE TEMA
+───────────────────────────────────────────────────── */
+.theme-bg        { background-color: var(--color-bg); }
+.theme-surface   { background-color: var(--color-surface); }
+.theme-elevated  { background-color: var(--color-elevated); }
+.theme-border    { border-color: var(--color-border); }
+.theme-text      { color: var(--color-text); }
+.theme-muted     { color: var(--color-text-muted); }
+.theme-faint     { color: var(--color-text-faint); }
+.theme-card      { background-color: var(--color-card-bg); box-shadow: var(--shadow-card); border: 1px solid var(--color-border); border-radius: 1.5rem; }
+.theme-input     { background-color: var(--color-input-bg); border-color: var(--color-border); color: var(--color-text); }
+.theme-hover:hover { background-color: var(--color-hover); color: var(--color-hover-text); }
+.theme-sidebar   { background-color: var(--color-sidebar-bg); border-color: var(--color-border); }
+
+/* Orbes decorativos — quitamos la opacidad global que afectaba a iconos y texto */
+[class*="bg-brand-lime/"],
+[class*="bg-brand-purple/"],
+[class*="bg-blue-500/"],
+[class*="bg-red-500/"],
+[class*="bg-yellow-400/"] {
+  opacity: 1; 
+}
+html:not(.dark) [class*="bg-brand-lime/"],
+html:not(.dark) [class*="bg-brand-purple/"],
+html:not(.dark) [class*="bg-blue-500/"],
+html:not(.dark) [class*="bg-red-500/"],
+html:not(.dark) [class*="bg-yellow-400/"] { 
+  opacity: 1; 
+}
+
+/* ─────────────────────────────────────────────────────
+   ANIMACIONES
+───────────────────────────────────────────────────── */
 @keyframes shimmer {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Animaciones utilitarias (ligeras, sin dependencias) */
 @keyframes floaty {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
@@ -55,15 +128,20 @@ body {
   position: relative;
   overflow: hidden;
 }
-.anim-shine::after{
+.anim-shine::after {
   content: "";
   position: absolute;
   top: -40%;
   left: -60%;
   width: 40%;
   height: 180%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
   transform: translateX(-120%);
   animation: shine 3.8s ease-in-out infinite;
   pointer-events: none;
+}
+
+/* En modo claro el shine es aún más sutil */
+html:not(.dark) .anim-shine::after {
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,.08), transparent);
 }

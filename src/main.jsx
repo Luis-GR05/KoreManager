@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import './i18n'; // Configuración de react-i18next
 import './index.css';
 import App from './App.jsx';
 

@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -13,10 +14,18 @@ export default {
           surface: '#1A1A2E', // Tarjetas y paneles
           elevated:'#1F1F2E', // Elementos sobre tarjetas (inputs, modales)
         },
-        // Aliases con guión para compatibilidad (bg-dark-base, bg-dark-surface...)
+        light: {
+          base:    '#F8F9FA',
+          surface: '#FFFFFF',
+          elevated:'#E9ECEF',
+        },
+        // Aliases con guión para compatibilidad
         'dark-base':    '#0F0F1A',
         'dark-surface': '#1A1A2E',
         'dark-elevated':'#1F1F2E',
+        'light-base':    '#F8F9FA',
+        'light-surface': '#FFFFFF',
+        'light-elevated':'#E9ECEF',
         // Colores de Marca
         brand: {
           lime:   '#CCFF00',  // Acento principal

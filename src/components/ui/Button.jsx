@@ -27,8 +27,8 @@ export default function Button({
     const baseStyles = "font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
-        primary: "bg-brand-lime text-black hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-[1.02]",
-        secondary: "bg-dark-elevated text-white border border-white/10 hover:border-brand-lime/50",
+        primary: "bg-brand-lime text-[#0F0F1A] hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-[1.02]",
+        secondary: "theme-elevated theme-text border theme-border hover:border-brand-purple/50",
         danger: "bg-semantic-danger/10 text-semantic-danger border border-semantic-danger/20 hover:bg-semantic-danger/20",
         ghost: "bg-transparent text-gray-400 hover:text-white hover:bg-white/5",
     };

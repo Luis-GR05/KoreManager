@@ -1,0 +1,599 @@
+{
+  "layout": {
+    "title": "KORE MANAGER",
+    "subtitle": "Gestión deportiva",
+    "search": "Buscar...",
+    "logout": "Cerrar Sesión",
+    "settings": "Ajustes",
+    "language": "Idioma",
+    "theme": "Tema",
+    "changePassword": "Cambiar Contraseña",
+    "comingSoon": "Próximamente"
+  },
+  "footer": {
+    "tagline": "Gestión deportiva moderna para instalaciones municipales y clubes.",
+    "links": {
+      "installations": "Instalaciones",
+      "features": "Funciones",
+      "about": "Sobre nosotros",
+      "login": "Acceso usuarios",
+      "privacy": "Política de privacidad",
+      "terms": "Términos de uso",
+      "legal": "Aviso legal",
+      "cookies": "Política de cookies"
+    },
+    "copyright": "© 2026 Luis Gordillo Rodríguez · Proyecto de Fin de Grado"
+  },
+  "menu": {
+    "dashboard": "Inicio",
+    "profile": "Mi Perfil",
+    "book": "Reservar",
+    "history": "Historial",
+    "stats": "Estadísticas",
+    "inventory": "Inventario",
+    "admin": "Panel Admin"
+  },
+  "dashboard": {
+    "loading": "Cargando tu panel…",
+    "panelLabel": "Panel principal",
+    "greeting": "Hola,",
+    "subtitle": "Gestiona reservas, consulta avisos y controla el estado de las instalaciones en tiempo real.",
+    "newBooking": "Nueva reserva",
+    "viewHistory": "Ver historial",
+    "kpi": {
+      "thisMonth": "Este mes",
+      "completed": "Completados",
+      "upcoming": "Próximos",
+      "alerts": "Avisos"
+    },
+    "nextMatches": "Mis Próximos Partidos",
+    "noBookings": "No tienes reservas próximas",
+    "noBookingsDesc": "Elige pista y horario en menos de 30 segundos.",
+    "bookNow": "Reservar ahora",
+    "cancelBooking": "Cancelar Reserva",
+    "cancelError": "No se pudo cancelar la reserva.",
+    "cancelSuccess": "Reserva cancelada.",
+    "courtStatus": "Estado de Pistas",
+    "alerts": "Avisos",
+    "noAlerts": "No hay avisos activos.",
+    "yourLevel": "Tu nivel",
+    "progressLabel": "partidos para subir de nivel",
+    "maxLevel": "¡Has alcanzado el nivel máximo!",
+    "monthlyGoal": "Meta del Mes",
+    "monthlyGoalDesc": "de {{meta}} partidos reservados",
+    "courtSport": "Pista Deportiva"
+  },
+  "history": {
+    "title": "Mis",
+    "titleHighlight": "Reservas",
+    "subtitle": "Historial completo de tus reservas en las instalaciones.",
+    "newBooking": "Nueva reserva",
+    "loading": "Cargando reservas...",
+    "stats": {
+      "total": "Total",
+      "upcoming": "Próximas",
+      "past": "Pasadas"
+    },
+    "filters": {
+      "all": "Todas",
+      "upcoming": "Próximas",
+      "past": "Pasadas"
+    },
+    "status": {
+      "upcoming": "Próxima",
+      "inProgress": "En curso",
+      "completed": "Completada",
+      "paid": "Pagada",
+      "pending": "Pendiente Pago",
+      "cancelled": "Cancelada"
+    },
+    "empty": {
+      "noBookings": "Aún no tienes reservas",
+      "noBookingsDesc": "Reserva una pista y empieza a jugar.",
+      "firstBooking": "Hacer mi primera reserva",
+      "noResults": "Sin resultados",
+      "noResultsDesc": "No hay reservas en este filtro."
+    },
+    "cancelModal": {
+      "title": "¿Cancelar reserva?",
+      "linkedSlots": "Esta acción cancelará también {{count}} franja(s) vinculada(s). ",
+      "freeSlot": "La franja horaria quedará libre para otros usuarios.",
+      "paidNote": "Nota: Esta reserva ya está pagada. Contacta con el club para gestionar posibles reembolsos.",
+      "back": "Volver",
+      "confirm": "Sí, cancelar"
+    },
+    "pay": "Pagar",
+    "cancel": "Cancelar",
+    "errorLoad": "No se pudieron cargar las reservas.",
+    "errorCancel": "Error al cancelar la reserva.",
+    "cancelSuccess": "Reserva cancelada correctamente.",
+    "cancelSuccessMulti": "Reservas canceladas correctamente.",
+    "sport": "Pista Deportiva"
+  },
+  "profile": {
+    "loading": "Cargando ficha de jugador...",
+    "myProfile": "Mi perfil",
+    "stats": {
+      "totalMatches": "Partidos Totales",
+      "upcoming": "Próximos",
+      "favoriteCourt": "Pista Favorita"
+    },
+    "photoSection": "Foto de perfil",
+    "yourPhoto": "Tu foto",
+    "photoDesc": "Se guardará en tu perfil y se verá en el menú lateral.",
+    "changePhoto": "Cambiar foto",
+    "photoSuccess": "Foto de perfil actualizada.",
+    "photoError": "No se pudo subir la imagen.",
+    "aiAvatar": "Avatar IA",
+    "aiStyleLabel": "Estilo / Prompt",
+    "aiPlaceholder": "Ej: Estilo Pixar, ultra detallado...",
+    "aiGenerate": "Generar con IA",
+    "aiProcessing": "Procesando...",
+    "aiStatus": {
+      "starting": "Iniciando...",
+      "analyzing": "La IA está analizando las facciones..."
+    },
+    "aiNote": "* Usa tu foto de arriba como referencia. El proceso puede tardar unos 20-30 segundos.",
+    "aiNeedPhoto": "Primero debes subir una foto real para usarla como base.",
+    "aiSuccess": "¡Tu nuevo avatar IA está listo!",
+    "aiError": "Error generando el avatar.",
+    "aiServerError": "El servidor rechazó la solicitud.",
+    "personalData": "Datos personales",
+    "editable": "Editable",
+    "email": "Correo Electrónico",
+    "fullName": "Nombre Completo",
+    "fullNamePlaceholder": "Tu nombre real",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+34 600 000 000",
+    "dni": "DNI/NIE",
+    "dniPlaceholder": "12345678Z",
+    "birthDate": "Fecha de nacimiento",
+    "address": "Dirección",
+    "addressPlaceholder": "Calle Ejemplo 12, 2ºB",
+    "postalCode": "Código postal",
+    "postalCodePlaceholder": "28001",
+    "city": "Municipio",
+    "cityPlaceholder": "Madrid",
+    "province": "Provincia",
+    "provincePlaceholder": "Madrid",
+    "saving": "Guardando...",
+    "save": "Guardar Cambios",
+    "legal": "Privacidad y legal",
+    "legalDesc": "Consulta la información legal del servicio y cómo tratamos tus datos.",
+    "legalNotice": "Aviso legal",
+    "privacyPolicy": "Política de privacidad",
+    "cookiesPolicy": "Política de cookies",
+    "terms": "Términos de uso"
+  },
+  "booking": {
+    "loading": "Cargando...",
+    "pendingTitle": "Tienes una reserva pendiente",
+    "pendingDesc": "Debes completar el pago de tu reserva actual antes de poder realizar una nueva. Las reservas pendientes caducan en {{hours}} horas.",
+    "pendingWarning": "⚠️ Si la reserva es para dentro de menos de 3 horas, caducará en 15 minutos si no se paga.",
+    "pendingDate": "Fecha:",
+    "pendingTime": "Hora:",
+    "goToHistory": "Ir al Historial de Pagos",
+    "title": "Nueva Reserva",
+    "subtitle": "Selecciona la pista, la fecha y el horario que prefieras.",
+    "selectCourt": "Selecciona Pista",
+    "date": "Fecha",
+    "openCalendar": "Abrir",
+    "maintenance": "Esta pista está en mantenimiento y no puede reservarse.",
+    "material": "Solicitar material",
+    "materialDesc": "Opcional. El conserje preparará el material para la pista seleccionada (según stock).",
+    "loadingInventory": "Cargando inventario...",
+    "noMaterial": "No hay material disponible para este tipo de pista (o falta aplicar la migración de tipo_pista en la BD).",
+    "stock": "Stock:",
+    "availableSlots": "Horarios Disponibles",
+    "occupied": "OCUPADO",
+    "selected": "SELECCIONADO",
+    "slotsSelected": "Franjas seleccionadas:",
+    "bookSlot": "Reservar Horario",
+    "bookSlots": "Reservar Horarios",
+    "confirmTitle": "Confirmar Reserva",
+    "confirmDesc": "Vas a reservar {{court}} el {{date}} en los horarios: {{slots}}.",
+    "totalToPay": "Total a pagar:",
+    "cancelBtn": "Cancelar",
+    "confirmBtn": "Confirmar",
+    "calendar": {
+      "selectDay": "Selecciona día",
+      "title": "Calendario",
+      "today": "Hoy",
+      "confirm": "Confirmar",
+      "days": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+    },
+    "errors": {
+      "pastDate": "No puedes reservar en una fecha pasada.",
+      "pastSlot": "Ese horario ya ha pasado.",
+      "slotTaken": "Ese horario ya fue reservado. Elige otro.",
+      "bookingError": "Error al reservar: ",
+      "materialError": "No se pudo guardar el material solicitado.",
+      "stockError": "No hay stock suficiente para el material solicitado.",
+      "secondaryError": "Atención: No se pudieron registrar algunas horas seleccionadas.",
+      "confirming": "Confirmando reserva..."
+    },
+    "success": "Reserva creada. Redirigiendo a pago..."
+  },
+  "inventory": {
+    "title": "Control de Material",
+    "subtitle": "Gestión de stock en tiempo real.",
+    "search": "Buscar...",
+    "refresh": "Actualizar",
+    "add": "Añadir",
+    "loading": "Cargando inventario...",
+    "errorTitle": "No se pudo cargar el inventario",
+    "retry": "Reintentar",
+    "noResults": "No hay material con ese filtro.",
+    "lowStock": "Stock Bajo",
+    "noStock": "Sin Stock",
+    "stock": "Stock",
+    "formTitle": "Nombre del artículo",
+    "formPlaceholder": "Ej: Conos de entrenamiento",
+    "formType": "Tipo de pista",
+    "formQty": "Cantidad",
+    "formCancel": "Cancelar",
+    "formSave": "Guardar",
+    "formSaving": "Guardando...",
+    "types": {
+      "padel": "Pádel",
+      "tennis": "Tenis",
+      "football": "Fútbol",
+      "basketball": "Baloncesto"
+    },
+    "errors": {
+      "nameRequired": "El nombre es obligatorio.",
+      "typeRequired": "Selecciona un tipo de pista.",
+      "loadError": "Error al cargar inventario: ",
+      "stockError": "Error actualizando stock.",
+      "addError": "Error al añadir artículo: "
+    },
+    "success": "Artículo añadido al inventario."
+  },
+  "stats": {
+    "loading": "Cargando estadísticas...",
+    "titleUser": "Mis Estadísticas",
+    "titleAdmin": "Estadísticas Globales",
+    "subtitleAdmin": "Análisis global de las reservas de todos los ciudadanos del centro.",
+    "newBooking": "Nueva Reserva",
+    "level": {
+      "current": "Tu nivel actual",
+      "center": "Nivel del Centro",
+      "completed": "partidos completados",
+      "nextLevel": "Siguiente nivel: {{count}} partidos",
+      "maxLevel": "¡Nivel máximo!"
+    },
+    "kpi": {
+      "played": "Partidos jugados",
+      "upcoming": "Próximas reservas",
+      "favorite": "Pista favorita",
+      "total": "Total reservas"
+    },
+    "charts": {
+      "byDay": "Reservas por día de la semana",
+      "byHour": "Reservas por franja horaria",
+      "byType": "Por tipo de pista"
+    },
+    "empty": {
+      "title": "Sin estadísticas aún",
+      "desc": "Realiza tu primera reserva para empezar a ver tus datos.",
+      "firstBooking": "Hacer mi primera reserva",
+      "noData": "Aún no hay datos."
+    },
+    "achievements": "Logros",
+    "unlocked": "✓ Desbloqueado",
+    "logros": {
+      "primer_partido":       { "title": "¡Primer Saque!", "desc": "Completa tu primera reserva" },
+      "cinco_partidos":       { "title": "En Forma",       "desc": "Completa 5 reservas" },
+      "diez_partidos":        { "title": "Habitual",       "desc": "Completa 10 reservas" },
+      "veinticinco_partidos": { "title": "Veterano",       "desc": "Completa 25 reservas" },
+      "cincuenta_partidos":   { "title": "Leyenda",        "desc": "Completa 50 reservas" }
+    }
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "subtitle": "Gestión global del sistema KORE MANAGER.",
+    "tabs": {
+      "users": "Usuarios",
+      "bookings": "Reservas",
+      "courts": "Instalaciones",
+      "alerts": "Avisos",
+      "stats": "Estadísticas"
+    },
+    "users": {
+      "loading": "Cargando usuarios...",
+      "totalUsers": "Total Usuarios",
+      "activeStaff": "Conserjes Activos",
+      "activeBookings": "Reservas Activas",
+      "directory": "Directorio de Usuarios",
+      "searchPlaceholder": "Buscar nombre o email...",
+      "table": {
+        "user": "Usuario",
+        "contact": "Contacto",
+        "role": "Rol",
+        "registered": "Registro"
+      },
+      "noName": "Sin nombre",
+      "noPhone": "—",
+      "notFound": "No se encontraron usuarios."
+    },
+    "courts": {
+      "loading": "Cargando instalaciones...",
+      "title": "Gestión de Instalaciones",
+      "desc": "Crea o modifica las pistas del centro deportivo.",
+      "newCourt": "Nueva Pista",
+      "editCourt": "Editar Pista",
+      "createCourt": "Crear Pista",
+      "name": "Nombre",
+      "type": "Tipo",
+      "status": "Estado",
+      "namePlaceholder": "Ej: Pista 1 Centro",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "edit": "Editar",
+      "deleteConfirm": "¿Seguro que deseas eliminar esta pista permanentemente? (Podría fallar si tiene referencias)",
+      "deleteError": "PostgreSQL avisó: error al borrar. Puede que tenga reservas activas.",
+      "deleteSuccess": "Instalación eliminada definitivamente.",
+      "updateSuccess": "Pista actualizada",
+      "createSuccess": "Pista creada",
+      "nameRequired": "El nombre es obligatorio"
+    },
+    "alerts": {
+      "loading": "Cargando avisos...",
+      "newAlert": "Nuevo Aviso",
+      "published": "Avisos Publicados ({{count}})",
+      "noAlerts": "No hay avisos aún.",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Título del aviso",
+      "messageLabel": "Mensaje",
+      "messagePlaceholder": "Descripción detallada...",
+      "publishBtn": "Publicar Aviso",
+      "publishing": "Publicando...",
+      "publishSuccess": "Aviso publicado.",
+      "deleteConfirm": "¿Eliminar este aviso permanentemente?",
+      "deleteSuccess": "Aviso eliminado.",
+      "titleRequired": "El título es obligatorio.",
+      "createError": "Error al crear: "
+    },
+    "bookings": {
+      "loading": "Cargando reservas del sistema...",
+      "totalBookings": "Total reservas",
+      "upcoming": "Próximas",
+      "completed": "Completadas",
+      "searchPlaceholder": "Buscar usuario o pista...",
+      "filters": {
+        "upcoming": "Próximas",
+        "past": "Pasadas",
+        "all": "Todas"
+      },
+      "table": {
+        "user": "Usuario",
+        "court": "Instalación",
+        "date": "Fecha",
+        "time": "Hora",
+        "material": "Material",
+        "status": "Estado"
+      },
+      "status": {
+        "upcoming": "Próxima",
+        "completed": "Completada"
+      },
+      "noName": "Sin nombre",
+      "more": "+{{count}} más",
+      "cancelModal": {
+        "title": "¿Cancelar esta reserva?",
+        "desc": "Se eliminará permanentemente y el usuario perderá su franja horaria.",
+        "back": "Volver",
+        "cancelling": "Cancelando...",
+        "confirm": "Sí, cancelar"
+      },
+      "noResults": "No hay reservas en este período.",
+      "noResultsSearch": "No se encontraron reservas con ese criterio.",
+      "showing": "Mostrando {{shown}} de {{total}} reservas",
+      "loaded": "(cargadas {{count}})",
+      "loadMore": "Cargar más",
+      "loading2": "Cargando...",
+      "cancelSuccess": "Reserva cancelada.",
+      "cancelError": "Error al cancelar: "
+    },
+    "adminStats": {
+      "loading": "Cargando estadísticas...",
+      "totalBookings": "Total Reservas",
+      "upcoming": "Próximas",
+      "completed": "Completadas",
+      "avgPerUser": "Media por usuario",
+      "byDay": "Reservas por día de la semana",
+      "courtRanking": "Ranking de instalaciones",
+      "topUsers": "Top 5 Usuarios Activos",
+      "byType": "Distribución por tipo",
+      "noData": "Sin datos aún.",
+      "noActivity": "Sin actividad aún.",
+      "bookingsLabel": "reservas",
+      "matchesLabel": "partidos"
+    }
+  },
+  "payment": {
+    "success": {
+      "title": "Pago confirmado",
+      "desc": "Tu pago se ha procesado correctamente. En unos segundos se reflejará como pagado.",
+      "goToDashboard": "Ir al dashboard",
+      "viewHistory": "Ver historial"
+    },
+    "cancel": {
+      "title": "Pago cancelado",
+      "desc": "No se ha completado el pago. Puedes intentarlo de nuevo desde el historial o realizar otra reserva.",
+      "goToHistory": "Ir al historial",
+      "bookAgain": "Reservar de nuevo"
+    }
+  },
+  "changePassword": {
+    "title": "Cambiar Contraseña",
+    "desc": "Introduce tu nueva contraseña segura. La sesión actual se mantendrá abierta.",
+    "newPassword": "Nueva contraseña",
+    "repeatPassword": "Repetir contraseña",
+    "save": "Guardar Contraseña",
+    "successTitle": "¡Contraseña Guardada!",
+    "errors": {
+      "noMatch": "Las contraseñas no coinciden",
+      "minChars": "La contraseña debe tener al menos 6 caracteres",
+      "updateError": "Error al actualizar la contraseña"
+    },
+    "successToast": "Contraseña actualizada correctamente"
+  },
+  "landing": {
+    "nav": {
+      "sports": "Deportes",
+      "features": "Funciones",
+      "about": "Sobre nosotros",
+      "loginBtn": "Acceder"
+    },
+    "hero": {
+      "badge": "GESTIÓN MUNICIPAL INTELIGENTE",
+      "title1": "El deporte de tu ciudad,",
+      "title2": "a un clic de distancia.",
+      "desc": "Olvídate de las colas y las llamadas. Reserva tu pista, gestiona tu equipo y disfruta del deporte con la plataforma municipal más avanzada.",
+      "cta1": "Reserva tu pista ahora",
+      "cta2": "Ver estadísticas"
+    },
+    "stats": {
+      "members": "Socios activos",
+      "installations": "Instalaciones",
+      "availability": "Disponibilidad",
+      "time": "Para reservar"
+    },
+    "video": {
+      "badge": "En Acción",
+      "title1": "¿Por qué",
+      "title2": "KoreManager?"
+    },
+    "login": {
+      "success": "¡Sesión iniciada!",
+      "errorCreds": "Email o contraseña incorrectos.",
+      "back": "Volver a la landing",
+      "welcome": "Bienvenido de nuevo",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar Sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "register": "Regístrate Gratis"
+    },
+    "register": {
+      "errorMinChars": "La contraseña debe tener al menos 6 caracteres.",
+      "errorMatch": "Las contraseñas no coinciden. Por favor, asegúrate de escribirlas igual.",
+      "errorTerms": "Debes aceptar los Términos de uso y la Política de privacidad para registrarte.",
+      "errorEmail": "Introduce un correo electrónico válido.",
+      "errorPhone": "Introduce un número de teléfono válido (mín. 9 dígitos).",
+      "errorDni": "El DNI/NIE introducido no es válido.",
+      "success": "¡Registro exitoso! Ya puedes iniciar sesión.",
+      "back": "Volver a la landing",
+      "title": "Crea tu cuenta gratuita",
+      "fullName": "Nombre Completo",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "phone": "Teléfono (ej: +34 600000000)",
+      "dni": "DNI/NIE",
+      "address": "Dirección",
+      "postalCode": "Código postal",
+      "city": "Municipio",
+      "province": "Provincia",
+      "password": "Contraseña (mín. 6 caracteres)",
+      "confirmPassword": "Confirmar Contraseña",
+      "submit": "Crear Cuenta",
+      "acceptTermsPrefix": "Acepto los ",
+      "terms": "Términos de uso",
+      "acceptPrivacyPrefix": "He leído y acepto la ",
+      "privacy": "Política de privacidad",
+      "and": " y la ",
+      "cookies": "Política de cookies",
+      "legalWarning": "Tus datos se usarán para gestionar tu cuenta y tus reservas. Puedes ejercer tus derechos conforme al RGPD (España).",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "login": "Inicia Sesión"
+    },
+    "forgot": {
+      "toastSuccess": "Correo de recuperación enviado",
+      "toastError": "Error al enviar el correo.",
+      "backToLogin": "Volver al inicio de sesión",
+      "checkInbox": "Revisa tu bandeja",
+      "sentTo": "Hemos enviado un enlace de recuperación a ",
+      "clickToReset": ". Haz clic en él para establecer una nueva contraseña.",
+      "goToLogin": "Ir al Login",
+      "title": "Recuperar Contraseña",
+      "desc": "Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "submit": "Enviar enlace de recuperación"
+    },
+    "reset": {
+      "errorLink": "El enlace de recuperación no es válido o ha expirado.",
+      "errorMatch": "Las contraseñas no coinciden",
+      "errorMinChars": "La contraseña debe tener al menos 6 caracteres",
+      "toastSuccess": "Contraseña actualizada correctamente",
+      "toastError": "Error al actualizar la contraseña",
+      "successTitle": "¡Contraseña Guardada!",
+      "successDesc": "Tu contraseña ha sido actualizada con éxito. Serás redirigido al inicio de sesión en unos segundos...",
+      "title": "Nueva Contraseña",
+      "desc": "Introduce tu nueva contraseña segura para acceder a KoreManager.",
+      "password": "Nueva contraseña",
+      "confirmPassword": "Repetir contraseña",
+      "submit": "Guardar Contraseña"
+    },
+    "sports": {
+      "badge": "INSTALACIONES",
+      "title": "Deportes para todos",
+      "desc": "Nuestras instalaciones están preparadas para ofrecerte la mejor experiencia deportiva, sea cual sea tu nivel.",
+      "padel": {
+        "name": "Pádel",
+        "courts": "6 pistas",
+        "desc": "Pistas cubiertas y descubiertas con iluminación LED profesional."
+      },
+      "futsal": {
+        "name": "Fútbol Sala",
+        "courts": "3 campos",
+        "desc": "Campos de resina con marcaje oficial y cabinas de arbitraje."
+      },
+      "tennis": {
+        "name": "Tenis",
+        "courts": "4 pistas",
+        "desc": "Superficie de tierra batida y pista dura certificada."
+      },
+      "cta": "Reservar ahora"
+    },
+    "features": {
+      "badge": "VENTAJAS",
+      "title": "Diseñado para los ciudadanos",
+      "desc": "Una plataforma rápida, segura y fácil de usar que te da el control total sobre tu actividad deportiva.",
+      "f1": {
+        "title": "Reservas en tiempo real",
+        "desc": "Consulta el calendario en vivo y asegura tu pista sin esperas ni llamadas."
+      },
+      "f2": {
+        "title": "Confirmación instantánea",
+        "desc": "Recibe la confirmación al instante y el recordatorio antes de tu cita."
+      },
+      "f3": {
+        "title": "Gestión de equipos",
+        "desc": "Organiza ligas, torneos y partidos privados con tu grupo de amigos."
+      },
+      "f4": {
+        "title": "Historial deportivo",
+        "desc": "Accede a todas tus reservas pasadas y lleva el control de tus horas en pista."
+      },
+      "f5": {
+        "title": "Acceso seguro",
+        "desc": "Identifícate con tu cuenta personal protegida y datos siempre encriptados."
+      },
+      "f6": {
+        "title": "Novedades y ofertas",
+        "desc": "Recibe alertas del ayuntamiento sobre actividades, torneos y promociones."
+      }
+    },
+    "about": {
+      "badge": "SOBRE EL PROYECTO",
+      "title": "KoreManager",
+      "title2": "Creado para modernizar",
+      "title3": "la gestión deportiva local.",
+      "desc": "KoreManager nació como un Trabajo de Fin de Grado con un objetivo claro: digitalizar la reserva de instalaciones municipales. Adiós a las colas, los papeles y las llamadas. Hola a la eficiencia, la transparencia y el deporte sin barreras.",
+      "testimonial": "\"Antes tardaba 15 minutos en reservar una pista por teléfono. Con KoreManager lo hago en 30 segundos desde el móvil. Es un antes y un después.\"",
+      "testimonialAuthor": "— Socio del Club, Sevilla",
+      "cta": "Empezar gratis"
+    }
+  }
+}

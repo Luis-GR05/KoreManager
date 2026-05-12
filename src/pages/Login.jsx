@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
@@ -15,6 +16,7 @@ import Input from '../components/ui/Input';
  * @returns {import('react').JSX.Element}
  */
 export default function Login() {
+  const { t } = useTranslation();
   const navigate  = useNavigate();
   const location  = useLocation();
   const { user, loading: authLoading } = useAuth();
@@ -58,11 +60,11 @@ export default function Login() {
 
       if (error) throw error;
 
-      toast.success('¡Sesión iniciada!', { duration: 2000 });
+      toast.success(t('landing.login.success'), { duration: 2000 });
 
     } catch (error) {
       const msg = error.message === 'Invalid login credentials'
-        ? 'Email o contraseña incorrectos.'
+        ? t('landing.login.errorCreds')
         : error.message;
       toast.error(msg);
     } finally {
@@ -71,29 +73,29 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-dark-base p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
 
       {/* Fondos decorativos */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-dark-surface/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10">
+      <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10">
 
         <div className="flex items-center justify-between mb-6">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold theme-faint hover:theme-text transition-colors"
           >
             <ArrowLeft size={16} />
-            Volver a la landing
+            {t('landing.login.back')}
           </Link>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            KORE <span className="text-brand-lime">MANAGER</span>
+          <h1 className="text-3xl font-bold theme-text mb-2 tracking-tight">
+            KORE <span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
           </h1>
-          <p className="text-gray-400 text-sm">Bienvenido de nuevo</p>
+          <p className="theme-faint text-sm">{t('landing.login.welcome')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,7 +103,7 @@ export default function Login() {
             icon={Mail}
             name="email"
             type="email"
-            placeholder="correo@ejemplo.com"
+            placeholder={t('landing.login.emailPlaceholder')}
             value={formData.email}
             onChange={handleChange}
             required
@@ -121,7 +123,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShowPassword(v => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
               tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -129,22 +131,22 @@ export default function Login() {
           </div>
 
           <div className="flex justify-end mt-1">
-            <Link to="/forgot-password" className="text-sm font-bold text-gray-400 hover:text-brand-lime transition-colors">
-              ¿Olvidaste tu contraseña?
+            <Link to="/forgot-password" className="text-sm font-bold theme-faint hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              {t('landing.login.forgot')}
             </Link>
           </div>
 
           <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
-            Iniciar Sesión
+            {t('landing.login.submit')}
             {!submitting && <ArrowRight size={20} />}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-500 text-sm">
-            ¿No tienes cuenta?
-            <Link to="/register" className="ml-2 text-white font-bold hover:text-brand-lime transition-colors">
-              Regístrate Gratis
+          <p className="theme-faint text-sm">
+            {t('landing.login.noAccount')}
+            <Link to="/register" className="ml-2 theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              {t('landing.login.register')}
             </Link>
           </p>
         </div>

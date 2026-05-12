@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Phone, MapPin, Calendar, IdCard, ArrowLeft } from 'lucide-react';
@@ -15,6 +16,7 @@ import Input from '../components/ui/Input';
  * @returns {import('react').JSX.Element}
  */
 export default function Register() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
@@ -64,17 +66,37 @@ export default function Register() {
     if (loading) return;
 
     if (formData.password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres.');
+      toast.error(t('register.errorMinChars'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Las contraseñas no coinciden. Por favor, asegúrate de escribirlas igual.');
+      toast.error(t('register.errorMatch'));
+      return;
+    }
+
+    // VALIDACIONES DE SEGURIDAD
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error(t('register.errorEmail'));
+      return;
+    }
+
+    const phoneRegex = /^[0-9+]{9,15}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error(t('register.errorPhone'));
+      return;
+    }
+
+    const dniRegex = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    const nieRegex = /^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    if (!dniRegex.test(formData.dni) && !nieRegex.test(formData.dni)) {
+      toast.error(t('register.errorDni'));
       return;
     }
 
     if (!formData.acceptTerms || !formData.acceptPrivacy) {
-      toast.error('Debes aceptar los Términos de uso y la Política de privacidad para registrarte.');
+      toast.error(t('register.errorTerms'));
       return;
     }
 
@@ -126,7 +148,7 @@ export default function Register() {
         }
       }
       
-      toast.success('¡Registro exitoso! Ya puedes iniciar sesión.');
+      toast.success(t('register.success'));
       // Enviar al usuario al login
       navigate('/login');
     } catch (error) {
@@ -138,28 +160,28 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-dark-base p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
       {/* Fondos decorativos */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-dark-surface/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10 my-8">
+      <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10 my-8">
 
         <div className="flex items-center justify-between mb-6">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold theme-faint hover:theme-text transition-colors"
           >
             <ArrowLeft size={16} />
-            Volver a la landing
+            {t('register.back')}
           </Link>
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            KORE <span className="text-brand-lime">MANAGER</span>
+          <h1 className="text-3xl font-bold theme-text mb-2 tracking-tight">
+            KORE <span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
           </h1>
-          <p className="text-gray-400 text-sm">Crea tu cuenta gratuita</p>
+          <p className="theme-faint text-sm">{t('register.title')}</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
@@ -167,7 +189,7 @@ export default function Register() {
             icon={User}
             name="fullName"
             type="text"
-            placeholder="Nombre Completo"
+            placeholder={t('register.fullName')}
             value={formData.fullName}
             onChange={handleChange}
             required
@@ -177,7 +199,7 @@ export default function Register() {
             icon={Mail}
             name="email"
             type="email"
-            placeholder="correo@ejemplo.com"
+            placeholder={t('register.emailPlaceholder')}
             value={formData.email}
             onChange={handleChange}
             required
@@ -187,7 +209,7 @@ export default function Register() {
             icon={Phone}
             name="phone"
             type="tel"
-            placeholder="Teléfono (ej: +34 600000000)"
+            placeholder={t('register.phone')}
             value={formData.phone}
             onChange={handleChange}
             required
@@ -198,7 +220,7 @@ export default function Register() {
               icon={IdCard}
               name="dni"
               type="text"
-              placeholder="DNI/NIE"
+              placeholder={t('register.dni')}
               value={formData.dni}
               onChange={handleChange}
               required
@@ -217,7 +239,7 @@ export default function Register() {
             icon={MapPin}
             name="address"
             type="text"
-            placeholder="Dirección"
+            placeholder={t('register.address')}
             value={formData.address}
             onChange={handleChange}
             required
@@ -227,7 +249,7 @@ export default function Register() {
               icon={MapPin}
               name="postalCode"
               type="text"
-              placeholder="Código postal"
+              placeholder={t('register.postalCode')}
               value={formData.postalCode}
               onChange={handleChange}
               required
@@ -236,7 +258,7 @@ export default function Register() {
               icon={MapPin}
               name="city"
               type="text"
-              placeholder="Municipio"
+              placeholder={t('register.city')}
               value={formData.city}
               onChange={handleChange}
               required
@@ -245,7 +267,7 @@ export default function Register() {
               icon={MapPin}
               name="province"
               type="text"
-              placeholder="Provincia"
+              placeholder={t('register.province')}
               value={formData.province}
               onChange={handleChange}
               required
@@ -257,7 +279,7 @@ export default function Register() {
               icon={Lock}
               name="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Contraseña (mín. 6 caracteres)"
+              placeholder={t('register.password')}
               value={formData.password}
               onChange={handleChange}
               required
@@ -266,7 +288,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
               tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -279,7 +301,7 @@ export default function Register() {
               icon={Lock}
               name="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Confirmar Contraseña"
+              placeholder={t('register.confirmPassword')}
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -288,7 +310,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
               tabIndex={-1}
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -296,12 +318,12 @@ export default function Register() {
           </div>
 
           <Button type="submit" variant="primary" isLoading={loading} className="w-full mt-4">
-            Crear Cuenta
+            {t('register.submit')}
             {!loading && <ArrowRight size={20} />}
           </Button>
         </form>
 
-        <div className="mt-4 space-y-3 text-xs text-gray-400">
+        <div className="mt-4 space-y-3 text-xs theme-faint">
           <label className="flex items-start gap-2 select-none">
             <input
               type="checkbox"
@@ -311,9 +333,9 @@ export default function Register() {
               className="mt-1"
             />
             <span>
-              Acepto los{' '}
-              <Link to="/legal/terminos" className="text-white font-bold hover:text-brand-lime transition-colors">
-                Términos de uso
+              {t('register.acceptTermsPrefix')}
+              <Link to="/legal/terminos" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('register.terms')}
               </Link>
               .
             </span>
@@ -327,27 +349,27 @@ export default function Register() {
               className="mt-1"
             />
             <span>
-              He leído y acepto la{' '}
-              <Link to="/legal/privacidad" className="text-white font-bold hover:text-brand-lime transition-colors">
-                Política de privacidad
+              {t('register.acceptPrivacyPrefix')}
+              <Link to="/legal/privacidad" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('register.privacy')}
               </Link>
-              {' '}y la{' '}
-              <Link to="/legal/cookies" className="text-white font-bold hover:text-brand-lime transition-colors">
-                Política de cookies
+              {t('register.and')}
+              <Link to="/legal/cookies" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('register.cookies')}
               </Link>
               .
             </span>
           </label>
           <p className="text-[11px] text-gray-500">
-            Tus datos se usarán para gestionar tu cuenta y tus reservas. Puedes ejercer tus derechos conforme al RGPD (España).
+            {t('register.legalWarning')}
           </p>
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-500 text-sm">
-            ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="text-white font-bold hover:text-brand-lime transition-colors">
-              Inicia Sesión
+          <p className="theme-faint text-sm">
+            {t('register.hasAccount')}{' '}
+            <Link to="/login" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              {t('register.login')}
             </Link>
           </p>
         </div>

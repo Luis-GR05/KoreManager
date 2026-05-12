@@ -9,14 +9,14 @@ export default function Input({ icon: Icon, error, className = '', ...props }) {
         <div className="relative group w-full mb-4">
             {Icon && (
                 <Icon
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-lime transition-colors"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-purple dark:group-focus-within:text-brand-lime transition-colors"
                     size={20}
                 />
             )}
 
             <input
-                className={`w-full bg-dark-base border ${error ? 'border-semantic-danger focus:border-semantic-danger' : 'border-white/10 focus:border-brand-lime'
-                    } rounded-xl py-3 ${Icon ? 'pl-12' : 'pl-4'} pr-4 text-white focus:outline-none transition-all ${className}`}
+                className={`w-full theme-bg border ${error ? 'border-semantic-danger focus:border-semantic-danger' : 'theme-border focus:border-brand-purple dark:focus:border-brand-lime'
+                    } rounded-xl py-3 ${Icon ? 'pl-12' : 'pl-4'} pr-4 theme-text focus:outline-none transition-all ${className}`}
                 {...props}
             />
 
