@@ -317,55 +317,62 @@ export default function Register() {
             </button>
           </div>
 
-          <Button type="submit" variant="primary" isLoading={loading} className="w-full mt-4">
+          {/* Aceptación de términos (Movido arriba del botón) */}
+          <div className="mt-6 space-y-3 text-xs theme-faint">
+            <label className="flex items-start gap-3 select-none cursor-pointer group">
+              <input
+                type="checkbox"
+                name="acceptTerms"
+                checked={formData.acceptTerms}
+                onChange={handleChange}
+                className="mt-1 w-4 h-4 rounded border-theme-border text-brand-purple focus:ring-brand-purple"
+              />
+              <span className="group-hover:theme-text transition-colors">
+                {t('register.acceptTermsPrefix')}
+                <Link to="/legal/terminos" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                  {t('register.terms')}
+                </Link>
+                .
+              </span>
+            </label>
+            <label className="flex items-start gap-3 select-none cursor-pointer group">
+              <input
+                type="checkbox"
+                name="acceptPrivacy"
+                checked={formData.acceptPrivacy}
+                onChange={handleChange}
+                className="mt-1 w-4 h-4 rounded border-theme-border text-brand-purple focus:ring-brand-purple"
+              />
+              <span className="group-hover:theme-text transition-colors">
+                {t('register.acceptPrivacyPrefix')}
+                <Link to="/legal/privacidad" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                  {t('register.privacy')}
+                </Link>
+                {t('register.and')}
+                <Link to="/legal/cookies" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                  {t('register.cookies')}
+                </Link>
+                .
+              </span>
+            </label>
+            <p className="text-[11px] text-gray-500 italic mt-2">
+              {t('register.legalWarning')}
+            </p>
+          </div>
+
+          <Button 
+            type="submit" 
+            variant="primary" 
+            isLoading={loading} 
+            className="w-full mt-4"
+            disabled={!formData.acceptTerms || !formData.acceptPrivacy}
+          >
             {t('register.submit')}
             {!loading && <ArrowRight size={20} />}
           </Button>
         </form>
 
-        <div className="mt-4 space-y-3 text-xs theme-faint">
-          <label className="flex items-start gap-2 select-none">
-            <input
-              type="checkbox"
-              name="acceptTerms"
-              checked={formData.acceptTerms}
-              onChange={handleChange}
-              className="mt-1"
-            />
-            <span>
-              {t('register.acceptTermsPrefix')}
-              <Link to="/legal/terminos" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
-                {t('register.terms')}
-              </Link>
-              .
-            </span>
-          </label>
-          <label className="flex items-start gap-2 select-none">
-            <input
-              type="checkbox"
-              name="acceptPrivacy"
-              checked={formData.acceptPrivacy}
-              onChange={handleChange}
-              className="mt-1"
-            />
-            <span>
-              {t('register.acceptPrivacyPrefix')}
-              <Link to="/legal/privacidad" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
-                {t('register.privacy')}
-              </Link>
-              {t('register.and')}
-              <Link to="/legal/cookies" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
-                {t('register.cookies')}
-              </Link>
-              .
-            </span>
-          </label>
-          <p className="text-[11px] text-gray-500">
-            {t('register.legalWarning')}
-          </p>
-        </div>
-
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center pt-6 border-t theme-border">
           <p className="theme-faint text-sm">
             {t('register.hasAccount')}{' '}
             <Link to="/login" className="theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">

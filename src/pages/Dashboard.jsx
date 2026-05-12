@@ -182,12 +182,12 @@ export default function Dashboard() {
   })();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 bg-cueva-gradient min-h-screen -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
 
       {/* HERO */}
-      <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25">
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-brand-lime/10 rounded-full blur-3xl anim-floaty pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
+      <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25 shadow-2xl">
+        <div className="absolute -top-20 -right-20 w-72 h-72 bg-brand-lime/15 rounded-full blur-3xl anim-floaty pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
@@ -238,7 +238,7 @@ export default function Dashboard() {
             ].map(({ label, value, icon, color, bg }) => {
               const Icon = icon;
               return (
-                <div key={label} className="theme-card border theme-border p-4 shadow-sm">
+                <div key={label} className="theme-card border theme-border p-4 shadow-xl hover:scale-[1.03] transition-all duration-300 glow-purple">
                   <div className={`w-10 h-10 rounded-2xl ${bg} ${color} flex items-center justify-center mb-3`}>
                     <Icon size={18} />
                   </div>
@@ -283,7 +283,7 @@ export default function Dashboard() {
                 {misReservas.map(reserva => (
                   <div
                     key={reserva.id}
-                    className="theme-card p-4 flex items-center justify-between group hover:border-brand-purple dark:hover:border-brand-lime transition-all"
+                    className="theme-card p-4 flex items-center justify-between group hover:border-brand-purple dark:hover:border-brand-lime transition-all glow-purple"
                   >
                     <Link to="/historial" className="flex items-center gap-4 flex-1">
                       <div className="w-12 h-12 bg-brand-purple/25 dark:bg-brand-lime/25 rounded-xl flex items-center justify-center text-brand-purple dark:text-brand-lime font-black text-lg">
@@ -319,7 +319,7 @@ export default function Dashboard() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {instalacionesUnique.map((item) => (
-                <div key={item.id} className="theme-card p-4 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-colors">
+                <div key={item.id} className="theme-card p-4 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-colors glow-lime">
                   <div className={`w-3 h-10 rounded-full shrink-0 ${
                     item.estado === 'disponible'    ? 'bg-brand-purple dark:bg-brand-lime' :
                     item.estado === 'mantenimiento' ? 'bg-yellow-500' : 'bg-red-500'

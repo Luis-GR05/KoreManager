@@ -17,11 +17,11 @@
   --color-text-faint:  #6b7280;
   --color-sidebar-bg:  #121222;
   --color-topbar-bg:   rgba(15,15,26,0.80);
-  --color-card-bg:     #1A1A2E;
+  --color-card-bg:     rgba(26, 26, 46, 0.7); /* Glassmorphism base */
   --color-input-bg:    #0F0F1A;
-  --color-hover:       rgba(255,255,255,0.05);
+  --color-hover:       rgba(255,255,255,0.06);
   --color-hover-text:  #ffffff;
-  --shadow-card:       0 4px 24px rgba(0,0,0,0.35);
+  --shadow-card:       0 10px 40px rgba(0,0,0,0.5);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -70,7 +70,13 @@ body {
 .theme-text      { color: var(--color-text); }
 .theme-muted     { color: var(--color-text-muted); }
 .theme-faint     { color: var(--color-text-faint); }
-.theme-card      { background-color: var(--color-card-bg); box-shadow: var(--shadow-card); border: 1px solid var(--color-border); border-radius: 1.5rem; }
+.theme-card      { 
+  background-color: var(--color-card-bg); 
+  backdrop-filter: blur(12px); 
+  box-shadow: var(--shadow-card); 
+  border: 1px solid var(--color-border); 
+  border-radius: 1.5rem; 
+}
 .theme-input     { background-color: var(--color-input-bg); border-color: var(--color-border); color: var(--color-text); }
 .theme-hover:hover { background-color: var(--color-hover); color: var(--color-hover-text); }
 .theme-sidebar   { background-color: var(--color-sidebar-bg); border-color: var(--color-border); }
@@ -141,7 +147,32 @@ html:not(.dark) [class*="bg-yellow-400/"] {
   pointer-events: none;
 }
 
-/* En modo claro el shine es aún más sutil */
 html:not(.dark) .anim-shine::after {
   background: linear-gradient(90deg, transparent, rgba(0,0,0,.08), transparent);
+}
+
+/* ─────────────────────────────────────────────────────
+   UTILIDADES 'CUEVA' (GLOW & VIBRANCY)
+   ───────────────────────────────────────────────────── */
+.glow-purple {
+  box-shadow: 0 0 20px rgba(138, 43, 226, 0.15);
+  border-color: rgba(138, 43, 226, 0.3);
+}
+.dark .glow-purple:hover {
+  box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+  border-color: rgba(138, 43, 226, 0.5);
+}
+
+.glow-lime {
+  box-shadow: 0 0 20px rgba(204, 255, 0, 0.12);
+  border-color: rgba(204, 255, 0, 0.2);
+}
+.dark .glow-lime:hover {
+  box-shadow: 0 0 30px rgba(204, 255, 0, 0.25);
+  border-color: rgba(204, 255, 0, 0.5);
+}
+
+.bg-cueva-gradient {
+  background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.08), transparent),
+              radial-gradient(circle at bottom left, rgba(204, 255, 0, 0.05), transparent);
 }
