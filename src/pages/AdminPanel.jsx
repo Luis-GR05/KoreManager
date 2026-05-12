@@ -83,9 +83,9 @@ function TabUsuarios() {
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: t('admin.users.totalUsers'),    value: usuarios.length,                              color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',    icon: Users },
-          { label: t('admin.users.activeStaff'),   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-500 dark:text-blue-400',     bg: 'bg-blue-500/10 dark:bg-blue-400/10',     icon: Activity },
-          { label: t('admin.users.activeBookings'),    value: reservasCount,                               color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',  icon: CheckCircle2 },
+          { label: t('admin.users.totalUsers'),    value: usuarios.length,                              color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/25 dark:bg-brand-lime/25',    icon: Users },
+          { label: t('admin.users.activeStaff'),   value: usuarios.filter(u => u.rol_id === 2).length, color: 'text-blue-600 dark:text-blue-400',     bg: 'bg-blue-500/25 dark:bg-blue-400/25',     icon: Activity },
+          { label: t('admin.users.activeBookings'),    value: reservasCount,                               color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25',  icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (
@@ -118,16 +118,16 @@ function TabUsuarios() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="theme-bg text-xs uppercase tracking-wider theme-faint border-b theme-border">
+              <tr className="theme-elevated text-xs uppercase tracking-wider theme-muted border-b theme-border">
                 <th className="p-4">{t('admin.users.table.user')}</th>
                 <th className="p-4">{t('admin.users.table.contact')}</th>
                 <th className="p-4">{t('admin.users.table.role')}</th>
                 <th className="p-4">{t('admin.users.table.registered')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y theme-border">
               {filtered.map((user) => (
-                <tr key={user.id} className="hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors border-b theme-border">
+                <tr key={user.id} className="hover:bg-brand-purple/15 dark:hover:bg-white/10 transition-colors border-b theme-border">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-brand-purple/10 dark:bg-white/10 flex items-center justify-center text-xs font-bold theme-text">
@@ -136,10 +136,10 @@ function TabUsuarios() {
                       <span className="font-medium theme-text text-sm">{user.full_name || t('admin.users.noName')}</span>
                     </div>
                   </td>
-                  <td className="p-4 text-sm theme-faint">
+                  <td className="p-4 text-sm theme-muted">
                     <div className="flex flex-col">
-                      <span className="theme-text">{user.email}</span>
-                      <span className="text-xs theme-faint">{user.telefono || '—'}</span>
+                      <span className="theme-text font-medium">{user.email}</span>
+                      <span className="text-xs theme-muted">{user.telefono || '—'}</span>
                     </div>
                   </td>
                   <td className="p-4">
@@ -153,7 +153,7 @@ function TabUsuarios() {
                       ))}
                     </select>
                   </td>
-                  <td className="p-4 text-sm theme-faint">
+                  <td className="p-4 text-sm theme-muted">
                     {new Date(user.created_at).toLocaleDateString('es-ES')}
                   </td>
                 </tr>
@@ -232,9 +232,9 @@ function TabInstalaciones() {
   if (loading) return <p className="text-brand-lime animate-pulse">{t('admin.courts.loading')}</p>;
 
   const colorEstado = (e) =>
-    e === 'disponible'    ? 'text-brand-lime bg-brand-lime/10 border-brand-lime/20' :
-    e === 'mantenimiento' ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20' :
-                            'text-red-400 bg-red-400/10 border-red-400/20';
+    e === 'disponible'    ? 'text-brand-purple dark:text-brand-lime bg-brand-purple/20 dark:bg-brand-lime/20 border-brand-purple/40 dark:border-brand-lime/40' :
+    e === 'mantenimiento' ? 'text-yellow-700 bg-yellow-500/20 border-yellow-500/40' :
+                            'text-red-600 bg-red-500/20 border-red-500/40';
 
   return (
     <div className="space-y-6">
@@ -423,8 +423,8 @@ function TabAvisos() {
             <div
               key={aviso.id}
               className={`p-5 rounded-2xl border transition-all ${aviso.activo
-                ? 'bg-brand-purple/5 dark:bg-brand-lime/5 border-brand-purple/20 dark:border-brand-lime/20'
-                : 'theme-elevated opacity-50'
+                ? 'bg-brand-purple/15 dark:bg-brand-lime/15 border-brand-purple/30 dark:border-brand-lime/30'
+                : 'theme-elevated opacity-70'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -577,7 +577,7 @@ function TabReservas() {
 
       {/* Modal de confirmación */}
       {confirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
           <div className="theme-card border theme-border p-8 max-w-sm w-full mx-4 shadow-2xl">
             <h3 className="text-xl font-bold theme-text mb-2">{t('admin.bookings.cancelModal.title')}</h3>
             <p className="theme-faint text-sm mb-6">
@@ -593,7 +593,7 @@ function TabReservas() {
               <button
                 onClick={handleCancel}
                 disabled={cancelling}
-                className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-bold hover:bg-red-500/30 transition-colors disabled:opacity-40"
+                className="flex-1 py-3 rounded-xl bg-red-600/30 border border-red-500/40 text-red-600 dark:text-red-400 font-bold hover:bg-red-500/40 transition-colors disabled:opacity-40"
               >
                 {cancelling ? t('admin.bookings.cancelModal.cancelling') : t('admin.bookings.cancelModal.confirm')}
               </button>
@@ -605,9 +605,9 @@ function TabReservas() {
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: t('admin.bookings.totalBookings'), value: total,    color: 'text-brand-purple dark:text-brand-lime',        bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',          icon: Calendar },
-          { label: t('admin.bookings.upcoming'),        value: proximas, color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',    icon: Clock },
-          { label: t('admin.bookings.completed'),       value: pasadas,  color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',  icon: CheckCircle2 },
+          { label: t('admin.bookings.totalBookings'), value: total,    color: 'text-brand-purple dark:text-brand-lime',        bg: 'bg-brand-purple/25 dark:bg-brand-lime/25',          icon: Calendar },
+          { label: t('admin.bookings.upcoming'),        value: proximas, color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/25 dark:bg-brand-lime/25',    icon: Clock },
+          { label: t('admin.bookings.completed'),       value: pasadas,  color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25',  icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon }) => {
           const Icon = icon;
           return (

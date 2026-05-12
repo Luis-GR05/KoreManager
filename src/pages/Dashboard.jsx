@@ -185,7 +185,7 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto space-y-8">
 
       {/* HERO */}
-      <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/10 via-transparent to-brand-purple/10">
+      <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25">
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-brand-lime/10 rounded-full blur-3xl anim-floaty pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -219,7 +219,7 @@ export default function Dashboard() {
                 </Link>
                 <Link
                   to="/historial"
-                  className="px-5 py-3 theme-bg border theme-border theme-text rounded-2xl font-bold hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-all flex items-center gap-2"
+                  className="px-5 py-3 theme-elevated border theme-border theme-text rounded-2xl font-bold hover:bg-brand-purple/10 dark:hover:bg-white/10 transition-all flex items-center gap-2 shadow-sm"
                 >
                   <Clock size={18} />
                   {t('dashboard.viewHistory')}
@@ -231,19 +231,19 @@ export default function Dashboard() {
           {/* KPI mini */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 w-full lg:w-[360px]">
             {[
-              { label: t('dashboard.kpi.thisMonth'), value: partidosMes, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10' },
-              { label: t('dashboard.kpi.completed'), value: totalJugados, icon: Star, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-600/10 dark:bg-yellow-400/10' },
-              { label: t('dashboard.kpi.upcoming'), value: misReservas.length, icon: Clock, color: 'text-blue-500 dark:text-blue-400', bg: 'bg-blue-500/10 dark:bg-blue-400/10' },
-              { label: t('dashboard.kpi.alerts'), value: avisos.length, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/10' },
+              { label: t('dashboard.kpi.thisMonth'), value: partidosMes, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
+              { label: t('dashboard.kpi.completed'), value: totalJugados, icon: Star, color: 'text-yellow-700 dark:text-yellow-400', bg: 'bg-yellow-600/25 dark:bg-yellow-400/25' },
+              { label: t('dashboard.kpi.upcoming'), value: misReservas.length, icon: Clock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/25 dark:bg-blue-400/25' },
+              { label: t('dashboard.kpi.alerts'), value: avisos.length, icon: AlertTriangle, color: 'text-red-600 dark:text-red-500', bg: 'bg-red-500/20' },
             ].map(({ label, value, icon, color, bg }) => {
               const Icon = icon;
               return (
-                <div key={label} className="theme-card border theme-border bg-white/40 dark:bg-dark-base/40 backdrop-blur-md p-4">
+                <div key={label} className="theme-card border theme-border p-4 shadow-sm">
                   <div className={`w-10 h-10 rounded-2xl ${bg} ${color} flex items-center justify-center mb-3`}>
                     <Icon size={18} />
                   </div>
                   <p className="text-2xl font-black theme-text leading-none">{value}</p>
-                  <p className="text-[10px] theme-faint font-bold uppercase tracking-widest mt-1">{label}</p>
+                  <p className="text-[10px] theme-muted font-bold uppercase tracking-widest mt-1">{label}</p>
                 </div>
               );
             })}
@@ -263,7 +263,7 @@ export default function Dashboard() {
             </h3>
             {misReservas.length === 0 ? (
               <div className="theme-card p-8 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/10 dark:from-brand-lime/10 to-transparent opacity-60 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/25 dark:from-brand-lime/25 to-transparent opacity-90 pointer-events-none" />
                 <div className="relative z-10">
                   <div className="w-12 h-12 rounded-2xl theme-bg border theme-border flex items-center justify-center theme-faint mx-auto mb-4">
                     <Calendar size={20} />
@@ -286,7 +286,7 @@ export default function Dashboard() {
                     className="theme-card p-4 flex items-center justify-between group hover:border-brand-purple dark:hover:border-brand-lime transition-all"
                   >
                     <Link to="/historial" className="flex items-center gap-4 flex-1">
-                      <div className="w-12 h-12 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-xl flex items-center justify-center text-brand-purple dark:text-brand-lime font-bold text-lg">
+                      <div className="w-12 h-12 bg-brand-purple/25 dark:bg-brand-lime/25 rounded-xl flex items-center justify-center text-brand-purple dark:text-brand-lime font-black text-lg">
                         {String(reserva.hora).split(':')[0]}h
                       </div>
                       <div>
@@ -353,9 +353,9 @@ export default function Dashboard() {
               </div>
             ) : (
               avisos.map((aviso) => (
-                <div key={aviso.id} className="bg-brand-purple/5 border border-brand-purple/20 p-5 rounded-2xl mb-3 hover:border-brand-purple/35 transition-colors">
+                <div key={aviso.id} className="bg-brand-purple/15 border border-brand-purple/30 p-5 rounded-2xl mb-3 hover:border-brand-purple/50 transition-colors">
                   <h5 className="font-bold text-brand-purple mb-1">{aviso.titulo}</h5>
-                  <p className="text-xs theme-faint leading-relaxed">{aviso.mensaje}</p>
+                  <p className="text-xs theme-text leading-relaxed">{aviso.mensaje}</p>
                 </div>
               ))
             )}
@@ -390,9 +390,9 @@ export default function Dashboard() {
           </div>
 
           {/* META MENSUAL */}
-          <div className="bg-gradient-to-br from-brand-purple/20 dark:from-brand-lime/20 to-transparent p-6 rounded-3xl border border-brand-purple/20 dark:border-brand-lime/20 text-center">
+          <div className="bg-gradient-to-br from-brand-purple/30 dark:from-brand-lime/30 to-transparent p-6 rounded-3xl border border-brand-purple/35 dark:border-brand-lime/35 text-center">
             <h4 className="font-bold text-brand-purple dark:text-brand-lime text-lg mb-1">{t('dashboard.monthlyGoal')}</h4>
-            <p className="text-xs theme-faint mb-4">
+            <p className="text-xs theme-text mb-4">
               {partidosMes} {t('dashboard.monthlyGoalDesc', { meta: META_PARTIDOS })}
             </p>
             <div className="w-full theme-bg h-2 rounded-full overflow-hidden mb-2">

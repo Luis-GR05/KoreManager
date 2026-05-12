@@ -320,17 +320,17 @@ export default function Profile() {
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">{t('profile.loading')}</div>;
 
   const statsCards = [
-    { label: t('profile.stats.totalMatches'), value: stats.total, icon: Trophy, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10' },
-    { label: t('profile.stats.upcoming'), value: stats.proximas, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10' },
-    { label: t('profile.stats.favoriteCourt'), value: stats.favorita, icon: MapPin, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10', isText: true },
+    { label: t('profile.stats.totalMatches'), value: stats.total, icon: Trophy, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
+    { label: t('profile.stats.upcoming'), value: stats.proximas, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
+    { label: t('profile.stats.favoriteCourt'), value: stats.favorita, icon: MapPin, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25', isText: true },
   ];
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* HEADER / COVER */}
-      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/12 via-transparent to-brand-lime/10">
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/12 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20">
+        <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
           {/* Avatar slot */}
@@ -374,7 +374,7 @@ export default function Profile() {
                 <p className={`font-bold ${isText ? 'text-sm truncate' : 'text-2xl'} ${color}`}>
                   {loadingStats ? '—' : value}
                 </p>
-                <p className="text-[10px] theme-faint font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-[10px] theme-muted font-bold uppercase tracking-wider">{label}</p>
               </div>
             </div>
           );
@@ -440,7 +440,7 @@ export default function Profile() {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="w-full bg-gradient-to-r from-brand-purple/20 to-brand-lime/10 border-brand-purple/30 dark:border-brand-lime/30 theme-text hover:border-brand-purple/60 dark:hover:border-brand-lime/60"
+                  className="w-full bg-gradient-to-r from-brand-purple/35 to-brand-lime/20 border-brand-purple/40 dark:border-brand-lime/40 theme-text hover:border-brand-purple/60 dark:hover:border-brand-lime/60 shadow-sm"
                   isLoading={generatingIA}
                   onClick={handleGenerateAIAvatar}
                 >
@@ -471,11 +471,11 @@ export default function Profile() {
           <form onSubmit={handleSubmit} className="theme-card p-8 space-y-6">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-lg font-black theme-text">{t('profile.personalData')}</h3>
-              <span className="text-[10px] font-bold uppercase tracking-widest theme-faint">{t('profile.editable')}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest theme-muted">{t('profile.editable')}</span>
             </div>
 
             <div>
-              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">
+              <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">
                 {t('profile.email')}
               </label>
               <div className="flex items-center gap-3 theme-bg p-4 rounded-xl border theme-border opacity-70">
@@ -510,7 +510,7 @@ export default function Profile() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.dni')}</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.dni')}</label>
                 <Input
                   icon={User}
                   type="text"
@@ -521,7 +521,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.birthDate')}</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.birthDate')}</label>
                 <Input
                   icon={Calendar}
                   type="date"
@@ -546,7 +546,7 @@ export default function Profile() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.postalCode')}</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.postalCode')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
@@ -557,7 +557,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.city')}</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.city')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
@@ -568,7 +568,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.province')}</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.province')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
@@ -593,16 +593,16 @@ export default function Profile() {
               {t('profile.legalDesc')}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Link to="/legal/aviso-legal" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              <Link to="/legal/aviso-legal" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.legalNotice')}
               </Link>
-              <Link to="/legal/privacidad" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              <Link to="/legal/privacidad" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.privacyPolicy')}
               </Link>
-              <Link to="/legal/cookies" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              <Link to="/legal/cookies" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.cookiesPolicy')}
               </Link>
-              <Link to="/legal/terminos" className="text-sm font-bold theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+              <Link to="/legal/terminos" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
                 {t('profile.terms')}
               </Link>
             </div>

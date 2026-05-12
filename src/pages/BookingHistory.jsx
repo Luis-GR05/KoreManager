@@ -21,7 +21,7 @@ function ConfirmModal({ reserva, relatedCount, onConfirm, onCancel }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="theme-card border theme-border p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
         <h3 className="text-xl font-bold theme-text mb-2">{t('history.cancelModal.title')}</h3>
-        <p className="theme-faint text-sm mb-6">
+        <p className="theme-muted text-sm mb-6">
           {relatedCount > 0
             ? t('history.cancelModal.linkedSlots', { count: relatedCount })
             : ''}
@@ -306,16 +306,16 @@ export default function BookingHistory() {
       <div className="max-w-5xl mx-auto space-y-6">
 
         {/* Cabecera */}
-        <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/10 via-transparent to-brand-purple/10">
-          <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
+        <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25">
+          <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-lime/25 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/25 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-start gap-4">
               <div>
                 <h1 className="text-3xl md:text-4xl font-black theme-text tracking-tight">
                   {t('history.title')} <span className="text-brand-purple dark:text-brand-lime">{t('history.titleHighlight')}</span>
                 </h1>
-                <p className="theme-faint text-sm mt-1">
+                <p className="theme-muted text-sm mt-1">
                   {t('history.subtitle')}
                 </p>
               </div>
@@ -334,12 +334,12 @@ export default function BookingHistory() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { label: t('history.stats.total'), value: groupedReservas.length, color: 'theme-text', bg: 'theme-card' },
-              { label: t('history.stats.upcoming'), value: proximas, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/10 dark:bg-brand-lime/10' },
-              { label: t('history.stats.past'), value: pasadas, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 dark:bg-blue-400/10' },
+              { label: t('history.stats.upcoming'), value: proximas, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/20 dark:bg-brand-lime/20' },
+              { label: t('history.stats.past'), value: pasadas, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/20 dark:bg-blue-400/20' },
             ].map(({ label, value, color, bg }) => (
               <div key={label} className={`${bg} rounded-3xl p-5 text-center border theme-border hover:border-brand-purple dark:hover:border-brand-lime transition-colors shadow-sm`}>
                 <p className={`text-2xl font-bold ${color}`}>{value}</p>
-                <p className="text-xs theme-faint font-bold uppercase tracking-wider mt-1">{label}</p>
+                <p className="text-[10px] theme-muted font-bold uppercase tracking-wider mt-1">{label}</p>
               </div>
             ))}
           </div>
@@ -353,12 +353,12 @@ export default function BookingHistory() {
               { id: 'proximas', label: t('history.filters.upcoming') },
               { id: 'pasadas', label: t('history.filters.past') },
             ].map(({ id, label }) => (
-              <button
+                <button
                 key={id}
                 onClick={() => setFiltro(id)}
                 className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${filtro === id
                     ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-sm'
-                    : 'theme-faint hover:theme-text'
+                    : 'theme-muted hover:theme-text'
                   }`}
               >
                 {label}
@@ -403,8 +403,8 @@ export default function BookingHistory() {
                 <div
                   key={reserva.id}
                   className={`theme-card border rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-200 ${isUpcoming
-                      ? 'border-brand-purple/30 dark:border-brand-lime/20 hover:border-brand-purple dark:hover:border-brand-lime/40'
-                      : 'theme-border opacity-75 hover:opacity-100'
+                      ? 'border-brand-purple/40 dark:border-brand-lime/30 hover:border-brand-purple dark:hover:border-brand-lime/60 shadow-sm'
+                      : 'theme-border opacity-90 hover:opacity-100'
                     }`}
                 >
                   {/* Info */}
@@ -428,7 +428,7 @@ export default function BookingHistory() {
                             : t('history.status.cancelled')}
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-4 text-sm theme-faint">
+                    <div className="flex flex-wrap gap-4 text-sm theme-muted">
                       <span className="flex items-center gap-1.5">
                         <Calendar size={14} className="text-brand-purple dark:text-brand-lime" />
                         {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES', {

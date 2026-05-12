@@ -91,7 +91,7 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
   const { t } = useTranslation();
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
       <div className="theme-card border theme-border p-6 md:p-7 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -103,7 +103,7 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors inline-flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/15 dark:hover:bg-white/15 transition-colors inline-flex items-center justify-center"
             aria-label="Cerrar calendario"
           >
             <X size={18} />
@@ -132,7 +132,7 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-7 gap-2 text-[11px] font-bold theme-faint uppercase tracking-wider">
+        <div className="mt-4 grid grid-cols-7 gap-2 text-[11px] font-bold theme-muted uppercase tracking-wider">
           {t('booking.calendar.days', { returnObjects: true }).map((d) => (
             <div key={d} className="text-center">{d}</div>
           ))}
@@ -156,7 +156,7 @@ function CalendarModal({ value, minDate, onSelect, onClose }) {
                 }}
                 className={[
                   'h-11 rounded-2xl border text-sm font-black transition-all',
-                  disabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-brand-purple/5 dark:hover:bg-white/5 hover:border-brand-purple/30 dark:hover:border-white/20',
+                  disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-brand-purple/15 dark:hover:bg-white/15 hover:border-brand-purple/40 dark:hover:border-white/30',
                   inMonth ? 'theme-text' : 'theme-faint',
                   isSelected ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg' : 'theme-bg theme-border',
                   !isSelected && isToday ? 'ring-1 ring-brand-purple/30 dark:ring-brand-lime/30' : '',
@@ -205,11 +205,11 @@ function ConfirmBookingModal({ date, slots, instalacion, totalCents, onConfirm, 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="theme-card border theme-border p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="w-14 h-14 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-2xl flex items-center justify-center mb-5 mx-auto">
+        <div className="w-14 h-14 bg-brand-purple/20 dark:bg-brand-lime/20 rounded-2xl flex items-center justify-center mb-5 mx-auto">
           <Calendar className="text-brand-purple dark:text-brand-lime" size={28} />
         </div>
         <h3 className="text-xl font-bold theme-text text-center mb-1">{t('booking.confirmTitle')}</h3>
-        <p className="theme-faint text-sm text-center mb-6">
+        <p className="theme-muted text-sm text-center mb-6">
           {t('booking.confirmDesc', { court: instalacion, date, slots: slots.join(', ') })}
           <br /><br />
           {t('booking.totalToPay')} <strong className="theme-text">{(totalCents / 100).toFixed(2)} €</strong>
@@ -558,9 +558,9 @@ export default function NewBooking() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 theme-card p-6">
           <div>
-            <label className="theme-faint text-sm font-bold mb-3 block">{t('booking.selectCourt')}</label>
+            <label className="theme-muted text-sm font-bold mb-3 block">{t('booking.selectCourt')}</label>
             <div className="relative">
-              <ChevronsUpDown className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint" size={18} />
+              <ChevronsUpDown className="absolute right-4 top-1/2 -translate-y-1/2 theme-muted" size={18} />
               <select
                 value={selectedInst ?? ''}
                 onChange={(e) => handleSelectInst(e.target.value)}
@@ -576,11 +576,11 @@ export default function NewBooking() {
           </div>
 
           <div>
-            <label className="theme-faint text-sm font-bold mb-3 block">{t('booking.date')}</label>
+            <label className="theme-muted text-sm font-bold mb-3 block">{t('booking.date')}</label>
             <button
               onClick={() => setCalendarOpen(true)}
               className="w-full theme-bg border theme-border theme-text rounded-2xl p-3 font-black focus:border-brand-purple dark:focus:border-brand-lime outline-none
-              hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between"
+              hover:bg-brand-purple/15 dark:hover:bg-white/15 transition-colors flex items-center justify-between"
             >
               <span className="flex items-center gap-2">
                 <Calendar size={18} className="text-brand-purple dark:text-brand-lime" />
@@ -603,7 +603,7 @@ export default function NewBooking() {
             <Package className="text-brand-purple dark:text-brand-lime" size={18} />
             {t('booking.material')}
           </h3>
-          <p className="text-xs theme-faint mb-5">
+          <p className="text-xs theme-muted mb-5">
             {t('booking.materialDesc')}
           </p>
 
@@ -635,7 +635,7 @@ export default function NewBooking() {
                         type="button"
                         disabled={disabled || current <= 0}
                         onClick={() => setReqQty(it.id, current - 1, maxQty)}
-                        className="w-10 h-10 rounded-xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 disabled:opacity-30 transition-colors"
+                        className="w-10 h-10 rounded-xl border theme-border theme-text hover:bg-brand-purple/15 dark:hover:bg-white/15 disabled:opacity-40 transition-colors"
                         aria-label="Restar"
                       >
                         −
@@ -678,7 +678,7 @@ export default function NewBooking() {
                   disabled={isOccupied || loading || selectedInstData?.estado === 'mantenimiento'}
                   onClick={() => toggleSlot(time)}
                   className={`py-4 rounded-2xl font-bold text-lg transition-all ${isOccupied
-                      ? 'bg-red-500/10 text-red-500 border border-red-500/20 cursor-not-allowed opacity-50'
+                      ? 'bg-red-500/25 text-red-700 dark:text-red-400 border border-red-500/40 cursor-not-allowed opacity-100'
                       : isSelected
                         ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg scale-105'
                         : 'theme-elevated theme-text border theme-border hover:border-brand-purple dark:hover:border-brand-lime/50 disabled:opacity-30'

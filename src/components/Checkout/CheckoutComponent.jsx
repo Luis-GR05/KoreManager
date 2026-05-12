@@ -19,18 +19,12 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_t
  */
 export const CheckoutComponent = ({ amount, orderId }) => {
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-gray-100 dark:bg-gray-800 min-h-[400px]">
+    <div className="flex flex-col items-center justify-center p-8 theme-elevated min-h-[400px]">
       <div className="w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
+        <h2 className="text-2xl font-bold text-center mb-6 theme-text">
           Completar Reserva
         </h2>
         
-        {/*
-          El componente Elements inicializa la UI y proporciona el contexto 
-          para que funcione react-stripe-js. No requiere client_secret aquí si 
-          estamos usando CardElement en lugar de PaymentElement y capturándolo 
-          dinámicamente en el submit.
-        */}
         <Elements stripe={stripePromise}>
           <CheckoutForm amount={amount} orderId={orderId} />
         </Elements>

@@ -150,7 +150,7 @@ export default function Layout({ children }) {
               <img
                 src="/images/logo.png"
                 alt="Kore Manager"
-                className="w-full h-full object-contain p-2 dark:drop-shadow-[0_0_10px_rgba(204,255,0,.22)] dark:drop-shadow-[0_0_18px_rgba(138,43,226,.12)] dark:brightness-110 drop-shadow-md"
+                className="w-full h-full object-contain p-2 dark:drop-shadow-[0_0_12px_rgba(204,255,0,.3)] dark:drop-shadow-[0_0_20px_rgba(138,43,226,.2)] dark:brightness-110 drop-shadow-md"
               />
             </div>
             <div className="leading-tight">
@@ -197,8 +197,8 @@ export default function Layout({ children }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
-                    ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-lg dark:shadow-[0_0_15px_rgba(204,255,0,0.22)]'
-                    : 'theme-text opacity-70 hover:opacity-100 hover:text-brand-purple dark:hover:text-white hover:bg-brand-purple/5 dark:hover:bg-white/5'
+                    ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-lg dark:shadow-[0_0_15px_rgba(204,255,0,0.3)]'
+                    : 'theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-white hover:bg-brand-purple/20 dark:hover:bg-white/10'
                 }`}
               >
                 <Icon size={20} />
@@ -316,7 +316,7 @@ export default function Layout({ children }) {
 
               <button
                 onClick={signOut}
-                className="px-4 py-2 rounded-2xl theme-bg border theme-border theme-text hover:text-red-500 hover:border-red-500/40 hover:theme-elevated transition-all font-bold"
+                className="px-4 py-2 rounded-2xl theme-bg border theme-border theme-text hover:text-red-600 hover:border-red-500/60 hover:theme-elevated transition-all font-bold"
               >
                 {t('layout.logout')}
               </button>
@@ -408,7 +408,7 @@ export default function Layout({ children }) {
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
                     ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-lg'
-                    : 'theme-text opacity-70 hover:opacity-100 hover:theme-elevated'
+                    : 'theme-text opacity-90 hover:opacity-100 hover:theme-elevated'
                 }`}
               >
                 <Icon size={20} />
