@@ -1,0 +1,596 @@
+{
+  "layout": {
+    "title": "KORE MANAGER",
+    "subtitle": "Sports Management",
+    "search": "Search...",
+    "logout": "Logout",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "changePassword": "Change Password",
+    "comingSoon": "Coming Soon"
+  },
+  "footer": {
+    "tagline": "Modern sports management for municipal facilities and clubs.",
+    "links": {
+      "installations": "Facilities",
+      "features": "Features",
+      "about": "About us",
+      "login": "User access",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use",
+      "legal": "Legal notice",
+      "cookies": "Cookie policy"
+    },
+    "copyright": "© 2026 Luis Gordillo Rodríguez · Final Degree Project"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "profile": "My Profile",
+    "book": "Book Now",
+    "history": "History",
+    "stats": "Statistics",
+    "inventory": "Inventory",
+    "admin": "Admin Panel"
+  },
+  "dashboard": {
+    "loading": "Loading your dashboard…",
+    "panelLabel": "Main panel",
+    "greeting": "Hello,",
+    "subtitle": "Manage bookings, check alerts and monitor the status of facilities in real time.",
+    "newBooking": "New booking",
+    "viewHistory": "View history",
+    "kpi": {
+      "thisMonth": "This month",
+      "completed": "Completed",
+      "upcoming": "Upcoming",
+      "alerts": "Alerts"
+    },
+    "nextMatches": "My Upcoming Matches",
+    "noBookings": "You have no upcoming bookings",
+    "noBookingsDesc": "Choose a court and time in less than 30 seconds.",
+    "bookNow": "Book now",
+    "cancelBooking": "Cancel Booking",
+    "cancelError": "Could not cancel the booking.",
+    "cancelSuccess": "Booking cancelled.",
+    "courtStatus": "Court Status",
+    "alerts": "Alerts",
+    "noAlerts": "No active alerts.",
+    "yourLevel": "Your level",
+    "progressLabel": "matches to level up",
+    "maxLevel": "You've reached the maximum level!",
+    "monthlyGoal": "Monthly Goal",
+    "monthlyGoalDesc": "of {{meta}} matches booked",
+    "courtSport": "Sports Court"
+  },
+  "history": {
+    "title": "My",
+    "titleHighlight": "Bookings",
+    "subtitle": "Complete history of your bookings at the facilities.",
+    "newBooking": "New booking",
+    "loading": "Loading bookings...",
+    "stats": {
+      "total": "Total",
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "filters": {
+      "all": "All",
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "status": {
+      "upcoming": "Upcoming",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "paid": "Paid",
+      "pending": "Pending Payment",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "noBookings": "You have no bookings yet",
+      "noBookingsDesc": "Book a court and start playing.",
+      "firstBooking": "Make my first booking",
+      "noResults": "No results",
+      "noResultsDesc": "No bookings match this filter."
+    },
+    "cancelModal": {
+      "title": "Cancel booking?",
+      "linkedSlots": "This action will also cancel {{count}} linked slot(s). ",
+      "freeSlot": "The time slot will be freed for other users.",
+      "paidNote": "Note: This booking is already paid. Please contact the club to manage possible refunds.",
+      "back": "Go back",
+      "confirm": "Yes, cancel"
+    },
+    "pay": "Pay",
+    "cancel": "Cancel",
+    "errorLoad": "Could not load bookings.",
+    "errorCancel": "Error cancelling the booking.",
+    "cancelSuccess": "Booking cancelled successfully.",
+    "cancelSuccessMulti": "Bookings cancelled successfully.",
+    "sport": "Sports Court"
+  },
+  "profile": {
+    "loading": "Loading player profile...",
+    "myProfile": "My profile",
+    "stats": {
+      "totalMatches": "Total Matches",
+      "upcoming": "Upcoming",
+      "favoriteCourt": "Favourite Court"
+    },
+    "photoSection": "Profile photo",
+    "yourPhoto": "Your photo",
+    "photoDesc": "It will be saved to your profile and shown in the side menu.",
+    "changePhoto": "Change photo",
+    "photoSuccess": "Profile photo updated.",
+    "photoError": "Could not upload the image.",
+    "aiAvatar": "AI Avatar",
+    "aiStyleLabel": "Style / Prompt",
+    "aiPlaceholder": "E.g.: Pixar style, ultra detailed...",
+    "aiGenerate": "Generate with AI",
+    "aiProcessing": "Processing...",
+    "aiStatus": {
+      "starting": "Starting...",
+      "analyzing": "The AI is analysing the facial features..."
+    },
+    "aiNote": "* Uses your photo above as reference. The process may take 20-30 seconds.",
+    "aiNeedPhoto": "You must first upload a real photo to use as a base.",
+    "aiSuccess": "Your new AI avatar is ready!",
+    "aiError": "Error generating the avatar.",
+    "aiServerError": "The server rejected the request.",
+    "personalData": "Personal data",
+    "editable": "Editable",
+    "email": "Email Address",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Your real name",
+    "phone": "Phone",
+    "phonePlaceholder": "+44 700 000 000",
+    "dni": "ID/Passport",
+    "dniPlaceholder": "12345678Z",
+    "birthDate": "Date of birth",
+    "address": "Address",
+    "addressPlaceholder": "123 Example Street",
+    "postalCode": "Postal code",
+    "postalCodePlaceholder": "W1A 1AA",
+    "city": "City",
+    "cityPlaceholder": "London",
+    "province": "Province/State",
+    "provincePlaceholder": "Greater London",
+    "saving": "Saving...",
+    "save": "Save Changes",
+    "legal": "Privacy & legal",
+    "legalDesc": "Check the legal information of the service and how we process your data.",
+    "legalNotice": "Legal notice",
+    "privacyPolicy": "Privacy policy",
+    "cookiesPolicy": "Cookies policy",
+    "terms": "Terms of use"
+  },
+  "booking": {
+    "loading": "Loading...",
+    "pendingTitle": "You have a pending booking",
+    "pendingDesc": "You must complete the payment for your current booking before making a new one. Pending bookings expire in {{hours}} hours.",
+    "pendingWarning": "⚠️ If the booking is for within the next 3 hours, it will expire in 15 minutes if not paid.",
+    "pendingDate": "Date:",
+    "pendingTime": "Time:",
+    "goToHistory": "Go to Payment History",
+    "title": "New Booking",
+    "subtitle": "Select the court, date and time you prefer.",
+    "selectCourt": "Select Court",
+    "date": "Date",
+    "openCalendar": "Open",
+    "maintenance": "This court is under maintenance and cannot be booked.",
+    "material": "Request equipment",
+    "materialDesc": "Optional. The concierge will prepare the equipment for the selected court (subject to stock).",
+    "loadingInventory": "Loading inventory...",
+    "noMaterial": "No equipment available for this court type (or the tipo_pista migration is missing in the DB).",
+    "stock": "Stock:",
+    "availableSlots": "Available Time Slots",
+    "occupied": "OCCUPIED",
+    "selected": "SELECTED",
+    "slotsSelected": "Slots selected:",
+    "bookSlot": "Book Slot",
+    "bookSlots": "Book Slots",
+    "confirmTitle": "Confirm Booking",
+    "confirmDesc": "You are about to book {{court}} on {{date}} at: {{slots}}.",
+    "totalToPay": "Total to pay:",
+    "cancelBtn": "Cancel",
+    "confirmBtn": "Confirm",
+    "calendar": {
+      "selectDay": "Select day",
+      "title": "Calendar",
+      "today": "Today",
+      "confirm": "Confirm",
+      "days": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    },
+    "errors": {
+      "pastDate": "You cannot book a past date.",
+      "pastSlot": "That time slot has already passed.",
+      "slotTaken": "That slot was already booked. Choose another.",
+      "bookingError": "Booking error: ",
+      "materialError": "Could not save the requested equipment.",
+      "stockError": "Not enough stock for the requested equipment.",
+      "secondaryError": "Warning: Some selected slots could not be registered.",
+      "confirming": "Confirming booking..."
+    },
+    "success": "Booking created. Redirecting to payment..."
+  },
+  "inventory": {
+    "title": "Equipment Management",
+    "subtitle": "Real-time stock management.",
+    "search": "Search...",
+    "refresh": "Refresh",
+    "add": "Add",
+    "loading": "Loading inventory...",
+    "errorTitle": "Could not load inventory",
+    "retry": "Retry",
+    "noResults": "No equipment matches this filter.",
+    "lowStock": "Low Stock",
+    "noStock": "Out of Stock",
+    "stock": "Stock",
+    "formTitle": "Item name",
+    "formPlaceholder": "E.g.: Training cones",
+    "formType": "Court type",
+    "formQty": "Quantity",
+    "formCancel": "Cancel",
+    "formSave": "Save",
+    "formSaving": "Saving...",
+    "types": {
+      "padel": "Padel",
+      "tennis": "Tennis",
+      "football": "Football",
+      "basketball": "Basketball"
+    },
+    "errors": {
+      "nameRequired": "Name is required.",
+      "typeRequired": "Please select a court type.",
+      "loadError": "Error loading inventory: ",
+      "stockError": "Error updating stock.",
+      "addError": "Error adding item: "
+    },
+    "success": "Item added to inventory."
+  },
+  "stats": {
+    "loading": "Loading statistics...",
+    "titleUser": "My Statistics",
+    "titleAdmin": "Global Statistics",
+    "subtitleAdmin": "Global analysis of all citizen bookings at the centre.",
+    "newBooking": "New Booking",
+    "level": {
+      "current": "Your current level",
+      "center": "Centre Level",
+      "completed": "completed matches",
+      "nextLevel": "Next level: {{count}} matches",
+      "maxLevel": "Maximum level!"
+    },
+    "kpi": {
+      "played": "Matches played",
+      "upcoming": "Upcoming bookings",
+      "favorite": "Favourite court",
+      "total": "Total bookings"
+    },
+    "charts": {
+      "byDay": "Bookings by day of the week",
+      "byHour": "Bookings by time slot",
+      "byType": "By court type"
+    },
+    "empty": {
+      "title": "No statistics yet",
+      "desc": "Make your first booking to start seeing your data.",
+      "firstBooking": "Make my first booking",
+      "noData": "No data yet."
+    },
+    "achievements": "Achievements",
+    "unlocked": "✓ Unlocked",
+    "logros": {
+      "primer_partido":       { "title": "First Serve!",   "desc": "Complete your first booking" },
+      "cinco_partidos":       { "title": "In Shape",       "desc": "Complete 5 bookings" },
+      "diez_partidos":        { "title": "Regular",        "desc": "Complete 10 bookings" },
+      "veinticinco_partidos": { "title": "Veteran",        "desc": "Complete 25 bookings" },
+      "cincuenta_partidos":   { "title": "Legend",         "desc": "Complete 50 bookings" }
+    }
+  },
+  "admin": {
+    "title": "Administration Panel",
+    "subtitle": "Global management of the KORE MANAGER system.",
+    "tabs": {
+      "users": "Users",
+      "bookings": "Bookings",
+      "courts": "Installations",
+      "alerts": "Alerts",
+      "stats": "Statistics"
+    },
+    "users": {
+      "loading": "Loading users...",
+      "totalUsers": "Total Users",
+      "activeStaff": "Active Staff",
+      "activeBookings": "Active Bookings",
+      "directory": "User Directory",
+      "searchPlaceholder": "Search name or email...",
+      "table": {
+        "user": "User",
+        "contact": "Contact",
+        "role": "Role",
+        "registered": "Registered"
+      },
+      "noName": "No name",
+      "noPhone": "—",
+      "notFound": "No users found."
+    },
+    "courts": {
+      "loading": "Loading installations...",
+      "title": "Installation Management",
+      "desc": "Create or modify the courts at the sports centre.",
+      "newCourt": "New Court",
+      "editCourt": "Edit Court",
+      "createCourt": "Create Court",
+      "name": "Name",
+      "type": "Type",
+      "status": "Status",
+      "namePlaceholder": "E.g.: Court 1 Centre",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "edit": "Edit",
+      "deleteConfirm": "Are you sure you want to permanently delete this court? (It may fail if it has references)",
+      "deleteError": "PostgreSQL error: could not delete. It may have active bookings.",
+      "deleteSuccess": "Installation permanently deleted.",
+      "updateSuccess": "Court updated",
+      "createSuccess": "Court created",
+      "nameRequired": "Name is required"
+    },
+    "alerts": {
+      "loading": "Loading alerts...",
+      "newAlert": "New Alert",
+      "published": "Published Alerts ({{count}})",
+      "noAlerts": "No alerts yet.",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Alert title",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Detailed description...",
+      "publishBtn": "Publish Alert",
+      "publishing": "Publishing...",
+      "publishSuccess": "Alert published.",
+      "deleteConfirm": "Delete this alert permanently?",
+      "deleteSuccess": "Alert deleted.",
+      "titleRequired": "Title is required.",
+      "createError": "Error creating: "
+    },
+    "bookings": {
+      "loading": "Loading system bookings...",
+      "totalBookings": "Total bookings",
+      "upcoming": "Upcoming",
+      "completed": "Completed",
+      "searchPlaceholder": "Search user or court...",
+      "filters": {
+        "upcoming": "Upcoming",
+        "past": "Past",
+        "all": "All"
+      },
+      "table": {
+        "user": "User",
+        "court": "Installation",
+        "date": "Date",
+        "time": "Time",
+        "material": "Equipment",
+        "status": "Status"
+      },
+      "status": {
+        "upcoming": "Upcoming",
+        "completed": "Completed"
+      },
+      "noName": "No name",
+      "more": "+{{count}} more",
+      "cancelModal": {
+        "title": "Cancel this booking?",
+        "desc": "It will be permanently deleted and the user will lose their time slot.",
+        "back": "Go back",
+        "cancelling": "Cancelling...",
+        "confirm": "Yes, cancel"
+      },
+      "noResults": "No bookings in this period.",
+      "noResultsSearch": "No bookings found for that search.",
+      "showing": "Showing {{shown}} of {{total}} bookings",
+      "loaded": "(loaded {{count}})",
+      "loadMore": "Load more",
+      "loading2": "Loading...",
+      "cancelSuccess": "Booking cancelled.",
+      "cancelError": "Error cancelling: "
+    },
+    "adminStats": {
+      "loading": "Loading statistics...",
+      "totalBookings": "Total Bookings",
+      "upcoming": "Upcoming",
+      "completed": "Completed",
+      "avgPerUser": "Average per user",
+      "byDay": "Bookings by day of the week",
+      "courtRanking": "Court ranking",
+      "topUsers": "Top 5 Active Users",
+      "byType": "Distribution by type",
+      "noData": "No data yet.",
+      "noActivity": "No activity yet.",
+      "bookingsLabel": "bookings",
+      "matchesLabel": "matches"
+    }
+  },
+  "payment": {
+    "success": {
+      "title": "Payment confirmed",
+      "desc": "Your payment has been processed successfully. It will show as paid in a few seconds.",
+      "goToDashboard": "Go to dashboard",
+      "viewHistory": "View history"
+    },
+    "cancel": {
+      "title": "Payment cancelled",
+      "desc": "The payment was not completed. You can try again from the history or make a new booking.",
+      "goToHistory": "Go to history",
+      "bookAgain": "Book again"
+    }
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "desc": "Enter your new secure password. Your current session will remain open.",
+    "newPassword": "New password",
+    "repeatPassword": "Repeat password",
+    "save": "Save Password",
+    "successTitle": "Password Saved!",
+    "errors": {
+      "noMatch": "Passwords do not match",
+      "minChars": "Password must be at least 6 characters",
+      "updateError": "Error updating password"
+    },
+    "successToast": "Password successfully updated"
+  },
+  "landing": {
+    "nav": {
+      "sports": "Sports",
+      "features": "Features",
+      "about": "About Us",
+      "loginBtn": "Login"
+    },
+    "hero": {
+      "badge": "SMART MUNICIPAL MANAGEMENT",
+      "title1": "Your city's sports,",
+      "title2": "just a click away.",
+      "desc": "Forget about queues and calls. Book your court, manage your team and enjoy sports with the most advanced municipal platform.",
+      "cta1": "Book your court now",
+      "cta2": "View statistics"
+    },
+    "stats": {
+      "members": "Active members",
+      "installations": "Installations",
+      "availability": "Availability",
+      "time": "To book"
+    },
+    "video": {
+      "badge": "In Action",
+      "title1": "Why",
+      "title2": "KoreManager?"
+    },
+    "login": {
+      "success": "Logged in successfully!",
+      "errorCreds": "Invalid email or password.",
+      "back": "Back to landing",
+      "welcome": "Welcome back",
+      "emailPlaceholder": "email@example.com",
+      "forgot": "Forgot your password?",
+      "submit": "Log In",
+      "noAccount": "Don't have an account?",
+      "register": "Sign Up for Free"
+    },
+    "register": {
+      "errorMinChars": "Password must be at least 6 characters long.",
+      "errorMatch": "Passwords do not match. Please ensure they are the same.",
+      "errorTerms": "You must accept the Terms of Use and Privacy Policy to register.",
+      "success": "Registration successful! You can now log in.",
+      "back": "Back to landing",
+      "title": "Create your free account",
+      "fullName": "Full Name",
+      "emailPlaceholder": "email@example.com",
+      "phone": "Phone (e.g. +44 700000000)",
+      "dni": "ID/Passport",
+      "address": "Address",
+      "postalCode": "Postal code",
+      "city": "City",
+      "province": "Province/State",
+      "password": "Password (min. 6 characters)",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "acceptTermsPrefix": "I accept the ",
+      "terms": "Terms of Use",
+      "acceptPrivacyPrefix": "I have read and accept the ",
+      "privacy": "Privacy Policy",
+      "and": " and the ",
+      "cookies": "Cookies Policy",
+      "legalWarning": "Your data will be used to manage your account and bookings. You can exercise your rights in accordance with the GDPR.",
+      "hasAccount": "Already have an account?",
+      "login": "Log In"
+    },
+    "forgot": {
+      "toastSuccess": "Recovery email sent",
+      "toastError": "Error sending email.",
+      "backToLogin": "Back to login",
+      "checkInbox": "Check your inbox",
+      "sentTo": "We have sent a recovery link to ",
+      "clickToReset": ". Click on it to set a new password.",
+      "goToLogin": "Go to Login",
+      "title": "Recover Password",
+      "desc": "Enter your email and we will send you a link to reset your password.",
+      "emailPlaceholder": "email@example.com",
+      "submit": "Send recovery link"
+    },
+    "reset": {
+      "errorLink": "The recovery link is invalid or has expired.",
+      "errorMatch": "Passwords do not match",
+      "errorMinChars": "Password must be at least 6 characters",
+      "toastSuccess": "Password successfully updated",
+      "toastError": "Error updating password",
+      "successTitle": "Password Saved!",
+      "successDesc": "Your password has been successfully updated. You will be redirected to the login page in a few seconds...",
+      "title": "New Password",
+      "desc": "Enter your new secure password to access KoreManager.",
+      "password": "New password",
+      "confirmPassword": "Repeat password",
+      "submit": "Save Password"
+    },
+    "sports": {
+      "badge": "INSTALLATIONS",
+      "title": "Sports for everyone",
+      "desc": "Our facilities are prepared to offer you the best sporting experience, whatever your level.",
+      "padel": {
+        "name": "Padel",
+        "courts": "6 courts",
+        "desc": "Indoor and outdoor courts with professional LED lighting."
+      },
+      "futsal": {
+        "name": "Futsal",
+        "courts": "3 pitches",
+        "desc": "Resin pitches with official markings and referee cabins."
+      },
+      "tennis": {
+        "name": "Tennis",
+        "courts": "4 courts",
+        "desc": "Clay surface and certified hard court."
+      },
+      "cta": "Book now"
+    },
+    "features": {
+      "badge": "BENEFITS",
+      "title": "Designed for citizens",
+      "desc": "A fast, secure and easy-to-use platform that gives you total control over your sports activity.",
+      "f1": {
+        "title": "Real-time bookings",
+        "desc": "Check the live calendar and secure your court without waiting or calling."
+      },
+      "f2": {
+        "title": "Instant confirmation",
+        "desc": "Receive instant confirmation and a reminder before your appointment."
+      },
+      "f3": {
+        "title": "Team management",
+        "desc": "Organize leagues, tournaments and private matches with your group of friends."
+      },
+      "f4": {
+        "title": "Sports history",
+        "desc": "Access all your past bookings and keep track of your hours on the court."
+      },
+      "f5": {
+        "title": "Secure access",
+        "desc": "Log in with your protected personal account and always encrypted data."
+      },
+      "f6": {
+        "title": "News and offers",
+        "desc": "Receive municipal alerts about activities, tournaments and promotions."
+      }
+    },
+    "about": {
+      "badge": "ABOUT THE PROJECT",
+      "title": "KoreManager",
+      "title2": "Built to modernise",
+      "title3": "local sports management.",
+      "desc": "KoreManager was born as a Final Degree Project with a clear goal: to digitalise the booking of municipal sports facilities. Goodbye to queues, paperwork and phone calls. Hello to efficiency, transparency and sport without barriers.",
+      "testimonial": "\"I used to take 15 minutes to book a court by phone. With KoreManager I do it in 30 seconds from my mobile. It's a before and after.\"",
+      "testimonialAuthor": "\u2014 Club Member, Seville",
+      "cta": "Get started free"
+    }
+  }
+}

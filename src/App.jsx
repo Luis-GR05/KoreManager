@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { lazy, Suspense } from 'react';
 
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -45,7 +46,8 @@ const PageLoader = () => (
  */
 export default function App() {
   return (
-    <AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -133,5 +135,6 @@ export default function App() {
         </Suspense>
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

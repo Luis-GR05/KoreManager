@@ -11,6 +11,7 @@ import { useProfile } from '../hooks/useprofile';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Página de perfil:
@@ -23,6 +24,7 @@ import toast from 'react-hot-toast';
 export default function Profile() {
   const { profile, roleName, loading, updating, updateProfile } = useProfile();
   const { user, refreshProfile } = useAuth();
+  const { t } = useTranslation();
   const fileRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
@@ -43,10 +45,8 @@ export default function Profile() {
   // IA Avatar state
   const [aiPrompt, setAiPrompt] = useState('Style Pixar, detailed, professional athlete photo');
   const [generatingIA, setGeneratingIA] = useState(false);
-  const [iaStatus, setIaStatus] = useState(''); // 'uploading', 'processing', 'polling'
-  const [iaTaskId, setIaTaskId] = useState(null);
+  const [iaStatus, setIaStatus] = useState('');
 
-  // Sincronizar datos del perfil con el formulario
   useEffect(() => {
     if (profile) {
       const meta = user?.user_metadata || {};
@@ -67,10 +67,7 @@ export default function Profile() {
   }, [profile, user?.user_metadata]);
 
   /**
-   * Resuelve el avatar a una URL visible:
-   * - si ya es http(s), se usa tal cual
-   * - si es path de bucket privado, genera signed URL
-   *
+   * Resuelve el avatar a una URL visible.
    * @returns {Promise<string|null>}
    */
   const resolveAvatarUrl = useCallback(async () => {
@@ -94,7 +91,6 @@ export default function Profile() {
     return data?.signedUrl ?? null;
   }, [profile?.avatar_url]);
 
-  // Resolver avatar si el bucket es privado (signed URL) y renovarlo antes de expirar.
   useEffect(() => {
     let alive = true;
 
@@ -131,10 +127,6 @@ export default function Profile() {
     if (!user) return;
     const hoy = new Date().toISOString().split('T')[0];
 
-    /**
-     * Carga resumen de reservas del usuario (total / próximas / favorita).
-     * @returns {Promise<void>}
-     */
     const fetchStats = async () => {
       const { data } = await supabase
         .from('reservas')
@@ -146,7 +138,6 @@ export default function Profile() {
 
       const proximas = data.filter(r => r.fecha >= hoy).length;
 
-      // Instalación más reservada
       const counts = {};
       data.forEach(r => {
         const n = r.instalaciones?.nombre;
@@ -164,23 +155,32 @@ export default function Profile() {
   /**
    * Envía el formulario de perfil.
    * @param {import('react').FormEvent} e
-   * @returns {Promise<void>}
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // VALIDACIONES DE SEGURIDAD
+    const phoneRegex = /^[0-9+]{9,15}$/;
+    if (formData.telefono && !phoneRegex.test(formData.telefono)) {
+      toast.error(t('register.errorPhone'));
+      return;
+    }
+
+    const dniRegex = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    const nieRegex = /^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+    if (formData.dni && !dniRegex.test(formData.dni) && !nieRegex.test(formData.dni)) {
+      toast.error(t('register.errorDni'));
+      return;
+    }
+
     await updateProfile(formData);
   };
 
-  /**
-   * Abre el selector de fichero para avatar.
-   * @returns {void}
-   */
   const handlePickAvatar = () => fileRef.current?.click();
 
   /**
-   * Sube el avatar a Storage y guarda el path en `profiles.avatar_url`.
+   * Sube el avatar a Storage.
    * @param {import('react').ChangeEvent<HTMLInputElement>} e
-   * @returns {Promise<void>}
    */
   const handleAvatarSelected = async (e) => {
     const file = e.target.files?.[0];
@@ -188,8 +188,6 @@ export default function Profile() {
 
     setUploadingAvatar(true);
     try {
-      // Redimensionar la imagen a 512x512 JPEG usando Canvas para asegurar
-      // la compatibilidad estricta con Vertex AI (Imagen)
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = 512;
@@ -200,7 +198,6 @@ export default function Profile() {
 
       const blobResize = await new Promise((resolve, reject) => {
         img.onload = () => {
-          // Centrar y recortar (Object-fit: cover)
           const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
           const drawWidth = img.width * scale;
           const drawHeight = img.height * scale;
@@ -231,10 +228,10 @@ export default function Profile() {
 
       if (dbErr) throw dbErr;
 
-      toast.success('Foto de perfil actualizada.');
+      toast.success(t('profile.photoSuccess'));
       await refreshProfile();
     } catch (err) {
-      toast.error(err?.message || 'No se pudo subir la imagen.');
+      toast.error(err?.message || t('profile.photoError'));
     } finally {
       setUploadingAvatar(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -242,21 +239,20 @@ export default function Profile() {
   };
 
   /**
-   * Dispara el flujo de generación de Avatar con IA usando una Supabase Edge Function
+   * Dispara el flujo de generación de Avatar con IA.
    */
   const handleGenerateAIAvatar = async () => {
     if (!user || !aiPrompt.trim()) return;
 
     if (!profile?.avatar_url) {
-      toast.error('Primero debes subir una foto real para usarla como base.');
+      toast.error(t('profile.aiNeedPhoto'));
       return;
     }
 
     setGeneratingIA(true);
-    setIaStatus('Iniciando...');
+    setIaStatus(t('profile.aiStatus.starting'));
 
     try {
-      // 1. Insertar la tarea en base de datos
       const { data: tarea, error: errorInsert } = await supabase
         .from('tareas_ia')
         .insert({
@@ -269,7 +265,6 @@ export default function Profile() {
 
       if (errorInsert) throw errorInsert;
 
-      // 2. Escuchar cambios de estado por WebSocket
       const channel = supabase.channel(`tarea-${tarea.id}`)
         .on(
           'postgres_changes',
@@ -277,21 +272,20 @@ export default function Profile() {
           async (payload) => {
             const estado = payload.new.estado;
             if (estado === 'procesando') {
-              setIaStatus('La IA está analizando las facciones...');
+              setIaStatus(t('profile.aiStatus.analyzing'));
             } else if (estado === 'completado') {
-              // Actualizar perfil local y base de datos con nueva foto
               await supabase
                 .from('profiles')
                 .update({ avatar_url: payload.new.ruta_resultado })
                 .eq('id', user.id);
 
-              toast.success('¡Tu nuevo avatar IA está listo!');
+              toast.success(t('profile.aiSuccess'));
               await refreshProfile();
               setGeneratingIA(false);
               setIaStatus('');
               supabase.removeChannel(channel);
             } else if (estado === 'error') {
-              toast.error(payload.new.mensaje_error || 'Error generando el avatar.');
+              toast.error(payload.new.mensaje_error || t('profile.aiError'));
               setGeneratingIA(false);
               setIaStatus('');
               supabase.removeChannel(channel);
@@ -300,22 +294,16 @@ export default function Profile() {
         )
         .subscribe();
 
-      // 3. Invocar la Edge Function pasándole el ID de la tarea
-      // Recuperamos el token de sesión activo para pasarlo manualmente,
-      // ya que la función fue desplegada con --no-verify-jwt y Supabase
-      // no lo inyecta automáticamente en ese modo.
       const { data: { session } } = await supabase.auth.getSession();
       supabase.functions.invoke('generate-avatar', {
         body: { id_tarea: tarea.id },
         headers: { Authorization: `Bearer ${session?.access_token}` }
       }).catch(async (err) => {
         console.error('Fallo en la red o servidor:', err);
-        // Desbloqueamos la UI a la fuerza
         setGeneratingIA(false);
         setIaStatus('');
-        toast.error('El servidor rechazó la solicitud.');
+        toast.error(t('profile.aiServerError'));
 
-        // Actualizamos la base de datos por seguridad para no dejar tareas huérfanas
         await supabase.from('tareas_ia').update({
           estado: 'error',
           mensaje_error: 'Timeout o fallo de invocación desde el cliente'
@@ -323,31 +311,31 @@ export default function Profile() {
       });
 
     } catch (err) {
-      toast.error(err.message || 'Error desconocido iniciando generación.');
+      toast.error(err.message || t('profile.aiError'));
       setGeneratingIA(false);
       setIaStatus('');
     }
   };
 
-  if (loading) return <div className="p-8 text-brand-lime animate-pulse">Cargando ficha de jugador...</div>;
+  if (loading) return <div className="p-8 text-brand-lime animate-pulse">{t('profile.loading')}</div>;
 
   const statsCards = [
-    { label: 'Partidos Totales', value: stats.total, icon: Trophy, color: 'text-brand-lime', bg: 'bg-brand-lime/10' },
-    { label: 'Próximos', value: stats.proximas, icon: Calendar, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
-    { label: 'Pista Favorita', value: stats.favorita, icon: MapPin, color: 'text-blue-400', bg: 'bg-blue-400/10', isText: true },
+    { label: t('profile.stats.totalMatches'), value: stats.total, icon: Trophy, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
+    { label: t('profile.stats.upcoming'), value: stats.proximas, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
+    { label: t('profile.stats.favoriteCourt'), value: stats.favorita, icon: MapPin, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25', isText: true },
   ];
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* HEADER / COVER */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-brand-purple/12 via-white/0 to-brand-lime/10 p-6 md:p-8 anim-shine">
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/12 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20">
+        <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
           {/* Avatar slot */}
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
+            <div className="w-20 h-20 rounded-3xl theme-bg border theme-border flex items-center justify-center theme-faint shrink-0">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover rounded-3xl" />
               ) : (
@@ -355,16 +343,16 @@ export default function Profile() {
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Mi perfil</p>
-              <h1 className="text-3xl md:text-4xl font-black text-white truncate">
+              <p className="text-[11px] font-bold theme-faint uppercase tracking-widest">{t('profile.myProfile')}</p>
+              <h1 className="text-3xl md:text-4xl font-black theme-text truncate">
                 {profile?.full_name || 'Usuario'}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-black text-gray-200 uppercase tracking-widest">
-                  <ShieldCheck size={14} className="text-brand-lime" />
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full theme-elevated border theme-border text-xs font-black theme-text uppercase tracking-widest">
+                  <ShieldCheck size={14} className="text-brand-purple dark:text-brand-lime" />
                   {roleName}
                 </span>
-                <span className="text-xs text-gray-500 font-semibold truncate">
+                <span className="text-xs theme-faint font-semibold truncate">
                   {profile?.email}
                 </span>
               </div>
@@ -378,7 +366,7 @@ export default function Profile() {
         {statsCards.map(({ label, value, icon, color, bg, isText }) => {
           const Icon = icon;
           return (
-            <div key={label} className="bg-[#1A1A2E] rounded-3xl p-5 border border-white/5 flex items-center gap-4 hover:border-white/10 transition-colors">
+            <div key={label} className="theme-card p-5 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-colors">
               <div className={`p-2.5 rounded-xl ${bg} ${color} shrink-0`}>
                 <Icon size={18} />
               </div>
@@ -386,7 +374,7 @@ export default function Profile() {
                 <p className={`font-bold ${isText ? 'text-sm truncate' : 'text-2xl'} ${color}`}>
                   {loadingStats ? '—' : value}
                 </p>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-[10px] theme-muted font-bold uppercase tracking-wider">{label}</p>
               </div>
             </div>
           );
@@ -396,20 +384,20 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* COLUMNA IZQUIERDA — Foto de perfil */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-white/5 text-center relative overflow-hidden">
+          <div className="theme-card p-6 text-center relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10">
-              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Foto de perfil</p>
-              <div className="w-44 h-44 rounded-3xl bg-white/5 border border-white/10 mx-auto overflow-hidden flex items-center justify-center text-gray-400 mb-5 anim-shine">
+              <p className="text-xs font-black theme-faint uppercase tracking-widest mb-3">{t('profile.photoSection')}</p>
+              <div className="w-44 h-44 rounded-3xl theme-elevated border theme-border mx-auto overflow-hidden flex items-center justify-center theme-faint mb-5 anim-shine">
                 {avatarDisplayUrl ? (
                   <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <ImageIcon size={28} />
                 )}
               </div>
-              <p className="text-sm font-bold text-white mb-1">Tu foto</p>
-              <p className="text-xs text-gray-500 mb-5">
-                Se guardará en tu perfil y se verá en el menú lateral.
+              <p className="text-sm font-bold theme-text mb-1">{t('profile.yourPhoto')}</p>
+              <p className="text-xs theme-faint mb-5">
+                {t('profile.photoDesc')}
               </p>
 
               <input
@@ -421,30 +409,30 @@ export default function Profile() {
               />
 
               <Button type="button" variant="primary" className="w-full" isLoading={uploadingAvatar} onClick={handlePickAvatar}>
-                <ImageIcon size={18} /> Cambiar foto
+                <ImageIcon size={18} /> {t('profile.changePhoto')}
               </Button>
             </div>
           </div>
 
           {/* Generación con IA */}
-          <div className="bg-[#1F1F2E] p-6 rounded-3xl border border-brand-purple/20 text-center relative overflow-hidden group">
-            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-purple/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="theme-card p-6 border-brand-purple/20 dark:border-brand-lime/20 text-center relative overflow-hidden group">
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Sparkles size={18} className="text-brand-purple" />
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Avatar IA</p>
+                <Sparkles size={18} className="text-brand-purple dark:text-brand-lime" />
+                <p className="text-xs font-black theme-faint uppercase tracking-widest">{t('profile.aiAvatar')}</p>
               </div>
 
               <div className="space-y-4">
                 <div className="text-left">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1 mb-1.5 block">
-                    Estilo / Prompt
+                  <label className="text-[10px] font-bold theme-faint uppercase tracking-wider ml-1 mb-1.5 block">
+                    {t('profile.aiStyleLabel')}
                   </label>
                   <textarea
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="Ej: Estilo Pixar, ultra detallado..."
-                    className="w-full bg-[#0F0F1A] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:border-brand-purple outline-none resize-none transition-colors"
+                    placeholder={t('profile.aiPlaceholder')}
+                    className="w-full theme-bg border theme-border rounded-xl px-3 py-2 text-xs theme-text focus:border-brand-purple dark:focus:border-brand-lime outline-none resize-none transition-colors"
                     rows={2}
                   />
                 </div>
@@ -452,26 +440,26 @@ export default function Profile() {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="w-full bg-gradient-to-r from-brand-purple/20 to-brand-lime/10 border-brand-purple/30 text-white hover:border-brand-purple/60"
+                  className="w-full bg-gradient-to-r from-brand-purple/35 to-brand-lime/20 border-brand-purple/40 dark:border-brand-lime/40 theme-text hover:border-brand-purple/60 dark:hover:border-brand-lime/60 shadow-sm"
                   isLoading={generatingIA}
                   onClick={handleGenerateAIAvatar}
                 >
                   {generatingIA ? (
-                    <><Loader2 className="animate-spin mr-2" size={16} /> Procesando...</>
+                    <><Loader2 className="animate-spin mr-2" size={16} /> {t('profile.aiProcessing')}</>
                   ) : (
-                    <><Wand2 size={16} className="mr-2" /> Generar con IA</>
+                    <><Wand2 size={16} className="mr-2" /> {t('profile.aiGenerate')}</>
                   )}
                 </Button>
 
                 {iaStatus && (
-                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-lime animate-pulse" aria-live="polite">
+                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-purple dark:text-brand-lime animate-pulse" aria-live="polite">
                     <Loader2 size={12} className="animate-spin" />
                     <span className="text-[10px] font-bold uppercase">{iaStatus}</span>
                   </div>
                 )}
 
-                <p className="text-[10px] text-gray-600 mt-4 leading-relaxed italic">
-                  * Usa tu foto de arriba como referencia. El proceso puede tardar unos 20-30 segundos.
+                <p className="text-[10px] theme-faint mt-4 leading-relaxed italic">
+                  {t('profile.aiNote')}
                 </p>
               </div>
             </div>
@@ -480,60 +468,60 @@ export default function Profile() {
 
         {/* COLUMNA DERECHA — Formulario */}
         <div className="lg:col-span-2 space-y-6">
-          <form onSubmit={handleSubmit} className="bg-[#1A1A2E] p-8 rounded-3xl border border-white/5 space-y-6">
+          <form onSubmit={handleSubmit} className="theme-card p-8 space-y-6">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-black text-white">Datos personales</h3>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Editable</span>
+              <h3 className="text-lg font-black theme-text">{t('profile.personalData')}</h3>
+              <span className="text-[10px] font-bold uppercase tracking-widest theme-muted">{t('profile.editable')}</span>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">
-                Correo Electrónico
+              <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">
+                {t('profile.email')}
               </label>
-              <div className="flex items-center gap-3 bg-[#0F0F1A] p-4 rounded-xl border border-white/5 opacity-70">
-                <Mail className="text-gray-400" size={20} />
-                <span className="text-gray-300 text-sm">{profile?.email}</span>
+              <div className="flex items-center gap-3 theme-bg p-4 rounded-xl border theme-border opacity-70">
+                <Mail className="theme-faint" size={20} />
+                <span className="theme-text text-sm">{profile?.email}</span>
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">
-                Nombre Completo
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">
+                {t('profile.fullName')}
               </label>
               <Input
                 icon={User}
                 type="text"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                placeholder="Tu nombre real"
+                placeholder={t('profile.fullNamePlaceholder')}
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Teléfono</label>
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.phone')}</label>
               <Input
                 icon={Phone}
                 type="tel"
                 value={formData.telefono}
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                placeholder="+34 600 000 000"
+                placeholder={t('profile.phonePlaceholder')}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">DNI/NIE</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.dni')}</label>
                 <Input
                   icon={User}
                   type="text"
                   value={formData.dni}
                   onChange={(e) => setFormData({ ...formData, dni: e.target.value.toUpperCase() })}
-                  placeholder="12345678Z"
+                  placeholder={t('profile.dniPlaceholder')}
                   required
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Fecha de nacimiento</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.birthDate')}</label>
                 <Input
                   icon={Calendar}
                   type="date"
@@ -545,48 +533,48 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Dirección</label>
+              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.address')}</label>
               <Input
                 icon={MapPin}
                 type="text"
                 value={formData.direccion}
                 onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                placeholder="Calle Ejemplo 12, 2ºB"
+                placeholder={t('profile.addressPlaceholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Código postal</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.postalCode')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
                   value={formData.codigo_postal}
                   onChange={(e) => setFormData({ ...formData, codigo_postal: e.target.value })}
-                  placeholder="28001"
+                  placeholder={t('profile.postalCodePlaceholder')}
                   required
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Municipio</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.city')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
                   value={formData.municipio}
                   onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
-                  placeholder="Madrid"
+                  placeholder={t('profile.cityPlaceholder')}
                   required
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-2 block">Provincia</label>
+                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.province')}</label>
                 <Input
                   icon={MapPin}
                   type="text"
                   value={formData.provincia}
                   onChange={(e) => setFormData({ ...formData, provincia: e.target.value })}
-                  placeholder="Madrid"
+                  placeholder={t('profile.provincePlaceholder')}
                   required
                 />
               </div>
@@ -594,28 +582,28 @@ export default function Profile() {
 
             <Button type="submit" variant="primary" isLoading={updating} className="w-full">
               {!updating && <Save size={20} />}
-              {updating ? 'Guardando...' : 'Guardar Cambios'}
+              {updating ? t('profile.saving') : t('profile.save')}
             </Button>
           </form>
 
           {/* Legal / privacidad */}
-          <div className="bg-[#1A1A2E] p-6 rounded-3xl border border-white/5">
-            <p className="text-sm font-black text-white mb-2">Privacidad y legal</p>
-            <p className="text-xs text-gray-500">
-              Consulta la información legal del servicio y cómo tratamos tus datos.
+          <div className="theme-card p-6">
+            <p className="text-sm font-black theme-text mb-2">{t('profile.legal')}</p>
+            <p className="text-xs theme-faint">
+              {t('profile.legalDesc')}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Link to="/legal/aviso-legal" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
-                Aviso legal
+              <Link to="/legal/aviso-legal" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('profile.legalNotice')}
               </Link>
-              <Link to="/legal/privacidad" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
-                Política de privacidad
+              <Link to="/legal/privacidad" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('profile.privacyPolicy')}
               </Link>
-              <Link to="/legal/cookies" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
-                Política de cookies
+              <Link to="/legal/cookies" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('profile.cookiesPolicy')}
               </Link>
-              <Link to="/legal/terminos" className="text-sm font-bold text-gray-300 hover:text-brand-lime transition-colors">
-                Términos de uso
+              <Link to="/legal/terminos" className="text-sm font-bold theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+                {t('profile.terms')}
               </Link>
             </div>
           </div>

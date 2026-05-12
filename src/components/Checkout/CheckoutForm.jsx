@@ -79,12 +79,14 @@ export const CheckoutForm = ({ amount, orderId }) => {
     }
   };
 
+  const isDark = document.documentElement.classList.contains('dark');
+
   const elementOptions = {
     style: {
       base: {
         fontSize: '16px',
-        color: '#fff',
-        '::placeholder': { color: '#aab7c4' },
+        color: isDark ? '#ffffff' : '#1A1A2E',
+        '::placeholder': { color: isDark ? '#9ca3af' : '#495057' },
       },
       invalid: { color: '#FF3B30' },
     },
@@ -92,19 +94,19 @@ export const CheckoutForm = ({ amount, orderId }) => {
 
   if (isSuccess) {
     return (
-      <div className="w-full max-w-md mx-auto p-8 bg-[#1A1A2E] rounded-xl shadow-2xl border border-brand-lime/20 text-center flex flex-col items-center justify-center space-y-6 animate-fade-in">
+      <div className="w-full max-w-md mx-auto p-8 theme-card text-center flex flex-col items-center justify-center space-y-6 animate-fade-in">
         <div className="w-24 h-24 bg-brand-lime/10 rounded-full flex items-center justify-center animate-bounce">
-          <CheckCircle className="w-12 h-12 text-brand-lime" />
+          <CheckCircle className="w-12 h-12 text-brand-purple dark:text-brand-lime" />
         </div>
         <div>
-          <h3 className="text-2xl font-black text-white mb-2">¡Pago Completado!</h3>
-          <p className="text-gray-400 text-sm leading-relaxed">
+          <h3 className="text-2xl font-black theme-text mb-2">¡Pago Completado!</h3>
+          <p className="theme-muted text-sm leading-relaxed">
             Tu pago ha sido validado correctamente. La reserva ya está confirmada en el sistema.
           </p>
         </div>
         <button
           onClick={() => window.history.back()}
-          className="w-full mt-4 py-4 px-4 bg-[#252538] hover:bg-[#2A2A40] border border-white/10 rounded-xl text-white font-bold transition-all"
+          className="w-full mt-4 py-4 px-4 theme-elevated border theme-border rounded-xl theme-text font-bold hover:theme-hover transition-all"
         >
           Volver atrás
         </button>
@@ -113,27 +115,27 @@ export const CheckoutForm = ({ amount, orderId }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto p-6 bg-white dark:bg-[#1A1A2E] rounded-xl shadow-md border border-gray-200 dark:border-white/5">
-      <h3 className="text-xl font-black mb-4 text-gray-900 dark:text-white">Detalles de Pago</h3>
+    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto p-6 theme-card border theme-border shadow-md">
+      <h3 className="text-xl font-black mb-4 theme-text">Detalles de Pago</h3>
       
       <div className="mb-6 space-y-4">
         <div>
-          <label className="block text-sm font-bold text-gray-400 mb-2">Número de tarjeta</label>
-          <div className="p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
+          <label className="block text-xs font-bold theme-muted uppercase tracking-wider mb-2">Número de tarjeta</label>
+          <div className="p-4 border rounded-lg theme-border theme-bg">
             <CardNumberElement options={{ ...elementOptions, showIcon: true }} />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-gray-400 mb-2">Fecha de expiración</label>
-            <div className="p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
+            <label className="block text-xs font-bold theme-muted uppercase tracking-wider mb-2">Fecha de expiración</label>
+            <div className="p-4 border rounded-lg theme-border theme-bg">
               <CardExpiryElement options={elementOptions} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-400 mb-2">CVV</label>
-            <div className="p-4 border rounded-lg border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#0F0F1A]">
+            <label className="block text-xs font-bold theme-muted uppercase tracking-wider mb-2">CVV</label>
+            <div className="p-4 border rounded-lg theme-border theme-bg">
               <CardCvcElement options={elementOptions} />
             </div>
           </div>
@@ -149,10 +151,10 @@ export const CheckoutForm = ({ amount, orderId }) => {
       <button
         type="submit"
         disabled={!stripe || isProcessing}
-        className={`w-full py-4 px-4 flex justify-center items-center rounded-xl text-black font-black uppercase tracking-wider transition-all ${
+        className={`w-full py-4 px-4 flex justify-center items-center rounded-xl font-black uppercase tracking-wider transition-all shadow-lg ${
           isProcessing || !stripe 
-            ? 'bg-gray-600 cursor-not-allowed text-gray-300' 
-            : 'bg-[#CCFF00] hover:bg-[#b3e600] shadow-[0_0_20px_rgba(204,255,0,0.3)]'
+            ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed theme-muted' 
+            : 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black hover:scale-[1.02] active:scale-[0.98]'
         }`}
       >
         {isProcessing ? 'Procesando Transacción...' : `Pagar ${(amount / 100).toFixed(2)} €`}
