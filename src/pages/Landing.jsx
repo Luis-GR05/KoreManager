@@ -300,7 +300,7 @@ export default function Landing() {
             </span>
           </h1>
 
-          <p data-hero className="theme-faint text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+          <p data-hero className="theme-muted text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
             {t('landing.hero.desc')}
           </p>
 
