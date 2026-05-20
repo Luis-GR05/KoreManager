@@ -303,12 +303,12 @@ export default function BookingHistory() {
         />
       )}
 
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
 
         {/* Cabecera */}
-        <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25">
-          <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-lime/25 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/25 rounded-full blur-3xl pointer-events-none" />
+        <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25 shadow-2xl">
+          <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-lime/20 rounded-full blur-3xl pointer-events-none anim-floaty" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-start gap-4">
               <div>
@@ -334,10 +334,10 @@ export default function BookingHistory() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { label: t('history.stats.total'), value: groupedReservas.length, color: 'theme-text', bg: 'theme-card' },
-              { label: t('history.stats.upcoming'), value: proximas, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/20 dark:bg-brand-lime/20' },
-              { label: t('history.stats.past'), value: pasadas, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/20 dark:bg-blue-400/20' },
+              { label: t('history.stats.upcoming'), value: proximas, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
+              { label: t('history.stats.past'), value: pasadas, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/25 dark:bg-blue-400/25' },
             ].map(({ label, value, color, bg }) => (
-              <div key={label} className={`${bg} rounded-3xl p-5 text-center border theme-border hover:border-brand-purple dark:hover:border-brand-lime transition-colors shadow-sm`}>
+              <div key={label} className={`${bg} rounded-3xl p-5 text-center border theme-border hover:border-brand-purple dark:hover:border-brand-lime transition-all duration-300 shadow-xl glow-purple hover:scale-[1.02]`}>
                 <p className={`text-2xl font-bold ${color}`}>{value}</p>
                 <p className="text-[10px] theme-muted font-bold uppercase tracking-wider mt-1">{label}</p>
               </div>
@@ -402,9 +402,9 @@ export default function BookingHistory() {
               return (
                 <div
                   key={reserva.id}
-                  className={`theme-card border rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-200 ${isUpcoming
-                      ? 'border-brand-purple/40 dark:border-brand-lime/30 hover:border-brand-purple dark:hover:border-brand-lime/60 shadow-sm'
-                      : 'theme-border opacity-90 hover:opacity-100'
+                  className={`theme-card border rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300 ${isUpcoming
+                      ? 'border-brand-purple/40 dark:border-brand-lime/30 hover:border-brand-purple dark:hover:border-brand-lime/60 shadow-xl glow-purple hover:scale-[1.01]'
+                      : 'theme-border opacity-90 hover:opacity-100 hover:shadow-lg'
                     }`}
                 >
                   {/* Info */}

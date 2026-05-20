@@ -326,11 +326,11 @@ export default function Profile() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
       {/* HEADER / COVER */}
-      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20">
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20 shadow-2xl">
+        <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none anim-floaty" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/12 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
           {/* Avatar slot */}
@@ -366,7 +366,7 @@ export default function Profile() {
         {statsCards.map(({ label, value, icon, color, bg, isText }) => {
           const Icon = icon;
           return (
-            <div key={label} className="theme-card p-5 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-colors">
+            <div key={label} className="theme-card p-5 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-all duration-300 glow-purple hover:scale-[1.02] shadow-xl">
               <div className={`p-2.5 rounded-xl ${bg} ${color} shrink-0`}>
                 <Icon size={18} />
               </div>

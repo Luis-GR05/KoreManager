@@ -267,7 +267,7 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-36 sm:pt-48">
+      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-28">
 
         {/* Orbes de fondo */}
         <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -282,10 +282,10 @@ export default function Landing() {
           }}
         />
 
-        <div className="relative z-10 max-w-5xl mx-auto space-y-8">
+        <div className="relative z-10 max-w-5xl mx-auto space-y-4">
 
           {/* Badge */}
-          <div data-hero className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-purple/30 dark:border-brand-lime/30 bg-brand-purple/5 dark:bg-brand-lime/10 backdrop-blur-md mb-12 mt-8 md:mt-12">
+          <div data-hero className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-purple/30 dark:border-brand-lime/30 bg-brand-purple/5 dark:bg-brand-lime/10 backdrop-blur-md mb-2 mt-2 md:mt-4">
             <span className="w-2 h-2 rounded-full bg-brand-purple dark:bg-brand-lime animate-pulse" />
             <span className="text-[10px] md:text-xs font-bold text-brand-purple dark:text-brand-lime tracking-widest uppercase">
               {t('landing.hero.badge')}
@@ -300,7 +300,7 @@ export default function Landing() {
             </span>
           </h1>
 
-          <p data-hero className="theme-faint text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+          <p data-hero className="theme-muted text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
             {t('landing.hero.desc')}
           </p>
 
