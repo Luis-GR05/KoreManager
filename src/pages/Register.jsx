@@ -3,10 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Phone, MapPin, Calendar, IdCard, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Phone, MapPin, Calendar, IdCard, ArrowLeft, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+
+/** URL de redirección tras confirmar el email */
+const EMAIL_REDIRECT_TO = 'https://kore-manager.vercel.app/login';
 
 /**
  * Página de registro:
@@ -23,6 +26,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  /** true cuando Supabase envía el email de verificación y esperamos confirmación */
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -107,6 +113,8 @@ export default function Register() {
         email: formData.email,
         password: formData.password,
         options: {
+          // Redirige al login de producción tras confirmar el email
+          emailRedirectTo: EMAIL_REDIRECT_TO,
           data: {
             full_name: formData.fullName,
             phone: formData.phone,
@@ -125,8 +133,7 @@ export default function Register() {
       
       if (error) throw error;
 
-      // Si hay sesión inmediatamente (según configuración Supabase), guardamos extra también en profiles.
-      // Si no hay columnas o no hay sesión (confirmación email), no bloqueamos el flujo.
+      // Si hay sesión inmediata (confirm email desactivado), actualizamos perfil y navegamos.
       if (data?.session?.user?.id) {
         const userId = data.session.user.id;
         const attempt = await supabase.from('profiles').update({
@@ -140,17 +147,18 @@ export default function Register() {
           provincia: formData.province || null,
         }).eq('id', userId);
         if (attempt.error) {
-          // fallback mínimo
           await supabase.from('profiles').update({
             telefono: formData.phone,
             full_name: formData.fullName,
           }).eq('id', userId);
         }
+        toast.success(t('register.success'));
+        navigate('/login');
+      } else {
+        // Confirm email activado: mostramos pantalla de verificación pendiente
+        setRegisteredEmail(formData.email);
+        setPendingVerification(true);
       }
-      
-      toast.success(t('register.success'));
-      // Enviar al usuario al login
-      navigate('/login');
     } catch (error) {
       console.error('Catch handler (Register):', error.message);
       toast.error(error.message);
@@ -158,6 +166,45 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  // ── Pantalla de verificación pendiente ──────────────────────────────────
+  if (pendingVerification) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="w-20 h-20 rounded-full bg-brand-purple/10 dark:bg-brand-lime/10 flex items-center justify-center">
+              <CheckCircle size={40} className="text-brand-purple dark:text-brand-lime" />
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-bold theme-text mb-2">
+            {t('register.verifyTitle')}
+          </h1>
+          <p className="theme-faint text-sm mb-4">
+            {t('register.verifyDesc')}
+          </p>
+          <p className="font-semibold theme-text text-sm mb-6 break-all">
+            {registeredEmail}
+          </p>
+          <p className="theme-faint text-xs mb-8">
+            {t('register.verifyNote')}
+          </p>
+
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl font-bold text-sm bg-brand-purple dark:bg-brand-lime text-white dark:text-black hover:opacity-90 transition-opacity"
+          >
+            {t('register.goToLogin')}
+            <ArrowRight size={18} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
