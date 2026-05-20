@@ -283,15 +283,6 @@ export default function Landing() {
         />
 
         <div className="relative z-10 max-w-5xl mx-auto space-y-4">
-
-          {/* Badge */}
-          <div data-hero className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-purple/30 dark:border-brand-lime/30 bg-brand-purple/5 dark:bg-brand-lime/10 backdrop-blur-md mb-2 mt-2 md:mt-4">
-            <span className="w-2 h-2 rounded-full bg-brand-purple dark:bg-brand-lime animate-pulse" />
-            <span className="text-[10px] md:text-xs font-bold text-brand-purple dark:text-brand-lime tracking-widest uppercase">
-              {t('landing.hero.badge')}
-            </span>
-          </div>
-
           {/* Título principal */}
           <h1 data-hero className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black theme-text leading-[1.05] tracking-tight mb-6">
             {t('landing.hero.title1')}<br />
