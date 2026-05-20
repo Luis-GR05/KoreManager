@@ -13,8 +13,8 @@
   --color-elevated:    #1F1F2E;
   --color-border:      rgba(255,255,255,0.08);
   --color-text:        #ffffff;
-  --color-text-muted:  #9ca3af;
-  --color-text-faint:  #6b7280;
+  --color-text-muted:  #D1D5DB; /* Gris claro (Gray 300) */
+  --color-text-faint:  #9CA3AF; /* Gris medio (Gray 400) */
   --color-sidebar-bg:  #121222;
   --color-topbar-bg:   rgba(15,15,26,0.80);
   --color-card-bg:     rgba(26, 26, 46, 0.7); /* Glassmorphism base */

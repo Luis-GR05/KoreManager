@@ -477,33 +477,6 @@
       "noAccount": "¿No tienes cuenta?",
       "register": "Regístrate Gratis"
     },
-    "forgot": {
-      "toastSuccess": "Correo de recuperación enviado",
-      "toastError": "Error al enviar el correo.",
-      "backToLogin": "Volver al inicio de sesión",
-      "checkInbox": "Revisa tu bandeja",
-      "sentTo": "Hemos enviado un enlace de recuperación a ",
-      "clickToReset": ". Haz clic en él para establecer una nueva contraseña.",
-      "goToLogin": "Ir al Login",
-      "title": "Recuperar Contraseña",
-      "desc": "Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.",
-      "emailPlaceholder": "correo@ejemplo.com",
-      "submit": "Enviar enlace de recuperación"
-    },
-    "reset": {
-      "errorLink": "El enlace de recuperación no es válido o ha expirado.",
-      "errorMatch": "Las contraseñas no coinciden",
-      "errorMinChars": "La contraseña debe tener al menos 6 caracteres",
-      "toastSuccess": "Contraseña actualizada correctamente",
-      "toastError": "Error al actualizar la contraseña",
-      "successTitle": "¡Contraseña Guardada!",
-      "successDesc": "Tu contraseña ha sido actualizada con éxito. Serás redirigido al inicio de sesión en unos segundos...",
-      "title": "Nueva Contraseña",
-      "desc": "Introduce tu nueva contraseña segura para acceder a KoreManager.",
-      "password": "Nueva contraseña",
-      "confirmPassword": "Repetir contraseña",
-      "submit": "Guardar Contraseña"
-    },
     "sports": {
       "badge": "INSTALACIONES",
       "title": "Deportes para todos",
@@ -595,5 +568,32 @@
     "legalWarning": "Tus datos se usarán para gestionar tu cuenta y tus reservas. Puedes ejercer tus derechos conforme al RGPD (España).",
     "hasAccount": "¿Ya tienes cuenta?",
     "login": "Inicia Sesión"
+  },
+  "forgot": {
+    "toastSuccess": "Correo de recuperación enviado",
+    "toastError": "Error al enviar el correo.",
+    "backToLogin": "Volver al inicio de sesión",
+    "checkInbox": "Revisa tu bandeja",
+    "sentTo": "Hemos enviado un enlace de recuperación a ",
+    "clickToReset": ". Haz clic en él para establecer una nueva contraseña.",
+    "goToLogin": "Ir al Login",
+    "title": "Recuperar Contraseña",
+    "desc": "Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.",
+    "emailPlaceholder": "correo@ejemplo.com",
+    "submit": "Enviar enlace de recuperación"
+  },
+  "reset": {
+    "errorLink": "El enlace de recuperación no es válido o ha expirado.",
+    "errorMatch": "Las contraseñas no coinciden",
+    "errorMinChars": "La contraseña debe tener al menos 6 caracteres",
+    "toastSuccess": "Contraseña actualizada correctamente",
+    "toastError": "Error al actualizar la contraseña",
+    "successTitle": "¡Contraseña Guardada!",
+    "successDesc": "Tu contraseña ha sido actualizada con éxito. Serás redirigido al inicio de sesión en unos segundos...",
+    "title": "Nueva Contraseña",
+    "desc": "Introduce tu nueva contraseña segura para acceder a KoreManager.",
+    "password": "Nueva contraseña",
+    "confirmPassword": "Repetir contraseña",
+    "submit": "Guardar Contraseña"
   }
 }

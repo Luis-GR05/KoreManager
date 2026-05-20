@@ -477,33 +477,6 @@
       "noAccount": "Don't have an account?",
       "register": "Sign Up for Free"
     },
-    "forgot": {
-      "toastSuccess": "Recovery email sent",
-      "toastError": "Error sending email.",
-      "backToLogin": "Back to login",
-      "checkInbox": "Check your inbox",
-      "sentTo": "We have sent a recovery link to ",
-      "clickToReset": ". Click on it to set a new password.",
-      "goToLogin": "Go to Login",
-      "title": "Recover Password",
-      "desc": "Enter your email and we will send you a link to reset your password.",
-      "emailPlaceholder": "email@example.com",
-      "submit": "Send recovery link"
-    },
-    "reset": {
-      "errorLink": "The recovery link is invalid or has expired.",
-      "errorMatch": "Passwords do not match",
-      "errorMinChars": "Password must be at least 6 characters",
-      "toastSuccess": "Password successfully updated",
-      "toastError": "Error updating password",
-      "successTitle": "Password Saved!",
-      "successDesc": "Your password has been successfully updated. You will be redirected to the login page in a few seconds...",
-      "title": "New Password",
-      "desc": "Enter your new secure password to access KoreManager.",
-      "password": "New password",
-      "confirmPassword": "Repeat password",
-      "submit": "Save Password"
-    },
     "sports": {
       "badge": "INSTALLATIONS",
       "title": "Sports for everyone",
@@ -592,5 +565,32 @@
     "legalWarning": "Your data will be used to manage your account and bookings. You can exercise your rights in accordance with the GDPR.",
     "hasAccount": "Already have an account?",
     "login": "Log In"
+  },
+  "forgot": {
+    "toastSuccess": "Recovery email sent",
+    "toastError": "Error sending email.",
+    "backToLogin": "Back to login",
+    "checkInbox": "Check your inbox",
+    "sentTo": "We have sent a recovery link to ",
+    "clickToReset": ". Click on it to set a new password.",
+    "goToLogin": "Go to Login",
+    "title": "Recover Password",
+    "desc": "Enter your email and we will send you a link to reset your password.",
+    "emailPlaceholder": "email@example.com",
+    "submit": "Send recovery link"
+  },
+  "reset": {
+    "errorLink": "The recovery link is invalid or has expired.",
+    "errorMatch": "Passwords do not match",
+    "errorMinChars": "Password must be at least 6 characters",
+    "toastSuccess": "Password successfully updated",
+    "toastError": "Error updating password",
+    "successTitle": "Password Saved!",
+    "successDesc": "Your password has been successfully updated. You will be redirected to the login page in a few seconds...",
+    "title": "New Password",
+    "desc": "Enter your new secure password to access KoreManager.",
+    "password": "New password",
+    "confirmPassword": "Repeat password",
+    "submit": "Save Password"
   }
 }
