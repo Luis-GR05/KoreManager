@@ -40,6 +40,7 @@ export function useProfile() {
     try {
       const profileUpdates = {
         id: user.id,
+        email: user.email,
         full_name: formData.full_name,
         telefono: formData.telefono,
         dni: formData.dni || null,
@@ -48,7 +49,6 @@ export function useProfile() {
         codigo_postal: formData.codigo_postal || null,
         municipio: formData.municipio || null,
         provincia: formData.provincia || null,
-        updated_at: new Date().toISOString(),
       };
 
       const [profileRes, authRes] = await Promise.all([
