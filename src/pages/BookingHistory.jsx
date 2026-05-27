@@ -303,7 +303,7 @@ export default function BookingHistory() {
         />
       )}
 
-      <div className="max-w-5xl mx-auto space-y-6 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
+      <div className="max-w-7xl mx-auto space-y-6 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
 
         {/* Cabecera */}
         <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25 shadow-2xl">
@@ -333,13 +333,34 @@ export default function BookingHistory() {
         {!loading && groupedReservas.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { label: t('history.stats.total'), value: groupedReservas.length, color: 'theme-text', bg: 'theme-card' },
-              { label: t('history.stats.upcoming'), value: proximas, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
-              { label: t('history.stats.past'), value: pasadas, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/25 dark:bg-blue-400/25' },
-            ].map(({ label, value, color, bg }) => (
-              <div key={label} className={`${bg} rounded-3xl p-5 text-center border theme-border hover:border-brand-purple dark:hover:border-brand-lime transition-all duration-300 shadow-xl glow-purple hover:scale-[1.02]`}>
-                <p className={`text-2xl font-bold ${color}`}>{value}</p>
-                <p className="text-[10px] theme-muted font-bold uppercase tracking-wider mt-1">{label}</p>
+              { 
+                label: t('history.stats.total'), 
+                value: groupedReservas.length, 
+                color: 'theme-text', 
+                border: 'theme-border hover:border-brand-purple dark:hover:border-brand-lime',
+                shadow: 'glow-purple'
+              },
+              { 
+                label: t('history.stats.upcoming'), 
+                value: proximas, 
+                color: 'text-brand-purple dark:text-brand-lime', 
+                border: 'border-brand-purple/20 dark:border-brand-lime/20 hover:border-brand-purple dark:hover:border-brand-lime',
+                shadow: 'shadow-brand-purple/5 dark:shadow-brand-lime/10'
+              },
+              { 
+                label: t('history.stats.past'), 
+                value: pasadas, 
+                color: 'text-blue-600 dark:text-blue-400', 
+                border: 'border-blue-500/20 dark:border-blue-400/20 hover:border-blue-500 dark:hover:border-blue-400',
+                shadow: 'shadow-blue-500/5'
+              },
+            ].map(({ label, value, color, border, shadow }) => (
+              <div 
+                key={label} 
+                className={`theme-card rounded-3xl p-5 text-center border ${border} transition-all duration-300 shadow-xl ${shadow} hover:scale-[1.02] cursor-default`}
+              >
+                <p className={`text-3xl font-black ${color} tracking-tight`}>{value}</p>
+                <p className="text-[10px] theme-muted font-extrabold uppercase tracking-widest mt-1.5">{label}</p>
               </div>
             ))}
           </div>
