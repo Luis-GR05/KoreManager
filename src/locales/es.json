@@ -599,5 +599,12 @@
     "password": "Nueva contraseña",
     "confirmPassword": "Repetir contraseña",
     "submit": "Guardar Contraseña"
+  },
+  "cookieConsent": {
+    "title": "Aviso de Cookies",
+    "message": "Utilizamos cookies propias y de terceros para optimizar el funcionamiento del sitio web, analizar el tráfico y mejorar tu experiencia. Al hacer clic en \"Aceptar\", consientes el uso de todas las cookies.",
+    "accept": "Aceptar todas",
+    "decline": "Rechazar opcionales",
+    "info": "Más información"
   }
 }

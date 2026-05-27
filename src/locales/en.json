@@ -596,5 +596,12 @@
     "password": "New password",
     "confirmPassword": "Repeat password",
     "submit": "Save Password"
+  },
+  "cookieConsent": {
+    "title": "Cookie Notice",
+    "message": "We use our own and third-party cookies to optimize website performance, analyze traffic, and improve your experience. By clicking \"Accept\", you consent to the use of all cookies.",
+    "accept": "Accept all",
+    "decline": "Decline optional",
+    "info": "More info"
   }
 }
