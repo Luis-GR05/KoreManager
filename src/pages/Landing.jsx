@@ -276,8 +276,11 @@ export default function Landing() {
           className="absolute inset-0 bg-cover bg-no-repeat bg-[position:32%_center] md:bg-left lg:bg-[position:-120px_center] xl:bg-[position:-220px_center] brightness-125 pointer-events-none"
           style={{ backgroundImage: "url('/images/fondoHero.png')" }}
         />
-        {/* Capa de gradiente oscuro para garantizar legibilidad del texto en móviles y transiciones suaves */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A071B]/90 via-[#0A071B]/60 to-[#0A071B]/95 lg:from-[#0A071B]/20 lg:via-[#0A071B]/50 lg:to-[#0A071B]/95 pointer-events-none" />
+        {/* Filtro morado oscuro exclusivo para móvil (responsive) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1B0736]/85 via-[#0A071B]/90 to-[#0A071B] lg:hidden pointer-events-none" />
+
+        {/* Gradiente de integración y contraste exclusivo para escritorio */}
+        <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-[#0A071B]/20 via-[#0A071B]/50 to-[#0A071B]/95 pointer-events-none" />
 
         {/* Cuadrícula decorativa sutil */}
         <div
