@@ -6,6 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import CookieConsent from './components/CookieConsent';
+
 
 // Páginas con Lazy Loading para mejorar rendimiento (code splitting)
 const Landing = lazy(() => import('./pages/Landing'));
@@ -63,6 +65,7 @@ export default function App() {
       />
 
       <BrowserRouter>
+        <CookieConsent />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Landing />} />
