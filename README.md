@@ -5,7 +5,7 @@
 <div align="center">
   <p align="center">
     <img src="https://img.shields.io/badge/STATUS-EN_DESARROLLO-CCFF00?style=for-the-badge&labelColor=151525&logoColor=black" alt="Status" />
-    <img src="https://img.shields.io/badge/VERSION-1.4.0-B73BFE?style=for-the-badge&labelColor=151525&logoColor=white" alt="Version" />
+    <img src="https://img.shields.io/badge/VERSION-1.5.0-B73BFE?style=for-the-badge&labelColor=151525&logoColor=white" alt="Version" />
     <img src="https://img.shields.io/badge/LICENSE-MIT-white?style=for-the-badge&labelColor=151525" alt="License" />
   </p>
   
@@ -43,8 +43,12 @@ El proyecto destaca por su interfaz **Dark Mode Premium**, utilizando acentos en
 | <img src="https://api.iconify.design/lucide/credit-card.svg?color=%23B73BFE" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **Integración Stripe** | Pasarela de pagos totalmente automatizada, segura y escalable para el cobro de reservas de instalaciones. |
 | <img src="https://api.iconify.design/lucide/bot.svg?color=%23CCFF00" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **AI Avatars (Vertex AI)** | Generación de avatares estilizados mediante IA (*Imagen 3.0*) en Edge Functions, preservando la biometría facial del usuario de forma asíncrona. |
 | <img src="https://api.iconify.design/lucide/gamepad-2.svg?color=%23B73BFE" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **Motor de Gamificación** | Sistema de logros e hitos que premia y recompensa a los ciudadanos por el uso recurrente, incrementando la retención de usuarios. |
-| <img src="https://api.iconify.design/lucide/sparkles.svg?color=%23CCFF00" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **UX & Micro-animaciones** | Implementación de **GSAP** para animaciones fluidas, transiciones de estado e interacciones de altísima calidad. |
+| <img src="https://api.iconify.design/lucide/sparkles.svg?color=%23CCFF00" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **UX & Micro-animaciones** | Implementación de **GSAP** para animaciones fluidas, transiciones de estado e interacciones de altísima calidad. Rediseño premium de Landing Page con fondos e iluminación Cyber Purple. |
 | <img src="https://api.iconify.design/lucide/package.svg?color=%23B73BFE" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **Control de Inventario** | Gestión de stock en tiempo real integrado con las reservas, control de material deportivo y directorio de incidencias asimétrico. |
+| <img src="https://api.iconify.design/lucide/lock.svg?color=%23CCFF00" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **Seguridad de Servidor (Vercel)** | Configuración de cabeceras HTTP de nivel industrial en `vercel.json` con políticas estrictas de seguridad (Content Security Policy (CSP), HSTS de 2 años, protección XSS y Clickjacking). |
+| <img src="https://api.iconify.design/lucide/shield-alert.svg?color=%23B73BFE" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **Consentimiento de Cookies & Legal** | Banner interactivo premium multilingüe de consentimiento de cookies y página de política legal con persistencia local (`localStorage`) que cumple con normativas de privacidad (GDPR/LSSI). |
+| <img src="https://api.iconify.design/lucide/search.svg?color=%23CCFF00" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **SEO Extremo & PWA-Ready** | Indexación web óptima implementada mediante `sitemap.xml` y `robots.txt`, enriquecida con un ecosistema renovado de favicons multiplataforma y manifiesto de aplicación web (`site.webmanifest`). |
+| <img src="https://api.iconify.design/lucide/user-cog.svg?color=%23B73BFE" width="20" style="vertical-align: text-bottom; margin-right: 4px;" /> **Custom Hook `useProfile`** | Hook personalizado de React para una sincronización robusta y bidireccional de datos de perfil entre Supabase Database (campos extendidos como DNI, dirección, etc.) y Supabase Auth. |
 
 </div>
 
@@ -54,19 +58,27 @@ El proyecto destaca por su interfaz **Dark Mode Premium**, utilizando acentos en
 
 ```text
 📦 KORE MANAGER
- ┣ 📂 Docs                  # Documentación oficial (Manuales de Usuario, Técnico, Despliegue)
+ ┣ 📂 Docs                  # Documentación oficial y manuales del proyecto actualizados en PDF
+ ┣ 📂 public
+ ┃ ┣ 📂 favicon             # Ecosistema completo de favicons y site.webmanifest
+ ┃ ┣ 📂 images              # Imágenes de la aplicación (incluido fondoHero.png con filtro premium)
+ ┃ ┣ 📜 robots.txt          # Reglas de rastreo de motores de búsqueda
+ ┃ ┗ 📜 sitemap.xml         # Mapa del sitio estructurado para indexación
  ┣ 📂 src
- ┃ ┣ 📂 assets              # Recursos estáticos (imágenes, logos)
- ┃ ┣ 📂 components          # Componentes UI reutilizables (Botones, Modales, Layout)
+ ┃ ┣ 📂 assets              # Recursos estáticos
+ ┃ ┣ 📂 components          # Componentes UI reutilizables (Botones, Modales, CookieConsent, etc.)
  ┃ ┣ 📂 context             # Estados globales (AuthContext)
- ┃ ┣ 📂 hooks               # Custom Hooks (Lógica de negocio encapsulada)
- ┃ ┣ 📂 pages               # Vistas principales (Dashboard, Reservas, Admin)
+ ┃ ┣ 📂 hooks               # Custom Hooks (useprofile.js para gestión de perfiles, etc.)
+ ┃ ┣ 📂 pages               # Vistas principales (Dashboard, Landing rediseñado, legal/Cookies, etc.)
  ┃ ┗ 📜 main.jsx            # Punto de entrada de React
  ┣ 📂 supabase
  ┃ ┣ 📂 functions           # Edge Functions de Deno (Ej: generate-avatar)
  ┃ ┗ 📜 supabase_schema.sql # Esquema completo de BD (Tablas, RLS, Triggers, RPC)
+ ┣ 📜 vercel.json           # Configuración de redirecciones y Cabeceras de Seguridad Extremas
  ┗ 📜 package.json          # Dependencias y scripts
 ```
+
+---
 
 ---
 
@@ -74,10 +86,9 @@ El proyecto destaca por su interfaz **Dark Mode Premium**, utilizando acentos en
 
 Toda la documentación técnica y operativa requerida para la evaluación se encuentra centralizada y estructurada en la carpeta `/Docs`:
 
-1. <img src="https://api.iconify.design/lucide/book.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual de Usuario](./Docs/A_Manual_Usuario.md):** Guía visual, pantallas, flujos de navegación y uso por perfiles.
-2. <img src="https://api.iconify.design/lucide/settings.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual Técnico](./Docs/B_Manual_Tecnico.md):** Arquitectura del sistema, diseño relacional (PostgreSQL), Custom Hooks y decisiones UX.
-3. <img src="https://api.iconify.design/lucide/rocket.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual de Despliegue](./Docs/C_Manual_Despliegue.md):** Requisitos y pasos exactos para la instalación y CI/CD.
-4. <img src="https://api.iconify.design/lucide/calendar.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual del Proyecto](./Docs/D_Manual_Proyecto.md):** Memoria evolutiva, superación de bloqueos técnicos y trabajo trimestral.
+1. <img src="https://api.iconify.design/lucide/book.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual de Usuario](./Docs/ManualUsuario_KoreManager.pdf):** Guía visual, pantallas, flujos de navegación y uso por perfiles.
+2. <img src="https://api.iconify.design/lucide/settings.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual Técnico](./Docs/ManualTecnico_KoreManager.pdf):** Arquitectura del sistema, diseño relacional (PostgreSQL), Custom Hooks y decisiones UX.
+3. <img src="https://api.iconify.design/lucide/rocket.svg?color=white" width="18" style="vertical-align: text-bottom; margin-right: 4px;" /> **[Manual de Despliegue](./Docs/ManualDespliegue_KoreManager.pdf):** Requisitos y pasos exactos para la instalación y CI/CD.
 
 ---
 
@@ -119,6 +130,26 @@ npm run dev
 - [x] **Fase 2 (Febrero 26):** Tablas relacionales (Supabase), Dashboard, Sistema de Reservas y disponibilidad (RPC).
 - [x] **Fase 3 (Marzo 26):** Control de Inventario, Roles (RLS), Panel Admin, Gestión de Pagos (Stripe).
 - [x] **Fase 4 (Abril 26):** IA Avatars (Vertex AI), Gamificación, Pulido de Animaciones (GSAP) y corrección de bugs. *(V 1.4.0 Lista)*
+- [x] **Fase 5 (Mayo 26):** Banner interactivo de Consentimiento de Cookies (GDPR/LSSI), Página Legal de cookies, integración extrema de SEO (`sitemap.xml`, `robots.txt`), ecosistema de favicons de alta resolución, configuración avanzada de Cabeceras de Seguridad HTTP en Vercel (CSP, HSTS), rediseño premium de Landing Page (con fondo con filtro de Cyber Purple) y hook personalizado `useProfile` de sincronización de perfiles. *(V 1.5.0 Lista)*
+
+---
+
+## <img src="https://api.iconify.design/lucide/play-circle.svg?color=%23CCFF00" width="24" style="vertical-align: middle; margin-right: 4px;" /> Video Explicativo
+
+Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
+
+<div align="center">
+  <video src="./Docs/KoreManager__VideoExplicativo.mp4" controls width="100%" poster="./public/images/fondoHero.png" style="max-width: 800px; border-radius: 8px; border: 2px solid #B73BFE;">
+    Tu navegador no soporta la reproducción de video. Puedes descargarlo o verlo directamente en el siguiente enlace.
+  </video>
+  
+  <br/>
+  <br/>
+  
+  <a href="./Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
+    <img src="https://img.shields.io/badge/Ver_Video_Directo-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Ver Video Directo" />
+  </a>
+</div>
 
 ---
 
