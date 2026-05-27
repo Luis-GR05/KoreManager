@@ -134,6 +134,25 @@ npm run dev
 
 ---
 
+## <img src="https://api.iconify.design/lucide/play-circle.svg?color=%23CCFF00" width="24" style="vertical-align: middle; margin-right: 4px;" /> Video Explicativo
+
+Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
+
+<div align="center">
+  <video src="./Docs/KoreManager__VideoExplicativo.mp4" controls width="100%" poster="./public/images/fondoHero.png" style="max-width: 800px; border-radius: 8px; border: 2px solid #B73BFE;">
+    Tu navegador no soporta la reproducción de video. Puedes descargarlo o verlo directamente en el siguiente enlace.
+  </video>
+  
+  <br/>
+  <br/>
+  
+  <a href="./Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
+    <img src="https://img.shields.io/badge/Ver_Video_Directo-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Ver Video Directo" />
+  </a>
+</div>
+
+---
+
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=rect&color=1A1A2E&height=100&section=footer&text=Desarrollado%20por%20Luis%20Gordillo&fontSize=20&fontColor=B73BFE" alt="Footer" />
   
