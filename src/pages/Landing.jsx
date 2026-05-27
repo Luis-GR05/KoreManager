@@ -267,56 +267,83 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           HERO
       ══════════════════════════════════════════ */}
-      <header ref={heroRef} className="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-6 pt-24 sm:pt-28">
-
-        {/* Orbes de fondo */}
-        <GlowOrb className="w-[700px] h-[700px] bg-brand-purple/20 top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <GlowOrb className="w-[400px] h-[400px] bg-brand-lime/8 bottom-1/4 right-1/4" />
-
-        {/* Cuadrícula decorativa */}
+      <header
+        ref={heroRef}
+        className="relative min-h-[100dvh] flex flex-col justify-center px-6 pt-24 sm:pt-28 overflow-hidden bg-[#0A071B]"
+      >
+        {/* Imagen de fondo con brillo mejorado (filtro CSS brightness) */}
         <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]"
+          className="absolute inset-0 bg-cover bg-no-repeat bg-[position:32%_center] md:bg-left lg:bg-[position:-120px_center] xl:bg-[position:-220px_center] brightness-125 pointer-events-none"
+          style={{ backgroundImage: "url('/images/fondoHero.png')" }}
+        />
+        {/* Filtro morado oscuro exclusivo para móvil (responsive) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1B0736]/85 via-[#0A071B]/90 to-[#0A071B] lg:hidden pointer-events-none" />
+
+        {/* Gradiente de integración y contraste exclusivo para escritorio */}
+        <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-[#0A071B]/20 via-[#0A071B]/50 to-[#0A071B]/95 pointer-events-none" />
+
+        {/* Cuadrícula decorativa sutil */}
+        <div
+          className="absolute inset-0 opacity-[0.02] pointer-events-none"
           style={{
             backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)',
             backgroundSize: '80px 80px',
           }}
         />
 
-        <div className="relative z-10 max-w-5xl mx-auto space-y-4">
-          {/* Título principal */}
-          <h1 data-hero className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black theme-text leading-[1.05] tracking-tight mb-6">
-            {t('landing.hero.title1')}<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple dark:from-brand-lime via-indigo-500 dark:via-green-400 to-brand-purple dark:to-emerald-300">
-              {t('landing.hero.title2')}
-            </span>
-          </h1>
+        <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Espacio reservado a la izquierda en pantallas grandes para lucir la figura del corredor y su malla 3D */}
+          <div className="hidden lg:block lg:col-span-6 xl:col-span-7 pointer-events-none" />
 
-          <p data-hero className="theme-muted text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
-            {t('landing.hero.desc')}
-          </p>
-
-          {/* CTAs */}
-          <div data-hero className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <Link
-              to="/login"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-lg"
+          {/* Bloque de texto y CTAs a la derecha */}
+          <div className="lg:col-span-6 xl:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-10">
+            
+            {/* Título principal */}
+            <h1
+              data-hero
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white leading-[1.1] tracking-tight"
             >
-              {t('landing.hero.cta1')}
-              <ArrowRight size={20} />
-            </Link>
+              {t('landing.hero.title1')}<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-lime via-green-400 to-emerald-300">
+                {t('landing.hero.title2')}
+              </span>
+            </h1>
 
-            <a
-              href="#deportes"
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl border theme-border theme-text font-bold flex items-center justify-center gap-3 hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors"
+            {/* Descripción */}
+            <p
+              data-hero
+              className="text-gray-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl"
             >
-              {t('landing.hero.cta2')}
-            </a>
-          </div>
+              {t('landing.hero.desc')}
+            </p>
 
-          {/* Scroll hint */}
-          <div className="pt-12 flex flex-col items-center gap-2 theme-faint text-xs animate-bounce">
-            <ChevronDown size={18} aria-hidden="true" />
+            {/* CTAs */}
+            <div
+              data-hero
+              className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2"
+            >
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-lime text-black font-black flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-lg shadow-brand-lime/20"
+              >
+                {t('landing.hero.cta1')}
+                <ArrowRight size={20} />
+              </Link>
+
+              <a
+                href="#deportes"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl border border-white/20 text-white font-bold flex items-center justify-center gap-3 hover:bg-white/5 transition-colors backdrop-blur-sm"
+              >
+                {t('landing.hero.cta2')}
+              </a>
+            </div>
+
           </div>
+        </div>
+
+        {/* Indicador de scroll */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 text-xs animate-bounce pointer-events-none">
+          <ChevronDown size={18} aria-hidden="true" />
         </div>
       </header>
 

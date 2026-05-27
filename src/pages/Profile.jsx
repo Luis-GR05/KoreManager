@@ -320,13 +320,32 @@ export default function Profile() {
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">{t('profile.loading')}</div>;
 
   const statsCards = [
-    { label: t('profile.stats.totalMatches'), value: stats.total, icon: Trophy, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
-    { label: t('profile.stats.upcoming'), value: stats.proximas, icon: Calendar, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25' },
-    { label: t('profile.stats.favoriteCourt'), value: stats.favorita, icon: MapPin, color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/25 dark:bg-brand-lime/25', isText: true },
+    { 
+      label: t('profile.stats.totalMatches'), 
+      value: stats.total, 
+      icon: Trophy, 
+      color: 'text-brand-purple dark:text-brand-lime', 
+      bg: 'bg-brand-purple/10 dark:bg-brand-lime/10 border border-brand-purple/15 dark:border-brand-lime/15' 
+    },
+    { 
+      label: t('profile.stats.upcoming'), 
+      value: stats.proximas, 
+      icon: Calendar, 
+      color: 'text-brand-purple dark:text-brand-lime', 
+      bg: 'bg-brand-purple/10 dark:bg-brand-lime/10 border border-brand-purple/15 dark:border-brand-lime/15' 
+    },
+    { 
+      label: t('profile.stats.favoriteCourt'), 
+      value: stats.favorita, 
+      icon: MapPin, 
+      color: 'text-brand-purple dark:text-brand-lime', 
+      bg: 'bg-brand-purple/10 dark:bg-brand-lime/10 border border-brand-purple/15 dark:border-brand-lime/15', 
+      isText: true 
+    },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
+    <div className="max-w-7xl mx-auto space-y-8 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
       {/* HEADER / COVER */}
       <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20 shadow-2xl">
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none anim-floaty" />
@@ -371,10 +390,10 @@ export default function Profile() {
                 <Icon size={18} />
               </div>
               <div className="min-w-0">
-                <p className={`font-bold ${isText ? 'text-sm truncate' : 'text-2xl'} ${color}`}>
+                <p className={`font-black tracking-tight ${isText ? 'text-sm truncate' : 'text-3xl'} ${color} mb-0.5`}>
                   {loadingStats ? '—' : value}
                 </p>
-                <p className="text-[10px] theme-muted font-bold uppercase tracking-wider">{label}</p>
+                <p className="text-[10px] theme-muted font-extrabold uppercase tracking-widest">{label}</p>
               </div>
             </div>
           );
