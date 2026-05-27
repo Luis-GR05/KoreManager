@@ -139,29 +139,24 @@ npm run dev
 Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
 
 <div align="center">
-  <div style="max-width: 800px; border: 2px solid #B73BFE; border-radius: 12px; overflow: hidden; background-color: #151525; box-shadow: 0 10px 30px rgba(183, 59, 254, 0.25); text-align: left; margin: 1.5rem 0;">
-    <!-- Barra superior estilo ventana de sistema operativo -->
-    <div style="background-color: #1a1a2e; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">
-      <div style="display: flex; gap: 8px;">
-        <span style="width: 12px; height: 12px; border-radius: 50%; background-color: #FF5F56; display: inline-block;"></span>
-        <span style="width: 12px; height: 12px; border-radius: 50%; background-color: #FFBD2E; display: inline-block;"></span>
-        <span style="width: 12px; height: 12px; border-radius: 50%; background-color: #27C93F; display: inline-block;"></span>
-      </div>
-      <div style="color: #CCFF00; font-size: 13px; font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 0.5px;">KoreManager_Explicativo.mp4</div>
-      <div style="width: 52px;"></div>
-    </div>
-    
-    <!-- Reproductor de Video -->
-    <video src="./Docs/KoreManager__VideoExplicativo.mp4" controls width="100%" poster="./public/images/fondoHero.png" style="display: block; width: 100%; border: none;">
-      Tu navegador no soporta la reproducción de video.
-    </video>
-  </div>
-  
-  <br/>
-  
-  <a href="./Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
-    <img src="https://img.shields.io/badge/Descargar_o_Ver_Directo-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Ver Video Directo" />
-  </a>
+<div style="max-width: 800px; border: 2px solid #B73BFE; border-radius: 12px; overflow: hidden; background-color: #151525; box-shadow: 0 10px 30px rgba(183, 59, 254, 0.25); text-align: left; margin: 1.5rem 0;">
+<div style="background-color: #1a1a2e; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">
+<div style="display: flex; gap: 8px;">
+<span style="width: 12px; height: 12px; border-radius: 50%; background-color: #FF5F56; display: inline-block;"></span>
+<span style="width: 12px; height: 12px; border-radius: 50%; background-color: #FFBD2E; display: inline-block;"></span>
+<span style="width: 12px; height: 12px; border-radius: 50%; background-color: #27C93F; display: inline-block;"></span>
+</div>
+<div style="color: #CCFF00; font-size: 13px; font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 0.5px;">KoreManager_Explicativo.mp4</div>
+<div style="width: 52px;"></div>
+</div>
+<video src="./Docs/KoreManager__VideoExplicativo.mp4" controls width="100%" poster="./public/images/fondoHero.png" style="display: block; width: 100%; border: none;">
+Tu navegador no soporta la reproducción de video.
+</video>
+</div>
+<br/>
+<a href="./Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
+<img src="https://img.shields.io/badge/Descargar_o_Ver_Directo-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Ver Video Directo" />
+</a>
 </div>
 
 ---
