@@ -176,13 +176,13 @@ Haz clic en cualquiera de las siguientes portadas para reproducir la demo en vid
 Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
 
 <div align="center">
-<a href="https://github.com/Luis-GR05/KoreManager/blob/main/Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
-<img src="./public/images/fondoHero.png" width="540" style="border: 2.5px solid #B73BFE; border-radius: 16px; box-shadow: 0 12px 36px rgba(183, 59, 254, 0.3);" alt="Reproducir Video Explicativo" />
+<a href="https://youtu.be/AUYZbC6cUCY" target="_blank">
+<img src="https://img.youtube.com/vi/AUYZbC6cUCY/maxresdefault.jpg" width="540" style="border: 2.5px solid #B73BFE; border-radius: 16px; box-shadow: 0 12px 36px rgba(183, 59, 254, 0.3);" alt="Ver Video Explicativo en YouTube" />
 </a>
 <br/>
 <br/>
-<a href="https://github.com/Luis-GR05/KoreManager/blob/main/Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
-<img src="https://img.shields.io/badge/▶_REPRODUCIR_VIDEO_EXPLICATIVO-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Reproducir Video Explicativo" />
+<a href="https://youtu.be/AUYZbC6cUCY" target="_blank">
+<img src="https://img.shields.io/badge/▶_VER_VIDEO_EXPLICATIVO_EN_YOUTUBE-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Ver en YouTube" />
 </a>
 </div>
 
