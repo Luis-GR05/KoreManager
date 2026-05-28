@@ -211,19 +211,19 @@ export default function Landing() {
       {/* ══════════════════════════════════════════
           NAVBAR
       ══════════════════════════════════════════ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 backdrop-blur-xl bg-light-base/70 dark:bg-[#0F0F1A]/70 border-b theme-border">
-        <div className="flex items-center gap-3 cursor-default select-none">
-          <div className="w-12 h-12 rounded-3xl theme-bg flex items-center justify-center overflow-hidden border theme-border shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 backdrop-blur-xl bg-light-base/70 dark:bg-[#0F0F1A]/70 border-b theme-border">
+        <div className="flex items-center gap-2 sm:gap-3 cursor-default select-none">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-2xl sm:rounded-3xl theme-bg flex items-center justify-center overflow-hidden border theme-border shadow-sm">
             <img
               src="/images/logo.png"
               alt="Kore Manager Logo"
               width="48"
               height="48"
-              className="w-full h-full object-contain p-2"
+              className="w-full h-full object-contain p-1.5 sm:p-2"
               style={{ filter: 'drop-shadow(0 0 10px rgba(204,255,0,.18)) drop-shadow(0 0 18px rgba(138,43,226,.10)) brightness(1.08)' }}
             />
           </div>
-          <div className="text-2xl font-extrabold tracking-tighter theme-text">
+          <div className="text-lg sm:text-2xl font-extrabold tracking-tighter theme-text">
             KORE<span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
           </div>
         </div>
@@ -234,7 +234,7 @@ export default function Landing() {
           <a href="#sobre" className="hover:theme-text transition-colors duration-200">{t('landing.nav.about')}</a>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-1 theme-bg border theme-border rounded-full p-1 backdrop-blur-md">
             <button 
               onClick={() => i18n.changeLanguage('es')}
@@ -252,10 +252,10 @@ export default function Landing() {
 
           <Link
             to="/login"
-            className="px-4 md:px-6 py-2.5 rounded-full text-sm font-bold border theme-border theme-bg backdrop-blur-sm
+            className="p-2 md:px-6 md:py-2.5 rounded-full text-sm font-bold border theme-border theme-bg backdrop-blur-sm
             transition-all duration-300 ease-out
             hover:border-brand-purple dark:hover:border-brand-lime hover:text-brand-purple dark:hover:text-brand-lime hover:bg-brand-purple/5 dark:hover:bg-brand-lime/10 hover:shadow-lg hover:scale-105
-            flex items-center gap-2"
+            flex items-center justify-center gap-2"
             aria-label={t('landing.nav.loginBtn')}
           >
             <User size={18} className="md:hidden" aria-hidden="true" />
