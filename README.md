@@ -134,43 +134,6 @@ npm run dev
 
 ---
 
-## 🎥 Campañas de la app
-
-Haz clic en cualquiera de las siguientes portadas para reproducir la demo en video correspondiente directamente en GitHub:
-
-<div align="center">
-<table border="0">
-<tr>
-<td align="center" width="190">
-<a href="https://github.com/Luis-GR05/KoreManager/blob/main/public/videos/ClubDigital.mp4" target="_blank">
-<img src="./public/images/logoMockUp.png" width="150" style="border-radius: 10px; border: 2px solid #CCFF00; box-shadow: 0 4px 12px rgba(204, 255, 0, 0.15);" alt="Club Digital" /><br/>
-<sub><b>▶ Club Digital</b></sub>
-</a>
-</td>
-<td align="center" width="190">
-<a href="https://github.com/Luis-GR05/KoreManager/blob/main/public/videos/Gamificacion.mp4" target="_blank">
-<img src="./public/images/mockupLogo3d.png" width="150" style="border-radius: 10px; border: 2px solid #B73BFE; box-shadow: 0 4px 12px rgba(183, 59, 254, 0.15);" alt="Gamificación" /><br/>
-<sub><b>▶ Gamificación</b></sub>
-</a>
-</td>
-<td align="center" width="190">
-<a href="https://github.com/Luis-GR05/KoreManager/blob/main/public/videos/GestionTotal.mp4" target="_blank">
-<img src="./public/images/logoMockUp.png" width="150" style="border-radius: 10px; border: 2px solid #CCFF00; box-shadow: 0 4px 12px rgba(204, 255, 0, 0.15);" alt="Gestión Total" /><br/>
-<sub><b>▶ Gestión Total</b></sub>
-</a>
-</td>
-<td align="center" width="190">
-<a href="https://github.com/Luis-GR05/KoreManager/blob/main/public/videos/OperativaAutomatizada.mp4" target="_blank">
-<img src="./public/images/mockupLogo3d.png" width="150" style="border-radius: 10px; border: 2px solid #B73BFE; box-shadow: 0 4px 12px rgba(183, 59, 254, 0.15);" alt="Operativa Aut." /><br/>
-<sub><b>▶ Operativa Aut.</b></sub>
-</a>
-</td>
-</tr>
-</table>
-</div>
-
----
-
 ## 📺 Video Explicativo
 
 Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
