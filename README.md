@@ -134,85 +134,67 @@ npm run dev
 
 ---
 
-## <img src="https://api.iconify.design/lucide/smartphone.svg?color=%23B73BFE" width="24" style="vertical-align: middle; margin-right: 4px;" /> Módulos en Acción (Vista Móvil)
-
-Para conocer en detalle la experiencia de usuario y el diseño adaptativo en dispositivos móviles, puedes reproducir los siguientes clips cortos de cada módulo core del ecosistema:
+## 🎥 Campañas de la app
 
 <div align="center">
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin: 1.5rem auto; max-width: 900px;">
-    
-    <!-- Módulo 1: Club Digital -->
-    <div style="flex: 1; min-width: 190px; max-width: 210px; border: 2px solid #CCFF00; border-radius: 20px; overflow: hidden; background-color: #151525; box-shadow: 0 8px 24px rgba(204, 255, 0, 0.15); display: flex; flex-direction: column; text-align: left;">
-      <div style="background-color: #1a1a2e; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(204, 255, 0, 0.2);">
-        <span style="font-size: 11px; color: #CCFF00; font-family: monospace; font-weight: bold;">01 // CLUB DIGITAL</span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #CCFF00; display: inline-block;"></span>
-      </div>
-      <video src="./public/videos/ClubDigital.mp4" controls loop muted width="100%" style="display: block; width: 100%; aspect-ratio: 9/16; object-fit: cover; border: none;">
-        Tu navegador no soporta video.
-      </video>
-    </div>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 1.5rem 0;">
 
-    <!-- Módulo 2: Gamificación -->
-    <div style="flex: 1; min-width: 190px; max-width: 210px; border: 2px solid #B73BFE; border-radius: 20px; overflow: hidden; background-color: #151525; box-shadow: 0 8px 24px rgba(183, 59, 254, 0.15); display: flex; flex-direction: column; text-align: left;">
-      <div style="background-color: #1a1a2e; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">
-        <span style="font-size: 11px; color: #B73BFE; font-family: monospace; font-weight: bold;">02 // GAMIFICACIÓN</span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #B73BFE; display: inline-block;"></span>
-      </div>
-      <video src="./public/videos/Gamificacion.mp4" controls loop muted width="100%" style="display: block; width: 100%; aspect-ratio: 9/16; object-fit: cover; border: none;">
-        Tu navegador no soporta video.
-      </video>
-    </div>
+<div style="width: 180px; border: 1.5px solid #CCFF00; border-radius: 12px; overflow: hidden; background-color: #151525; display: inline-block; vertical-align: top; text-align: left;">
+<div style="background-color: #1a1a2e; padding: 6px 10px; font-size: 11px; color: #CCFF00; font-family: monospace; font-weight: bold; border-bottom: 1px solid rgba(204, 255, 0, 0.2);">Club Digital</div>
+<video src="./public/videos/ClubDigital.mp4" controls loop muted width="100%" style="display: block; width: 100%; border: none;">
+Tu navegador no soporta video.
+</video>
+</div>
 
-    <!-- Módulo 3: Gestión Total -->
-    <div style="flex: 1; min-width: 190px; max-width: 210px; border: 2px solid #CCFF00; border-radius: 20px; overflow: hidden; background-color: #151525; box-shadow: 0 8px 24px rgba(204, 255, 0, 0.15); display: flex; flex-direction: column; text-align: left;">
-      <div style="background-color: #1a1a2e; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(204, 255, 0, 0.2);">
-        <span style="font-size: 11px; color: #CCFF00; font-family: monospace; font-weight: bold;">03 // GESTIÓN TOTAL</span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #CCFF00; display: inline-block;"></span>
-      </div>
-      <video src="./public/videos/GestionTotal.mp4" controls loop muted width="100%" style="display: block; width: 100%; aspect-ratio: 9/16; object-fit: cover; border: none;">
-        Tu navegador no soporta video.
-      </video>
-    </div>
+<div style="width: 180px; border: 1.5px solid #B73BFE; border-radius: 12px; overflow: hidden; background-color: #151525; display: inline-block; vertical-align: top; text-align: left;">
+<div style="background-color: #1a1a2e; padding: 6px 10px; font-size: 11px; color: #B73BFE; font-family: monospace; font-weight: bold; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">Gamificación</div>
+<video src="./public/videos/Gamificacion.mp4" controls loop muted width="100%" style="display: block; width: 100%; border: none;">
+Tu navegador no soporta video.
+</video>
+</div>
 
-    <!-- Módulo 4: Operativa Aut. -->
-    <div style="flex: 1; min-width: 190px; max-width: 210px; border: 2px solid #B73BFE; border-radius: 20px; overflow: hidden; background-color: #151525; box-shadow: 0 8px 24px rgba(183, 59, 254, 0.15); display: flex; flex-direction: column; text-align: left;">
-      <div style="background-color: #1a1a2e; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">
-        <span style="font-size: 11px; color: #B73BFE; font-family: monospace; font-weight: bold;">04 // OPERATIVA AUT.</span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #B73BFE; display: inline-block;"></span>
-      </div>
-      <video src="./public/videos/OperativaAutomatizada.mp4" controls loop muted width="100%" style="display: block; width: 100%; aspect-ratio: 9/16; object-fit: cover; border: none;">
-        Tu navegador no soporta video.
-      </video>
-    </div>
+<div style="width: 180px; border: 1.5px solid #CCFF00; border-radius: 12px; overflow: hidden; background-color: #151525; display: inline-block; vertical-align: top; text-align: left;">
+<div style="background-color: #1a1a2e; padding: 6px 10px; font-size: 11px; color: #CCFF00; font-family: monospace; font-weight: bold; border-bottom: 1px solid rgba(204, 255, 0, 0.2);">Gestión Total</div>
+<video src="./public/videos/GestionTotal.mp4" controls loop muted width="100%" style="display: block; width: 100%; border: none;">
+Tu navegador no soporta video.
+</video>
+</div>
 
-  </div>
+<div style="width: 180px; border: 1.5px solid #B73BFE; border-radius: 12px; overflow: hidden; background-color: #151525; display: inline-block; vertical-align: top; text-align: left;">
+<div style="background-color: #1a1a2e; padding: 6px 10px; font-size: 11px; color: #B73BFE; font-family: monospace; font-weight: bold; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">Operativa Aut.</div>
+<video src="./public/videos/OperativaAutomatizada.mp4" controls loop muted width="100%" style="display: block; width: 100%; border: none;">
+Tu navegador no soporta video.
+</video>
+</div>
+
+</div>
 </div>
 
 ---
 
-## <img src="https://api.iconify.design/lucide/play-circle.svg?color=%23CCFF00" width="24" style="vertical-align: middle; margin-right: 4px;" /> Video Explicativo
+## 📺 Video Explicativo
 
 Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
 
 <div align="center">
-  <div style="max-width: 540px; border: 2.5px solid #B73BFE; border-radius: 16px; overflow: hidden; background-color: #151525; box-shadow: 0 12px 36px rgba(183, 59, 254, 0.3); text-align: left; margin: 1.5rem 0;">
-    <div style="background-color: #1a1a2e; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">
-      <div style="display: flex; gap: 8px;">
-        <span style="width: 10px; height: 10px; border-radius: 50%; background-color: #FF5F56; display: inline-block;"></span>
-        <span style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFBD2E; display: inline-block;"></span>
-        <span style="width: 10px; height: 10px; border-radius: 50%; background-color: #27C93F; display: inline-block;"></span>
-      </div>
-      <div style="color: #CCFF00; font-size: 12px; font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 0.5px;">KoreManager_Explicativo.mp4</div>
-      <div style="font-size: 10px; color: #888; font-family: sans-serif; font-weight: bold; border: 1px solid #888; border-radius: 4px; padding: 1px 4px;">MINI PLAYER</div>
-    </div>
-    <video src="./Docs/KoreManager__VideoExplicativo.mp4" controls width="100%" poster="./public/images/fondoHero.png" style="display: block; width: 100%; border: none;">
-      Tu navegador no soporta la reproducción de video.
-    </video>
-  </div>
-  <br/>
-  <a href="./Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
-    <img src="https://img.shields.io/badge/Descargar_o_Ver_Directo-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Ver Video Directo" />
-  </a>
+<div style="max-width: 540px; border: 2.5px solid #B73BFE; border-radius: 16px; overflow: hidden; background-color: #151525; box-shadow: 0 12px 36px rgba(183, 59, 254, 0.3); text-align: left; margin: 1.5rem 0;">
+<div style="background-color: #1a1a2e; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(183, 59, 254, 0.2);">
+<div style="display: flex; gap: 8px;">
+<span style="width: 10px; height: 10px; border-radius: 50%; background-color: #FF5F56; display: inline-block;"></span>
+<span style="width: 10px; height: 10px; border-radius: 50%; background-color: #FFBD2E; display: inline-block;"></span>
+<span style="width: 10px; height: 10px; border-radius: 50%; background-color: #27C93F; display: inline-block;"></span>
+</div>
+<div style="color: #CCFF00; font-size: 12px; font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 0.5px;">KoreManager_Explicativo.mp4</div>
+<div style="font-size: 10px; color: #888; font-family: sans-serif; font-weight: bold; border: 1px solid #888; border-radius: 4px; padding: 1px 4px;">MINI PLAYER</div>
+</div>
+<video src="./Docs/KoreManager__VideoExplicativo.mp4" controls width="100%" poster="./public/images/fondoHero.png" style="display: block; width: 100%; border: none;">
+Tu navegador no soporta la reproducción de video.
+</video>
+</div>
+<br/>
+<a href="./Docs/KoreManager__VideoExplicativo.mp4" target="_blank">
+<img src="https://img.shields.io/badge/Descargar_o_Ver_Directo-CCFF00?style=for-the-badge&logo=youtube&logoColor=black" alt="Ver Video Directo" />
+</a>
 </div>
 
 ---
