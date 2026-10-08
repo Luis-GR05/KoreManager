@@ -22,7 +22,11 @@
       "legal": "Aviso legal",
       "cookies": "Política de cookies"
     },
-    "copyright": "© 2026 Luis Gordillo Rodríguez · Proyecto de Fin de Grado"
+    "copyright": "© 2026 Luis Gordillo Rodríguez · Proyecto de Fin de Grado",
+    "explore": "Explora",
+    "legalTitle": "Legal",
+    "account": "Tu cuenta",
+    "register": "Crear cuenta"
   },
   "menu": {
     "dashboard": "Inicio",
@@ -124,20 +128,6 @@
     "changePhoto": "Cambiar foto",
     "photoSuccess": "Foto de perfil actualizada.",
     "photoError": "No se pudo subir la imagen.",
-    "aiAvatar": "Avatar IA",
-    "aiStyleLabel": "Estilo / Prompt",
-    "aiPlaceholder": "Ej: Estilo Pixar, ultra detallado...",
-    "aiGenerate": "Generar con IA",
-    "aiProcessing": "Procesando...",
-    "aiStatus": {
-      "starting": "Iniciando...",
-      "analyzing": "La IA está analizando las facciones..."
-    },
-    "aiNote": "* Usa tu foto de arriba como referencia. El proceso puede tardar unos 20-30 segundos.",
-    "aiNeedPhoto": "Primero debes subir una foto real para usarla como base.",
-    "aiSuccess": "¡Tu nuevo avatar IA está listo!",
-    "aiError": "Error generando el avatar.",
-    "aiServerError": "El servidor rechazó la solicitud.",
     "personalData": "Datos personales",
     "editable": "Editable",
     "email": "Correo Electrónico",
@@ -200,7 +190,15 @@
       "title": "Calendario",
       "today": "Hoy",
       "confirm": "Confirmar",
-      "days": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+      "days": [
+        "Dom",
+        "Lun",
+        "Mar",
+        "Mié",
+        "Jue",
+        "Vie",
+        "Sáb"
+      ]
     },
     "errors": {
       "pastDate": "No puedes reservar en una fecha pasada.",
@@ -282,11 +280,26 @@
     "achievements": "Logros",
     "unlocked": "✓ Desbloqueado",
     "logros": {
-      "primer_partido":       { "title": "¡Primer Saque!", "desc": "Completa tu primera reserva" },
-      "cinco_partidos":       { "title": "En Forma",       "desc": "Completa 5 reservas" },
-      "diez_partidos":        { "title": "Habitual",       "desc": "Completa 10 reservas" },
-      "veinticinco_partidos": { "title": "Veterano",       "desc": "Completa 25 reservas" },
-      "cincuenta_partidos":   { "title": "Leyenda",        "desc": "Completa 50 reservas" }
+      "primer_partido": {
+        "title": "¡Primer Saque!",
+        "desc": "Completa tu primera reserva"
+      },
+      "cinco_partidos": {
+        "title": "En Forma",
+        "desc": "Completa 5 reservas"
+      },
+      "diez_partidos": {
+        "title": "Habitual",
+        "desc": "Completa 10 reservas"
+      },
+      "veinticinco_partidos": {
+        "title": "Veterano",
+        "desc": "Completa 25 reservas"
+      },
+      "cincuenta_partidos": {
+        "title": "Leyenda",
+        "desc": "Completa 50 reservas"
+      }
     }
   },
   "admin": {
@@ -445,15 +458,18 @@
       "sports": "Deportes",
       "features": "Funciones",
       "about": "Sobre nosotros",
-      "loginBtn": "Acceder"
+      "loginBtn": "Acceder",
+      "register": "Crear cuenta",
+      "home": "KoreManager, inicio"
     },
     "hero": {
       "badge": "GESTIÓN MUNICIPAL INTELIGENTE",
       "title1": "El deporte de tu ciudad,",
       "title2": "a un clic de distancia.",
       "desc": "Olvídate de las colas y las llamadas. Reserva tu pista, gestiona tu equipo y disfruta del deporte con la plataforma municipal más avanzada.",
-      "cta1": "Reserva tu pista ahora",
-      "cta2": "Ver estadísticas"
+      "cta1": "Reserva tu pista",
+      "cta2": "Ver instalaciones",
+      "scoreboard": "Cifras de KoreManager"
     },
     "stats": {
       "members": "Socios activos",
@@ -464,7 +480,33 @@
     "video": {
       "badge": "En Acción",
       "title1": "¿Por qué",
-      "title2": "KoreManager?"
+      "title2": "KoreManager?",
+      "eyebrow": "En acción",
+      "play": "Reproducir vídeos",
+      "pause": "Pausar vídeos",
+      "prev": "Vídeo anterior",
+      "next": "Vídeo siguiente",
+      "goTo": "Ver vídeo {{n}}",
+      "carousel": "Vídeos de KoreManager",
+      "slide": "Vídeo {{n}} de {{total}}",
+      "items": [
+        {
+          "title": "Tu club, en digital",
+          "desc": "Reservas, pagos e inventario en un único panel. Sin interrupciones."
+        },
+        {
+          "title": "De novato a leyenda",
+          "desc": "Niveles y logros que premian la constancia de cada socio."
+        },
+        {
+          "title": "Cero llamadas",
+          "desc": "El papel y el teléfono se sustituyen por un panel que se gestiona solo."
+        },
+        {
+          "title": "Operativa automática",
+          "desc": "Cobros automáticos y reservas en tiempo real, sin tareas manuales."
+        }
+      ]
     },
     "login": {
       "success": "¡Sesión iniciada!",
@@ -484,19 +526,29 @@
       "padel": {
         "name": "Pádel",
         "courts": "6 pistas",
-        "desc": "Pistas cubiertas y descubiertas con iluminación LED profesional."
+        "desc": "Pistas cubiertas y descubiertas con iluminación LED profesional.",
+        "size": "20 × 10 m",
+        "surface": "Cristal y malla"
       },
       "futsal": {
         "name": "Fútbol Sala",
         "courts": "3 campos",
-        "desc": "Campos de resina con marcaje oficial y cabinas de arbitraje."
+        "desc": "Campos de resina con marcaje oficial y cabinas de arbitraje.",
+        "size": "40 × 20 m",
+        "surface": "Resina"
       },
       "tennis": {
         "name": "Tenis",
         "courts": "4 pistas",
-        "desc": "Superficie de tierra batida y pista dura certificada."
+        "desc": "Superficie de tierra batida y pista dura certificada.",
+        "size": "23,77 × 10,97 m",
+        "surface": "Tierra batida y pista dura"
       },
-      "cta": "Reservar ahora"
+      "cta": "Reservar",
+      "progress": "Elige deporte",
+      "scrollHint": "Sigue bajando: la siguiente pista se dibuja sola",
+      "length": "largo",
+      "width": "ancho"
     },
     "features": {
       "badge": "VENTAJAS",
@@ -525,6 +577,24 @@
       "f6": {
         "title": "Novedades y ofertas",
         "desc": "Recibe alertas del ayuntamiento sobre actividades, torneos y promociones."
+      },
+      "mock": {
+        "today": "Hoy",
+        "free": "Libre",
+        "taken": "Ocupada",
+        "yours": "Tu reserva",
+        "confirmed": "Reserva confirmada",
+        "booking": "Pista 2 Pádel, hoy a las 19:00",
+        "reminder": "Te avisamos 1 h antes",
+        "hours": "Horas en pista",
+        "months": [
+          "May",
+          "Jun",
+          "Jul",
+          "Ago",
+          "Sep",
+          "Oct"
+        ]
       }
     },
     "about": {
@@ -536,10 +606,29 @@
       "testimonial": "\"Antes tardaba 15 minutos en reservar una pista por teléfono. Con KoreManager lo hago en 30 segundos desde el móvil. Es un antes y un después.\"",
       "testimonialAuthor": "— Socio del Club, Sevilla",
       "cta": "Empezar gratis"
+    },
+    "how": {
+      "title": "Tres pasos y a jugar",
+      "s1": {
+        "title": "Elige deporte y pista",
+        "desc": "Filtra por pádel, fútbol sala o tenis y mira qué pistas están libres."
+      },
+      "s2": {
+        "title": "Escoge tu hora",
+        "desc": "El calendario se actualiza en tiempo real: lo que ves libre, está libre."
+      },
+      "s3": {
+        "title": "Paga y juega",
+        "desc": "Pago seguro con tarjeta y confirmación al momento. Solo queda calentar."
+      }
+    },
+    "final": {
+      "title1": "Menos llamadas.",
+      "title2": "Más partidos."
     }
   },
   "register": {
-    "errorMinChars": "La contraseña debe tener al menos 6 caracteres.",
+    "errorMinChars": "La contraseña debe tener al menos 8 caracteres.",
     "errorMatch": "Las contraseñas no coinciden. Por favor, asegúrate de escribirlas igual.",
     "errorTerms": "Debes aceptar los Términos de uso y la Política de privacidad para registrarte.",
     "errorEmail": "Introduce un correo electrónico válido.",
@@ -552,17 +641,17 @@
     "goToLogin": "Ir al inicio de sesión",
     "back": "Volver a la landing",
     "title": "Crea tu cuenta gratuita",
-    "fullName": "Nombre Completo",
+    "fullName": "Nombre y apellidos",
     "emailPlaceholder": "correo@ejemplo.com",
-    "phone": "Teléfono (ej: +34 600000000)",
-    "dni": "DNI/NIE",
+    "phone": "Teléfono",
+    "dni": "DNI o NIE",
     "address": "Dirección",
     "postalCode": "Código postal",
     "city": "Municipio",
     "province": "Provincia",
-    "password": "Contraseña (mín. 6 caracteres)",
-    "confirmPassword": "Confirmar Contraseña",
-    "submit": "Crear Cuenta",
+    "password": "Contraseña",
+    "confirmPassword": "Repite la contraseña",
+    "submit": "Crear cuenta",
     "acceptTermsPrefix": "Acepto los ",
     "terms": "Términos de uso",
     "acceptPrivacyPrefix": "He leído y acepto la ",
@@ -571,7 +660,21 @@
     "cookies": "Política de cookies",
     "legalWarning": "Tus datos se usarán para gestionar tu cuenta y tus reservas. Puedes ejercer tus derechos conforme al RGPD (España).",
     "hasAccount": "¿Ya tienes cuenta?",
-    "login": "Inicia Sesión"
+    "login": "Inicia Sesión",
+    "steps": {
+      "account": "Cuenta",
+      "identity": "Identidad",
+      "address": "Dirección"
+    },
+    "stepOf": "Paso {{n}} de {{total}}",
+    "next": "Continuar",
+    "prev": "Atrás",
+    "phoneHint": "Ej.: 600 123 456",
+    "dniHint": "8 números y letra, o NIE (X, Y, Z)",
+    "birthDate": "Fecha de nacimiento",
+    "addressHint": "Calle, número, piso",
+    "provinceAuto": "Se rellena con tu código postal",
+    "honeypot": "No rellenes este campo"
   },
   "forgot": {
     "toastSuccess": "Correo de recuperación enviado",
@@ -584,12 +687,13 @@
     "title": "Recuperar Contraseña",
     "desc": "Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.",
     "emailPlaceholder": "correo@ejemplo.com",
-    "submit": "Enviar enlace de recuperación"
+    "submit": "Enviar enlace de recuperación",
+    "sentGeneric": "Si existe una cuenta con ese correo, recibirás un enlace para restablecer la contraseña en unos minutos."
   },
   "reset": {
     "errorLink": "El enlace de recuperación no es válido o ha expirado.",
     "errorMatch": "Las contraseñas no coinciden",
-    "errorMinChars": "La contraseña debe tener al menos 6 caracteres",
+    "errorMinChars": "La contraseña debe tener al menos 8 caracteres.",
     "toastSuccess": "Contraseña actualizada correctamente",
     "toastError": "Error al actualizar la contraseña",
     "successTitle": "¡Contraseña Guardada!",
@@ -606,5 +710,122 @@
     "accept": "Aceptar todas",
     "decline": "Rechazar opcionales",
     "info": "Más información"
+  },
+  "common": {
+    "skip": "Saltar al contenido",
+    "language": "Idioma",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "backToTop": "Volver arriba",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "optional": "opcional",
+    "retryIn": "Reintenta en {{s}} s"
+  },
+  "seo": {
+    "landingTitle": "KoreManager · Reserva pistas de pádel, fútbol sala y tenis",
+    "landingDesc": "Reserva pistas deportivas municipales en segundos: pádel, fútbol sala y tenis. Calendario en tiempo real, pago seguro y confirmación al instante.",
+    "loginTitle": "Iniciar sesión · KoreManager",
+    "loginDesc": "Accede a tu cuenta de KoreManager para reservar y gestionar tus pistas.",
+    "registerTitle": "Crear cuenta · KoreManager",
+    "registerDesc": "Crea tu cuenta gratuita en KoreManager y reserva pistas deportivas municipales en segundos.",
+    "forgotTitle": "Recuperar contraseña · KoreManager",
+    "resetTitle": "Nueva contraseña · KoreManager",
+    "appTitle": "{{page}} · KoreManager"
+  },
+  "auth": {
+    "panelTitle": "Tu pista te espera.",
+    "panelDesc": "Pádel, fútbol sala y tenis en las instalaciones de tu ciudad. Reserva en segundos, paga con seguridad y juega.",
+    "panelPoints": [
+      "Calendario en tiempo real",
+      "Pago seguro con Stripe",
+      "Confirmación al instante"
+    ],
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "tooMany": "Demasiados intentos. Espera {{s}} s antes de volver a intentarlo.",
+    "rateLimited": "Has hecho demasiadas peticiones seguidas. Espera un momento y vuelve a intentarlo.",
+    "network": "No hay conexión con el servidor. Comprueba tu red e inténtalo de nuevo.",
+    "emailNotConfirmed": "Confirma tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.",
+    "capsLock": "Bloq Mayús está activado"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "nameShort": "Escribe tu nombre y al menos un apellido.",
+    "nameChars": "Usa solo letras, espacios, guiones o apóstrofes.",
+    "nameLong": "Máximo 80 caracteres.",
+    "email": "Introduce un correo válido, por ejemplo nombre@dominio.es.",
+    "emailDisposable": "No se admiten correos temporales. Usa tu correo habitual.",
+    "emailTypo": "¿Quisiste decir {{suggestion}}?",
+    "phone": "Introduce un móvil o fijo español de 9 dígitos (6, 7, 8 o 9) o un número internacional con prefijo +.",
+    "dniFormat": "Formato válido: 12345678Z (DNI) o X1234567L (NIE).",
+    "dniLetter": "La letra no corresponde al número. Revisa tu documento.",
+    "birthDate": "Introduce una fecha válida.",
+    "birthFuture": "La fecha no puede ser futura.",
+    "minAge": "Debes tener al menos {{age}} años para registrarte.",
+    "maxAge": "Revisa el año de nacimiento.",
+    "address": "Escribe calle y número (entre 5 y 120 caracteres).",
+    "postalCode": "El código postal tiene 5 dígitos y empieza entre 01 y 52.",
+    "city": "Escribe el municipio (solo letras, entre 2 y 60 caracteres).",
+    "province": "Selecciona tu provincia.",
+    "provinceMismatch": "La provincia no coincide con el código postal ({{province}}).",
+    "passwordLength": "Mínimo {{min}} caracteres.",
+    "passwordMax": "Máximo 72 caracteres.",
+    "passwordWeak": "Combina mayúsculas, minúsculas, números y símbolos.",
+    "passwordPersonal": "No uses tu nombre ni tu correo en la contraseña.",
+    "passwordCommon": "Esa contraseña es demasiado común.",
+    "passwordMatch": "Las contraseñas no coinciden.",
+    "terms": "Acepta los términos y la política de privacidad para continuar.",
+    "fixErrors": "Revisa los campos marcados.",
+    "strength": {
+      "label": "Seguridad",
+      "0": "Muy débil",
+      "1": "Débil",
+      "2": "Aceptable",
+      "3": "Fuerte",
+      "4": "Muy fuerte"
+    },
+    "rules": {
+      "length": "8 caracteres o más",
+      "lower": "Una minúscula",
+      "upper": "Una mayúscula",
+      "number": "Un número",
+      "symbol": "Un símbolo"
+    }
+  },
+  "chat": {
+    "open": "Abrir el asistente Kore",
+    "close": "Cerrar el asistente",
+    "name": "Kore",
+    "role": "Asistente de KoreManager",
+    "online": "En línea",
+    "teaser": "¿Dudas? Pregúntame",
+    "teaserClose": "Ocultar mensaje",
+    "greeting": "¡Hola{{name}}! Soy **Kore**, tu asistente. Pregúntame lo que quieras sobre reservas, pagos o instalaciones.",
+    "quick": "Preguntas frecuentes",
+    "personalQuick": [
+      "¿Cuándo es mi próxima reserva?",
+      "¿Tengo algún pago pendiente?"
+    ],
+    "placeholder": "Escribe tu pregunta…",
+    "send": "Enviar",
+    "typing": "Kore está escribiendo…",
+    "clear": "Nueva conversación",
+    "disclaimer": "Respuestas generadas con IA (Google Gemini). Pueden contener errores; no compartas datos sensibles.",
+    "remaining": "Te quedan {{n}} preguntas esta hora.",
+    "loginForPersonal": "Para responder sobre tus reservas necesito que [inicies sesión](/login).",
+    "errors": {
+      "user": "Has llegado al límite de preguntas por ahora. Podrás seguir {{when}}. Mientras tanto, mira las preguntas frecuentes.",
+      "busy": "Ahora mismo estoy atendiendo muchas consultas. Prueba de nuevo en un minuto.",
+      "daily": "He agotado mis respuestas con IA por hoy. Te sigo ayudando con las preguntas frecuentes.",
+      "generic": "No he podido responder ahora mismo. Prueba con una de las preguntas frecuentes o vuelve a intentarlo en un rato.",
+      "tooFast": "Un momento, espera a mi respuesta antes de enviar otra pregunta.",
+      "tooLong": "Escribe tu pregunta en menos de {{n}} caracteres."
+    },
+    "inMinutes": "en {{n}} min",
+    "soon": "en unos minutos",
+    "faqAnswer": "Respuesta rápida"
   }
 }

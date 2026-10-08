@@ -1,51 +1,64 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ArrowUp } from 'lucide-react';
+import { Brand } from './landing/LandingNav';
 
 /**
- * Footer global reutilizable (marca + enlaces + copyright).
- * Se usa tanto en la landing como en el Layout autenticado.
+ * Footer de la landing: columnas de enlaces y la marca a toda anchura como cierre.
  *
  * @returns {import('react').JSX.Element}
  */
 export default function Footer() {
   const { t } = useTranslation();
+  const linkCls = 'text-white/60 transition-colors hover:text-brand-lime';
 
   return (
-    <footer className="border-t theme-border theme-sidebar px-8 py-14 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 text-2xl font-extrabold tracking-tighter cursor-default">
-            <div className="w-12 h-12 rounded-3xl bg-black dark:bg-[#0F0F1A] border theme-border flex items-center justify-center overflow-hidden">
-              <img
-                src="/images/logo.png"
-                alt="Kore Manager"
-                className="w-full h-full object-contain p-2 dark:drop-shadow-[0_0_10px_rgba(204,255,0,.14)] dark:brightness(1.06)"
-              />
-            </div>
-            <div className="theme-text">
-              KORE<span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
-            </div>
-          </div>
-          <p className="theme-faint text-sm max-w-xs">
-            {t('footer.tagline')}
-          </p>
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#0B0B16] px-5 sm:px-8 pt-16">
+      <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-12">
+        <div className="md:col-span-5">
+          <Brand />
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/55">{t('footer.tagline')}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-16 gap-y-3 text-sm theme-faint">
-          <a href="#deportes" className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.installations')}</a>
-          <a href="#funciones" className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.features')}</a>
-          <a href="#sobre"    className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.about')}</a>
-          <Link to="/login"  className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.login')}</Link>
-          <Link to="/legal/privacidad"   className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.privacy')}</Link>
-          <Link to="/legal/terminos"     className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.terms')}</Link>
-          <Link to="/legal/aviso-legal"  className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.legal')}</Link>
-          <Link to="/legal/cookies"      className="hover:text-brand-purple dark:hover:text-brand-lime transition-colors duration-200">{t('footer.links.cookies')}</Link>
-        </div>
+        <nav aria-label={t('footer.explore')} className="md:col-span-2">
+          <h2 className="text-sm font-bold text-white">{t('footer.explore')}</h2>
+          <ul className="mt-4 space-y-3 text-sm">
+            <li><a href="#deportes" className={linkCls}>{t('footer.links.installations')}</a></li>
+            <li><a href="#funciones" className={linkCls}>{t('footer.links.features')}</a></li>
+            <li><a href="#sobre" className={linkCls}>{t('footer.links.about')}</a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label={t('footer.account')} className="md:col-span-2">
+          <h2 className="text-sm font-bold text-white">{t('footer.account')}</h2>
+          <ul className="mt-4 space-y-3 text-sm">
+            <li><Link to="/login" className={linkCls}>{t('footer.links.login')}</Link></li>
+            <li><Link to="/register" className={linkCls}>{t('footer.register')}</Link></li>
+          </ul>
+        </nav>
+
+        <nav aria-label={t('footer.legalTitle')} className="md:col-span-3">
+          <h2 className="text-sm font-bold text-white">{t('footer.legalTitle')}</h2>
+          <ul className="mt-4 space-y-3 text-sm">
+            <li><Link to="/legal/privacidad" className={linkCls}>{t('footer.links.privacy')}</Link></li>
+            <li><Link to="/legal/terminos" className={linkCls}>{t('footer.links.terms')}</Link></li>
+            <li><Link to="/legal/aviso-legal" className={linkCls}>{t('footer.links.legal')}</Link></li>
+            <li><Link to="/legal/cookies" className={linkCls}>{t('footer.links.cookies')}</Link></li>
+          </ul>
+        </nav>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-12 pt-6 border-t theme-border flex items-center justify-center gap-3 text-xs theme-faint">
+      <div className="mx-auto mt-14 flex max-w-7xl items-center justify-between gap-4 border-t border-white/10 py-6 text-xs text-white/60">
         <p>{t('footer.copyright')}</p>
+        <a href="#top" className="inline-flex items-center gap-2 text-white/60 hover:text-white">
+          {t('common.backToTop')} <ArrowUp size={14} aria-hidden="true" />
+        </a>
       </div>
+
+      {/* Marca a toda anchura (decorativa) */}
+      <p aria-hidden="true" className="footer__wordmark font-display font-black uppercase leading-[0.78] select-none">
+        <span className="footer__wordmark-kore">Kore</span><span className="text-brand-lime">Manager</span>
+      </p>
     </footer>
   );
 }

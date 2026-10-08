@@ -1,117 +1,134 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { supabase } from '../supabaseClient';
-import { X, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { X, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Button from './ui/Button';
-import Input from './ui/Input';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/useAuth';
+import Button from './ui/Button';
+import PasswordInput, { PasswordStrength } from './ui/PasswordInput';
+import { validatePassword, validatePasswordMatch } from '../lib/validation';
+import { authErrorKey } from '../lib/rateLimit';
 
+/**
+ * Modal para cambiar la contraseña (misma política que el registro).
+ * Accesible: role="dialog", foco inicial, cierre con Escape y clic fuera.
+ */
 export default function ChangePasswordModal({ isOpen, onClose }) {
   const { t } = useTranslation();
+  const { user, profile } = useAuth();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const dialogRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    const id = setTimeout(() => dialogRef.current?.querySelector('input')?.focus(), 50);
+    return () => { window.removeEventListener('keydown', onKey); clearTimeout(id); };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  const personal = [user?.email, profile?.full_name];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
-
-    if (password !== confirmPassword) {
-      toast.error(t('changePassword.errors.noMatch'));
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error(t('changePassword.errors.minChars'));
-      return;
-    }
+    const p = validatePassword(password, personal);
+    const c = validatePasswordMatch(password, confirmPassword);
+    const next = {
+      password: p ? t(`validation.${p.key}`, p.vars) : undefined,
+      confirm: c ? t(`validation.${c.key}`) : undefined,
+    };
+    setErrors(next);
+    if (next.password || next.confirm) return;
 
     setSubmitting(true);
-
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-
       setIsSuccess(true);
       toast.success(t('changePassword.successToast'));
-      
       setTimeout(() => {
         onClose();
         setIsSuccess(false);
         setPassword('');
         setConfirmPassword('');
       }, 2000);
-
     } catch (error) {
-      toast.error(error.message || t('changePassword.errors.updateError'));
+      const key = authErrorKey(error);
+      toast.error(key ? t(key) : t('changePassword.errors.updateError'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#1A1A2E] border border-white/10 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200 relative">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in"
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="change-pw-title"
+        className="relative w-full max-w-md rounded-3xl border theme-border theme-surface p-8 shadow-2xl"
+      >
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+          aria-label={t('common.closeMenu')}
+          className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-xl theme-faint transition-colors hover:theme-text hover:theme-elevated"
         >
-          <X size={16} />
+          <X size={16} aria-hidden="true" />
         </button>
 
         {isSuccess ? (
-          <div className="text-center py-6">
-            <div className="w-16 h-16 bg-brand-lime/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-              <CheckCircle className="w-8 h-8 text-brand-lime" />
+          <div className="py-6 text-center" role="status">
+            <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-brand-purple/10 dark:bg-brand-lime/10">
+              <CheckCircle className="h-8 w-8 text-brand-purple dark:text-brand-lime" aria-hidden="true" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">{t('changePassword.successTitle')}</h3>
+            <h2 id="change-pw-title" className="text-xl font-bold theme-text">{t('changePassword.successTitle')}</h2>
           </div>
         ) : (
           <>
-            <h3 className="text-xl font-bold text-white mb-2">{t('changePassword.title')}</h3>
-            <p className="text-gray-400 text-sm mb-6">{t('changePassword.desc')}</p>
+            <h2 id="change-pw-title" className="font-display text-3xl font-black uppercase theme-text">{t('changePassword.title')}</h2>
+            <p className="mb-6 mt-1 text-sm theme-faint">{t('changePassword.desc')}</p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative group">
-                <Input
-                  icon={Lock}
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+              <div>
+                <PasswordInput
+                  id="cp-password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder={t('changePassword.newPassword')}
+                  label={t('changePassword.newPassword')}
+                  autoComplete="new-password"
+                  maxLength={72}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  error={errors.password}
+                  aria-describedby="cp-strength"
                   required
-                  className="pr-12"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors z-10"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                <PasswordStrength id="cp-strength" value={password} personal={personal} />
               </div>
-
-              <div className="relative group">
-                <Input
-                  icon={Lock}
-                  name="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder={t('changePassword.repeatPassword')}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className="pr-12"
-                />
-              </div>
-
-              <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
+              <PasswordInput
+                id="cp-password2"
+                name="confirmPassword"
+                label={t('changePassword.repeatPassword')}
+                autoComplete="new-password"
+                maxLength={72}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                error={errors.confirm}
+                required
+              />
+              <Button type="submit" variant="primary" isLoading={submitting} className="mt-2 h-12 w-full">
                 {t('changePassword.save')}
               </Button>
             </form>
@@ -119,6 +136,6 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
         )}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

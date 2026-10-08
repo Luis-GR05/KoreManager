@@ -1,37 +1,56 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>KoreManager · Reserva pistas de pádel, fútbol sala y tenis</title>
+    <meta name="description" content="Reserva pistas deportivas municipales en segundos: pádel, fútbol sala y tenis. Calendario en tiempo real, pago seguro y confirmación al instante." />
+    <meta name="author" content="Luis Gordillo Rodríguez" />
+    <meta name="theme-color" content="#0F0F1A" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="canonical" href="https://kore-manager.vercel.app/" />
+
+    <!-- Iconos -->
     <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/favicon/site.webmanifest" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="format-detection" content="telephone=no" />
-    <title>KORE MANAGER - Gestión Deportiva</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="KoreManager es la plataforma lÃ­der para la reserva y gestiÃ³n de pistas deportivas. Pistas de pÃ¡del, fÃºtbol y tenis en segundos, sin esperas ni llamadas." />
-    <meta name="keywords" content="gestiÃ³n deportiva, reservas, pistas, pÃ¡del, fÃºtbol, tenis, polideportivo, club deportivo" />
-    <meta name="author" content="KoreManager" />
-    <meta name="theme-color" content="#0F0F1A" />
-    
-    <!-- Open Graph / Facebook / LinkedIn -->
+
+    <!-- Rendimiento: precarga de la imagen del hero (LCP) -->
+    <link rel="preload" as="image" type="image/avif"
+      imagesrcset="/images/fondoHero-960.avif 960w, /images/fondoHero-1600.avif 1600w, /images/fondoHero-2400.avif 2400w"
+      imagesizes="100vw" fetchpriority="high" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="KoreManager" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:url" content="https://kore-manager.vercel.app/" />
-    <meta property="og:title" content="KORE MANAGER - GestiÃ³n Deportiva" />
-    <meta property="og:description" content="OlvÃ­date de las llamadas y el papel. Reserva pistas de pÃ¡del, fÃºtbol y tenis en segundos desde cualquier dispositivo." />
-    <meta property="og:image" content="/images/logo.png" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://kore-manager.vercel.app/" />
-    <meta property="twitter:title" content="KORE MANAGER - GestiÃ³n Deportiva" />
-    <meta property="twitter:description" content="OlvÃ­date de las llamadas y el papel. Reserva pistas de pÃ¡del, fÃºtbol y tenis en segundos desde cualquier dispositivo." />
-    <meta property="twitter:image" content="/images/logo.png" />
+    <meta property="og:title" content="KoreManager · Reserva pistas de pádel, fútbol sala y tenis" />
+    <meta property="og:description" content="Olvídate de las llamadas y el papel. Reserva pistas de pádel, fútbol sala y tenis en segundos desde cualquier dispositivo." />
+    <meta property="og:image" content="https://kore-manager.vercel.app/images/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="KoreManager: el deporte de tu ciudad, a un clic de distancia" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="KoreManager · Reserva pistas de pádel, fútbol sala y tenis" />
+    <meta name="twitter:description" content="Olvídate de las llamadas y el papel. Reserva pistas de pádel, fútbol sala y tenis en segundos desde cualquier dispositivo." />
+    <meta name="twitter:image" content="https://kore-manager.vercel.app/images/og-image.jpg" />
+
+    <!-- Tema antes del primer pintado (evita el destello claro/oscuro). Archivo externo: compatible con la CSP -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
+    <noscript>
+      <p style="padding:2rem;font-family:system-ui;color:#fff;background:#0F0F1A">
+        KoreManager necesita JavaScript para funcionar. Actívalo en tu navegador para reservar pistas.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

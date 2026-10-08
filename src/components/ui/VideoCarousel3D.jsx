@@ -1,112 +1,181 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import useInView from '../../hooks/useInView';
+import useReducedMotion from '../../hooks/useReducedMotion';
 
 const VIDEOS = [
-  { id: 0, src: '/videos/ClubDigital.mp4', label: 'Club Digital' },
-  { id: 1, src: '/videos/Gamificacion.mp4', label: 'Gamificación' },
-  { id: 2, src: '/videos/GestionTotal.mp4', label: 'Gestión Total' },
-  { id: 3, src: '/videos/OperativaAutomatizada.mp4', label: 'Operativa Automatizada' },
+  { id: 0, name: 'ClubDigital' },
+  { id: 1, name: 'Gamificacion' },
+  { id: 2, name: 'GestionTotal' },
+  { id: 3, name: 'OperativaAutomatizada' },
 ];
+const TOTAL = VIDEOS.length;
 
 /**
- * Componente que muestra un carrusel interactivo en formato 3D (Coverflow).
- * Gira alrededor de un eje central imitando la órbita de un planeta.
+ * Carrusel 3D (coverflow) de vídeos verticales.
+ *
+ * Rendimiento: los vídeos no se descargan hasta que la sección se acerca al
+ * viewport (preload="none" + póster WebP) y solo se reproduce el activo.
+ * Accesibilidad: botón de pausa (WCAG 2.2.2), flechas solo cuando el carrusel
+ * tiene el foco, región con aria-roledescription y anuncio del vídeo activo.
  */
 export default function VideoCarousel3D() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const { t } = useTranslation();
+  const reduced = useReducedMotion();
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(reduced);
+  const [nearRef, near] = useInView({ once: true, rootMargin: '400px 0px', threshold: 0 });
+  const [visibleRef, visible] = useInView({ once: false, rootMargin: '0px', threshold: 0.25 });
+  const videoRefs = useRef([]);
+  const dragRef = useRef(null);
+  const items = t('landing.video.items', { returnObjects: true });
 
-  const [hoverPos, setHoverPos] = useState({ x: 50, y: 50 });
-  const [hoveredId, setHoveredId] = useState(null);
+  const next = useCallback(() => setCurrent((p) => (p + 1) % TOTAL), []);
+  const prev = useCallback(() => setCurrent((p) => (p - 1 + TOTAL) % TOTAL), []);
 
-  const handleNext = () => setCurrentIndex((prev) => (prev + 1) % 4);
-  const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + 4) % 4);
+  useEffect(() => { setPaused(reduced); }, [reduced]);
 
+  // Las <source> se añaden al acercarse: hay que pedir al vídeo que las cargue
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight') handleNext();
-      if (e.key === 'ArrowLeft') handlePrev();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    if (!near) return;
+    videoRefs.current.forEach((v) => v?.load());
+  }, [near]);
 
-  const getTransform = (index) => {
-    const diff = (index - currentIndex + 4) % 4;
-    if (diff === 0) return { transform: 'translateX(0) scale(1)', zIndex: 50, opacity: 1, filter: 'blur(0px)' };
-    if (diff === 1) return { transform: 'translateX(85%) scale(0.75)', zIndex: 30, opacity: 0.5, filter: 'blur(4px)' };
-    if (diff === 2) return { transform: 'translateX(0) scale(0.5)', zIndex: 10, opacity: 0, filter: 'blur(10px)' };
-    if (diff === 3) return { transform: 'translateX(-85%) scale(0.75)', zIndex: 30, opacity: 0.5, filter: 'blur(4px)' };
-    return {};
+  // Solo reproduce el vídeo activo y únicamente si la sección es visible
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === current && visible && !paused && near) {
+        const p = v.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+  }, [current, visible, paused, near]);
+
+  const onKeyDown = (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
   };
 
-  const handleMouseMove = (e, videoId) => {
-    if (currentIndex !== videoId) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setHoverPos({ x, y });
+  // Gestos táctiles: arrastre horizontal
+  const onPointerDown = (e) => { dragRef.current = { x: e.clientX, y: e.clientY }; };
+  const onPointerUp = (e) => {
+    const start = dragRef.current;
+    dragRef.current = null;
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) (dx < 0 ? next : prev)();
   };
+
+  const position = (index) => {
+    const diff = (index - current + TOTAL) % TOTAL;
+    if (diff === 0) return 'center';
+    if (diff === 1) return 'right';
+    if (diff === TOTAL - 1) return 'left';
+    return 'back';
+  };
+
+  const setRefs = (el) => {
+    nearRef.current = el;
+    visibleRef.current = el;
+  };
+
+  const item = Array.isArray(items) ? items[current] : null;
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto h-[350px] sm:h-[450px] md:h-[600px] flex items-center justify-center overflow-hidden">
-
-      {VIDEOS.map((video, index) => {
-        const style = getTransform(index);
-        const isActive = index === currentIndex;
-        const isHovered = isActive && hoveredId === video.id;
-
-        return (
-          <div
-            key={video.id}
-            className="absolute top-1/2 left-1/2 w-[170px] sm:w-[230px] md:w-[300px] aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.5,-0.2,0.3,1.25)] cursor-pointer"
-            style={{
-              ...style,
-              transform: `translate(-50%, -50%) ${style.transform}`,
-              border: isActive ? '2px solid rgba(204,255,0,0.4)' : '1px solid rgba(255,255,255,0.05)'
-            }}
-            onClick={() => setCurrentIndex(index)}
-            onMouseMove={(e) => handleMouseMove(e, index)}
-            onMouseEnter={() => setHoveredId(video.id)}
-            onMouseLeave={() => { setHoveredId(null); setHoverPos({ x: 50, y: 50 }); }}
-            title={!isActive ? "Haz clic para traer al frente" : ""}
+    <div className="grid items-center gap-10 lg:grid-cols-12">
+      <div className="lg:col-span-4">
+        <p className="font-display text-7xl sm:text-8xl font-black leading-none text-white/10 tabular" aria-hidden="true">
+          {String(current + 1).padStart(2, '0')}
+          <span className="text-4xl sm:text-5xl">/{String(TOTAL).padStart(2, '0')}</span>
+        </p>
+        <div aria-live="polite" className="min-h-[9rem] sm:min-h-[8rem]">
+          {item && (
+            <div key={current} className="animate-fade-in">
+              <h3 className="mt-2 font-display text-4xl sm:text-5xl font-black uppercase leading-[0.95] text-white">{item.title}</h3>
+              <p className="mt-3 max-w-sm text-white/65 leading-relaxed">{item.desc}</p>
+            </div>
+          )}
+        </div>
+        <div className="mt-6 flex items-center gap-3">
+          <button type="button" onClick={prev} aria-label={t('landing.video.prev')} className="carousel-btn">
+            <ChevronLeft size={22} aria-hidden="true" />
+          </button>
+          <button type="button" onClick={next} aria-label={t('landing.video.next')} className="carousel-btn">
+            <ChevronRight size={22} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            aria-pressed={paused}
+            aria-label={paused ? t('landing.video.play') : t('landing.video.pause')}
+            className="carousel-btn"
           >
-            {/* Oscurecedor para vídeos en segundo plano */}
-            <div className={`absolute inset-0 bg-[#0F0F1A] transition-opacity duration-700 pointer-events-none z-20 ${isActive ? 'opacity-0' : 'opacity-60'}`} />
-
-            <video
-              src={video.src}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover transition-transform duration-300 ease-out z-10"
-              style={{
-                transformOrigin: `${hoverPos.x}% ${hoverPos.y}%`,
-                transform: isHovered ? 'scale(1.3)' : 'scale(1)'
-              }}
-            />
+            {paused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
+          </button>
+          <div className="ml-2 flex gap-1.5">
+            {VIDEOS.map((v, i) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => setCurrent(i)}
+                aria-label={t('landing.video.goTo', { n: i + 1 })}
+                aria-current={i === current ? 'true' : undefined}
+                className="grid h-6 w-6 place-items-center"
+              >
+                <span className={`block h-1.5 rounded-full transition-all duration-500 ease-out-expo ${i === current ? 'w-6 bg-brand-lime' : 'w-1.5 bg-white/30'}`} />
+              </button>
+            ))}
           </div>
-        );
-      })}
-
-      {/* Controles Laterales */}
-      <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between px-2 sm:px-8 md:px-12 z-50 pointer-events-none">
-        <button
-          onClick={handlePrev}
-          aria-label="Vídeo anterior"
-          className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white pointer-events-auto hover:bg-brand-lime hover:text-black hover:scale-110 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all backdrop-blur-md"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <button
-          onClick={handleNext}
-          aria-label="Siguiente vídeo"
-          className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white pointer-events-auto hover:bg-brand-lime hover:text-black hover:scale-110 hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all backdrop-blur-md"
-        >
-          <ChevronRight size={24} />
-        </button>
+        </div>
       </div>
 
+      <div
+        ref={setRefs}
+        role="region"
+        aria-roledescription="carrusel"
+        aria-label={t('landing.video.carousel')}
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        className="coverflow relative mx-auto h-[420px] w-full max-w-3xl touch-pan-y select-none sm:h-[520px] lg:col-span-8 lg:h-[600px] rounded-3xl"
+      >
+        {VIDEOS.map((video, index) => {
+          const pos = position(index);
+          const isActive = pos === 'center';
+          return (
+            <div
+              key={video.id}
+              data-pos={pos}
+              className="coverflow__item"
+              role="group"
+              aria-hidden={!isActive}
+              aria-roledescription="diapositiva"
+              aria-label={t('landing.video.slide', { n: index + 1, total: TOTAL })}
+              onClick={() => !isActive && setCurrent(index)}
+            >
+              <video
+                ref={(el) => { videoRefs.current[index] = el; }}
+                muted
+                loop
+                playsInline
+                preload="none"
+                poster={`/videos/${video.name}-poster.webp`}
+                tabIndex={-1}
+                className="h-full w-full object-cover"
+              >
+                {near && <source src={`/videos/${video.name}.webm`} type="video/webm" />}
+                {near && <source src={`/videos/${video.name}.mp4`} type="video/mp4" />}
+              </video>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import {
   User, Mail, Phone, Save, Trophy, Calendar, MapPin,
-  TrendingUp, Image as ImageIcon, ShieldCheck, Sparkles,
-  Wand2, Loader2, AlertCircle
+  TrendingUp, Image as ImageIcon, ShieldCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
@@ -42,10 +41,6 @@ export default function Profile() {
   const [stats, setStats] = useState({ total: 0, proximas: 0, favorita: '—' });
   const [loadingStats, setLoadingStats] = useState(true);
 
-  // IA Avatar state
-  const [aiPrompt, setAiPrompt] = useState('Style Pixar, detailed, professional athlete photo');
-  const [generatingIA, setGeneratingIA] = useState(false);
-  const [iaStatus, setIaStatus] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -238,85 +233,6 @@ export default function Profile() {
     }
   };
 
-  /**
-   * Dispara el flujo de generación de Avatar con IA.
-   */
-  const handleGenerateAIAvatar = async () => {
-    if (!user || !aiPrompt.trim()) return;
-
-    if (!profile?.avatar_url) {
-      toast.error(t('profile.aiNeedPhoto'));
-      return;
-    }
-
-    setGeneratingIA(true);
-    setIaStatus(t('profile.aiStatus.starting'));
-
-    try {
-      const { data: tarea, error: errorInsert } = await supabase
-        .from('tareas_ia')
-        .insert({
-          id_usuario: user.id,
-          ruta_imagen_base: profile.avatar_url,
-          prompt_estilo: aiPrompt
-        })
-        .select()
-        .single();
-
-      if (errorInsert) throw errorInsert;
-
-      const channel = supabase.channel(`tarea-${tarea.id}`)
-        .on(
-          'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'tareas_ia', filter: `id=eq.${tarea.id}` },
-          async (payload) => {
-            const estado = payload.new.estado;
-            if (estado === 'procesando') {
-              setIaStatus(t('profile.aiStatus.analyzing'));
-            } else if (estado === 'completado') {
-              await supabase
-                .from('profiles')
-                .update({ avatar_url: payload.new.ruta_resultado })
-                .eq('id', user.id);
-
-              toast.success(t('profile.aiSuccess'));
-              await refreshProfile();
-              setGeneratingIA(false);
-              setIaStatus('');
-              supabase.removeChannel(channel);
-            } else if (estado === 'error') {
-              toast.error(payload.new.mensaje_error || t('profile.aiError'));
-              setGeneratingIA(false);
-              setIaStatus('');
-              supabase.removeChannel(channel);
-            }
-          }
-        )
-        .subscribe();
-
-      const { data: { session } } = await supabase.auth.getSession();
-      supabase.functions.invoke('generate-avatar', {
-        body: { id_tarea: tarea.id },
-        headers: { Authorization: `Bearer ${session?.access_token}` }
-      }).catch(async (err) => {
-        console.error('Fallo en la red o servidor:', err);
-        setGeneratingIA(false);
-        setIaStatus('');
-        toast.error(t('profile.aiServerError'));
-
-        await supabase.from('tareas_ia').update({
-          estado: 'error',
-          mensaje_error: 'Timeout o fallo de invocación desde el cliente'
-        }).eq('id', tarea.id);
-      });
-
-    } catch (err) {
-      toast.error(err.message || t('profile.aiError'));
-      setGeneratingIA(false);
-      setIaStatus('');
-    }
-  };
-
   if (loading) return <div className="p-8 text-brand-lime animate-pulse">{t('profile.loading')}</div>;
 
   const statsCards = [
@@ -433,56 +349,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Generación con IA */}
-          <div className="theme-card p-6 border-brand-purple/20 dark:border-brand-lime/20 text-center relative overflow-hidden group">
-            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Sparkles size={18} className="text-brand-purple dark:text-brand-lime" />
-                <p className="text-xs font-black theme-faint uppercase tracking-widest">{t('profile.aiAvatar')}</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="text-left">
-                  <label className="text-[10px] font-bold theme-faint uppercase tracking-wider ml-1 mb-1.5 block">
-                    {t('profile.aiStyleLabel')}
-                  </label>
-                  <textarea
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder={t('profile.aiPlaceholder')}
-                    className="w-full theme-bg border theme-border rounded-xl px-3 py-2 text-xs theme-text focus:border-brand-purple dark:focus:border-brand-lime outline-none resize-none transition-colors"
-                    rows={2}
-                  />
-                </div>
-
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="w-full bg-gradient-to-r from-brand-purple/35 to-brand-lime/20 border-brand-purple/40 dark:border-brand-lime/40 theme-text hover:border-brand-purple/60 dark:hover:border-brand-lime/60 shadow-sm"
-                  isLoading={generatingIA}
-                  onClick={handleGenerateAIAvatar}
-                >
-                  {generatingIA ? (
-                    <><Loader2 className="animate-spin mr-2" size={16} /> {t('profile.aiProcessing')}</>
-                  ) : (
-                    <><Wand2 size={16} className="mr-2" /> {t('profile.aiGenerate')}</>
-                  )}
-                </Button>
-
-                {iaStatus && (
-                  <div className="mt-3 flex items-center justify-center gap-2 text-brand-purple dark:text-brand-lime animate-pulse" aria-live="polite">
-                    <Loader2 size={12} className="animate-spin" />
-                    <span className="text-[10px] font-bold uppercase">{iaStatus}</span>
-                  </div>
-                )}
-
-                <p className="text-[10px] theme-faint mt-4 leading-relaxed italic">
-                  {t('profile.aiNote')}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* COLUMNA DERECHA — Formulario */}

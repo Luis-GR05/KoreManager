@@ -2,8 +2,15 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.90.1";
+import { ALLOWED_ORIGINS, computeAmountCents, isAllowedOrigin, json as jsonRes, preflight, rateLimit, retryAfter } from "../_shared/http.ts";
 
 type Body = { reservaId: number };
+
+/** Nombre de la instalación (PostgREST puede devolver objeto o array). */
+function installationName(rel: unknown): string {
+  const r = Array.isArray(rel) ? rel[0] : rel;
+  return (r as { nombre?: string } | null)?.nombre ?? "Instalación";
+}
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -12,35 +19,16 @@ const SITE_URL = Deno.env.get("SITE_URL") ?? "";
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
 
-const corsHeaders = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
-  "access-control-allow-methods": "POST, OPTIONS",
-};
-
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      ...corsHeaders,
-      "content-type": "application/json; charset=utf-8",
-    },
-  });
-}
-
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: corsHeaders,
-    });
-  }
+  const json = (data: unknown, status = 200, extra: Record<string, string> = {}) => jsonRes(req, data, status, extra);
+  if (req.method === "OPTIONS") return preflight(req);
 
   try {
     const authHeader = req.headers.get("authorization") ?? "";
     if (!authHeader.toLowerCase().startsWith("bearer ")) return json({ error: "Unauthorized" }, 401);
 
     const { reservaId } = (await req.json()) as Body;
-    if (!reservaId) return json({ error: "Missing reservaId" }, 400);
+    if (!Number.isInteger(Number(reservaId)) || Number(reservaId) <= 0) return json({ error: "Missing reservaId" }, 400);
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
@@ -51,6 +39,10 @@ serve(async (req) => {
     const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(jwt);
     if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
     const user = userData.user;
+
+    // Máx. 10 intentos de pago cada 10 minutos por usuario
+    const rl = await rateLimit(supabaseAdmin, `pay:${user.id}`, 10, 600, true);
+    if (!rl.allowed) return json({ error: "rate_limited" }, 429, { "retry-after": retryAfter(rl.resetAt) });
 
     // Cargar reserva y validar ownership + estado
     const { data: reserva, error: rErr } = await supabaseAdmin
@@ -63,11 +55,17 @@ serve(async (req) => {
     if (reserva.user_id !== user.id) return json({ error: "Forbidden" }, 403);
     if (reserva.payment_status === "paid") return json({ error: "Ya está pagada" }, 409);
 
-    const origin = req.headers.get("origin") ?? SITE_URL;
-    if (!origin) return json({ error: "Missing SITE_URL/origin" }, 500);
+    // Solo redirigimos a orígenes de confianza (evita redirecciones abiertas)
+    const reqOrigin = req.headers.get("origin");
+    const origin = isAllowedOrigin(reqOrigin) ? reqOrigin! : (SITE_URL || ALLOWED_ORIGINS[0]);
 
-    const amount = Number(reserva.precio_cents ?? 0);
-    if (!Number.isFinite(amount) || amount < 0) return json({ error: "Invalid amount" }, 400);
+    // El importe se calcula en servidor: nunca se usa el precio enviado por el navegador
+    if (String(reserva.currency ?? "").startsWith("linked_")) return json({ error: "Pay the main booking" }, 400);
+    const amount = await computeAmountCents(supabaseAdmin, reserva);
+    if (!Number.isFinite(amount) || amount < 50) return json({ error: "Invalid amount" }, 400);
+    if (amount !== Number(reserva.precio_cents)) {
+      await supabaseAdmin.from("reservas").update({ precio_cents: amount }).eq("id", reserva.id);
+    }
 
     const existingPayment = await supabaseAdmin
       .from("payments")
@@ -95,10 +93,10 @@ serve(async (req) => {
           {
             quantity: 1,
             price_data: {
-              currency: (reserva.currency ?? "eur").toLowerCase(),
+              currency: "eur",
               unit_amount: amount,
               product_data: {
-                name: `Reserva — ${reserva.instalaciones?.nombre ?? "Instalación"}`,
+                name: `Reserva — ${installationName(reserva.instalaciones)}`,
                 metadata: { reserva_id: String(reserva.id) },
               },
             },
@@ -130,7 +128,7 @@ serve(async (req) => {
       user_id: user.id,
       provider: "stripe",
       amount_cents: amount,
-      currency: (reserva.currency ?? "eur").toLowerCase(),
+      currency: "eur",
       status: "pending",
       checkout_session_id: session.id,
     });

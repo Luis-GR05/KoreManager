@@ -1,12 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import CookieConsent from './components/CookieConsent';
+import KoreAssistant from './components/chat/KoreAssistant';
 
 
 // Páginas con Lazy Loading para mejorar rendimiento (code splitting)
@@ -34,10 +35,22 @@ const Estadisticas = lazy(() => import('./pages/Estadisticas'));
  * Spinner de carga minimalista para las transiciones entre páginas
  */
 const PageLoader = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F0F1A]">
-    <div className="w-10 h-10 rounded-full border-4 border-[#CCFF00]/20 border-t-[#CCFF00] animate-spin"></div>
+  <div className="min-h-screen flex flex-col items-center justify-center theme-bg" role="status" aria-live="polite">
+    <div className="w-10 h-10 rounded-full border-4 border-brand-purple/20 border-t-brand-purple dark:border-brand-lime/20 dark:border-t-brand-lime animate-spin" />
+    <span className="sr-only">Cargando…</span>
   </div>
 );
+
+/**
+ * Al cambiar de ruta (no de ancla) vuelve arriba, como en una web tradicional.
+ */
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+}
 
 /**
  * Componente raíz de la app:
@@ -51,7 +64,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
       <Toaster
-        position="bottom-right"
+        position="top-center"
         toastOptions={{
           style: {
             background: '#1F1F2E',
@@ -65,7 +78,9 @@ export default function App() {
       />
 
       <BrowserRouter>
+        <ScrollToTop />
         <CookieConsent />
+        <KoreAssistant />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Landing />} />

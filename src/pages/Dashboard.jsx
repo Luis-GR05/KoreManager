@@ -193,7 +193,7 @@ export default function Dashboard() {
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl theme-bg border theme-border flex items-center justify-center theme-faint shrink-0 overflow-hidden">
               {avatarDisplayUrl ? (
-                <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={avatarDisplayUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <ImageIcon size={22} />
               )}
@@ -202,7 +202,7 @@ export default function Dashboard() {
               <p className="text-[11px] font-bold theme-faint uppercase tracking-widest">
                 {t('dashboard.panelLabel')}
               </p>
-              <h1 className="text-3xl md:text-4xl font-black theme-text leading-tight">
+              <h1 className="font-display text-4xl md:text-6xl font-black uppercase theme-text leading-[0.9] mt-1">
                 {t('dashboard.greeting')} <span className="text-brand-purple dark:text-brand-lime">{firstName}</span>
               </h1>
               <p className="theme-faint text-sm mt-1 max-w-2xl">
@@ -258,9 +258,9 @@ export default function Dashboard() {
 
           {/* PRÓXIMOS PARTIDOS */}
           <section>
-            <h3 className="text-xl font-bold theme-text mb-4 flex items-center gap-2">
+            <h2 className="font-display text-2xl font-extrabold uppercase theme-text mb-4 flex items-center gap-2">
               <Calendar className="text-brand-purple" /> {t('dashboard.nextMatches')}
-            </h3>
+            </h2>
             {misReservas.length === 0 ? (
               <div className="theme-card p-8 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/25 dark:from-brand-lime/25 to-transparent opacity-90 pointer-events-none" />
@@ -314,9 +314,9 @@ export default function Dashboard() {
 
           {/* ESTADO DE PISTAS */}
           <section>
-            <h3 className="text-xl font-bold theme-text mb-4 flex items-center gap-2">
+            <h2 className="font-display text-2xl font-extrabold uppercase theme-text mb-4 flex items-center gap-2">
               <MapPin className="text-brand-purple dark:text-brand-lime" /> {t('dashboard.courtStatus')}
-            </h3>
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {instalacionesUnique.map((item) => (
                 <div key={item.id} className="theme-card p-4 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-colors glow-lime">
@@ -344,9 +344,9 @@ export default function Dashboard() {
 
           {/* AVISOS */}
           <div>
-            <h3 className="text-xl font-bold theme-text flex items-center gap-2 mb-4">
+            <h2 className="font-display text-2xl font-extrabold uppercase theme-text mb-4 flex items-center gap-2">
               <AlertTriangle className="text-brand-red" /> {t('dashboard.alerts')}
-            </h3>
+            </h2>
             {avisos.length === 0 ? (
               <div className="theme-card p-6 text-sm theme-faint">
                 {t('dashboard.noAlerts')}

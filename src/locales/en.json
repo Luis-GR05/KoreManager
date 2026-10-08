@@ -22,7 +22,11 @@
       "legal": "Legal notice",
       "cookies": "Cookie policy"
     },
-    "copyright": "© 2026 Luis Gordillo Rodríguez · Final Degree Project"
+    "copyright": "© 2026 Luis Gordillo Rodríguez · Final Degree Project",
+    "explore": "Explore",
+    "legalTitle": "Legal",
+    "account": "Your account",
+    "register": "Sign up"
   },
   "menu": {
     "dashboard": "Dashboard",
@@ -124,20 +128,6 @@
     "changePhoto": "Change photo",
     "photoSuccess": "Profile photo updated.",
     "photoError": "Could not upload the image.",
-    "aiAvatar": "AI Avatar",
-    "aiStyleLabel": "Style / Prompt",
-    "aiPlaceholder": "E.g.: Pixar style, ultra detailed...",
-    "aiGenerate": "Generate with AI",
-    "aiProcessing": "Processing...",
-    "aiStatus": {
-      "starting": "Starting...",
-      "analyzing": "The AI is analysing the facial features..."
-    },
-    "aiNote": "* Uses your photo above as reference. The process may take 20-30 seconds.",
-    "aiNeedPhoto": "You must first upload a real photo to use as a base.",
-    "aiSuccess": "Your new AI avatar is ready!",
-    "aiError": "Error generating the avatar.",
-    "aiServerError": "The server rejected the request.",
     "personalData": "Personal data",
     "editable": "Editable",
     "email": "Email Address",
@@ -200,7 +190,15 @@
       "title": "Calendar",
       "today": "Today",
       "confirm": "Confirm",
-      "days": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      "days": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ]
     },
     "errors": {
       "pastDate": "You cannot book a past date.",
@@ -282,11 +280,26 @@
     "achievements": "Achievements",
     "unlocked": "✓ Unlocked",
     "logros": {
-      "primer_partido":       { "title": "First Serve!",   "desc": "Complete your first booking" },
-      "cinco_partidos":       { "title": "In Shape",       "desc": "Complete 5 bookings" },
-      "diez_partidos":        { "title": "Regular",        "desc": "Complete 10 bookings" },
-      "veinticinco_partidos": { "title": "Veteran",        "desc": "Complete 25 bookings" },
-      "cincuenta_partidos":   { "title": "Legend",         "desc": "Complete 50 bookings" }
+      "primer_partido": {
+        "title": "First Serve!",
+        "desc": "Complete your first booking"
+      },
+      "cinco_partidos": {
+        "title": "In Shape",
+        "desc": "Complete 5 bookings"
+      },
+      "diez_partidos": {
+        "title": "Regular",
+        "desc": "Complete 10 bookings"
+      },
+      "veinticinco_partidos": {
+        "title": "Veteran",
+        "desc": "Complete 25 bookings"
+      },
+      "cincuenta_partidos": {
+        "title": "Legend",
+        "desc": "Complete 50 bookings"
+      }
     }
   },
   "admin": {
@@ -445,15 +458,18 @@
       "sports": "Sports",
       "features": "Features",
       "about": "About Us",
-      "loginBtn": "Login"
+      "loginBtn": "Login",
+      "register": "Sign up",
+      "home": "KoreManager, home"
     },
     "hero": {
       "badge": "SMART MUNICIPAL MANAGEMENT",
       "title1": "Your city's sports,",
       "title2": "just a click away.",
       "desc": "Forget about queues and calls. Book your court, manage your team and enjoy sports with the most advanced municipal platform.",
-      "cta1": "Book your court now",
-      "cta2": "View statistics"
+      "cta1": "Book your court",
+      "cta2": "See facilities",
+      "scoreboard": "KoreManager in numbers"
     },
     "stats": {
       "members": "Active members",
@@ -464,7 +480,33 @@
     "video": {
       "badge": "In Action",
       "title1": "Why",
-      "title2": "KoreManager?"
+      "title2": "KoreManager?",
+      "eyebrow": "In action",
+      "play": "Play videos",
+      "pause": "Pause videos",
+      "prev": "Previous video",
+      "next": "Next video",
+      "goTo": "Show video {{n}}",
+      "carousel": "KoreManager videos",
+      "slide": "Video {{n}} of {{total}}",
+      "items": [
+        {
+          "title": "Your club, gone digital",
+          "desc": "Bookings, payments and inventory in one dashboard. No interruptions."
+        },
+        {
+          "title": "From rookie to legend",
+          "desc": "Levels and achievements that reward every member's consistency."
+        },
+        {
+          "title": "Zero phone calls",
+          "desc": "Paper and phone are replaced by a dashboard that runs itself."
+        },
+        {
+          "title": "Automated operations",
+          "desc": "Automatic payments and real-time bookings, no manual tasks."
+        }
+      ]
     },
     "login": {
       "success": "Logged in successfully!",
@@ -484,19 +526,29 @@
       "padel": {
         "name": "Padel",
         "courts": "6 courts",
-        "desc": "Indoor and outdoor courts with professional LED lighting."
+        "desc": "Indoor and outdoor courts with professional LED lighting.",
+        "size": "20 × 10 m",
+        "surface": "Glass and mesh"
       },
       "futsal": {
         "name": "Futsal",
         "courts": "3 pitches",
-        "desc": "Resin pitches with official markings and referee cabins."
+        "desc": "Resin pitches with official markings and referee cabins.",
+        "size": "40 × 20 m",
+        "surface": "Resin"
       },
       "tennis": {
         "name": "Tennis",
         "courts": "4 courts",
-        "desc": "Clay surface and certified hard court."
+        "desc": "Clay surface and certified hard court.",
+        "size": "23.77 × 10.97 m",
+        "surface": "Clay and hard court"
       },
-      "cta": "Book now"
+      "cta": "Book",
+      "progress": "Choose a sport",
+      "scrollHint": "Keep scrolling: the next court draws itself",
+      "length": "length",
+      "width": "width"
     },
     "features": {
       "badge": "BENEFITS",
@@ -525,6 +577,24 @@
       "f6": {
         "title": "News and offers",
         "desc": "Receive municipal alerts about activities, tournaments and promotions."
+      },
+      "mock": {
+        "today": "Today",
+        "free": "Free",
+        "taken": "Taken",
+        "yours": "Your booking",
+        "confirmed": "Booking confirmed",
+        "booking": "Court 2 Padel, today at 19:00",
+        "reminder": "We'll remind you 1 h before",
+        "hours": "Hours on court",
+        "months": [
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct"
+        ]
       }
     },
     "about": {
@@ -534,12 +604,31 @@
       "title3": "local sports management.",
       "desc": "KoreManager was born as a Final Degree Project with a clear goal: to digitalise the booking of municipal sports facilities. Goodbye to queues, paperwork and phone calls. Hello to efficiency, transparency and sport without barriers.",
       "testimonial": "\"I used to take 15 minutes to book a court by phone. With KoreManager I do it in 30 seconds from my mobile. It's a before and after.\"",
-      "testimonialAuthor": "\u2014 Club Member, Seville",
+      "testimonialAuthor": "— Club Member, Seville",
       "cta": "Get started free"
+    },
+    "how": {
+      "title": "Three steps and you're on court",
+      "s1": {
+        "title": "Pick a sport and court",
+        "desc": "Filter by padel, futsal or tennis and see which courts are free."
+      },
+      "s2": {
+        "title": "Choose your time",
+        "desc": "The calendar updates in real time: if it shows as free, it is free."
+      },
+      "s3": {
+        "title": "Pay and play",
+        "desc": "Secure card payment and instant confirmation. All that's left is warming up."
+      }
+    },
+    "final": {
+      "title1": "Fewer calls.",
+      "title2": "More games."
     }
   },
   "register": {
-    "errorMinChars": "Password must be at least 6 characters long.",
+    "errorMinChars": "Password must be at least 8 characters long.",
     "errorMatch": "Passwords do not match. Please ensure they are the same.",
     "errorTerms": "You must accept the Terms of Use and Privacy Policy to register.",
     "success": "Registration successful! You can now log in.",
@@ -549,17 +638,17 @@
     "goToLogin": "Go to login",
     "back": "Back to landing",
     "title": "Create your free account",
-    "fullName": "Full Name",
+    "fullName": "Full name",
     "emailPlaceholder": "email@example.com",
-    "phone": "Phone (e.g. +44 700000000)",
-    "dni": "ID/Passport",
+    "phone": "Phone",
+    "dni": "DNI or NIE",
     "address": "Address",
     "postalCode": "Postal code",
-    "city": "City",
-    "province": "Province/State",
-    "password": "Password (min. 6 characters)",
-    "confirmPassword": "Confirm Password",
-    "submit": "Create Account",
+    "city": "Town",
+    "province": "Province",
+    "password": "Password",
+    "confirmPassword": "Repeat password",
+    "submit": "Create account",
     "acceptTermsPrefix": "I accept the ",
     "terms": "Terms of Use",
     "acceptPrivacyPrefix": "I have read and accept the ",
@@ -568,7 +657,24 @@
     "cookies": "Cookies Policy",
     "legalWarning": "Your data will be used to manage your account and bookings. You can exercise your rights in accordance with the GDPR.",
     "hasAccount": "Already have an account?",
-    "login": "Log In"
+    "login": "Log In",
+    "steps": {
+      "account": "Account",
+      "identity": "Identity",
+      "address": "Address"
+    },
+    "stepOf": "Step {{n}} of {{total}}",
+    "next": "Continue",
+    "prev": "Back",
+    "phoneHint": "E.g. 600 123 456",
+    "dniHint": "8 digits and a letter, or NIE (X, Y, Z)",
+    "birthDate": "Date of birth",
+    "addressHint": "Street, number, floor",
+    "provinceAuto": "Filled in from your postal code",
+    "errorEmail": "Enter a valid email address.",
+    "errorPhone": "Enter a valid phone number.",
+    "errorDni": "The DNI/NIE is not valid.",
+    "honeypot": "Leave this field empty"
   },
   "forgot": {
     "toastSuccess": "Recovery email sent",
@@ -581,12 +687,13 @@
     "title": "Recover Password",
     "desc": "Enter your email and we will send you a link to reset your password.",
     "emailPlaceholder": "email@example.com",
-    "submit": "Send recovery link"
+    "submit": "Send recovery link",
+    "sentGeneric": "If an account exists for that email, you'll receive a reset link in a few minutes."
   },
   "reset": {
     "errorLink": "The recovery link is invalid or has expired.",
     "errorMatch": "Passwords do not match",
-    "errorMinChars": "Password must be at least 6 characters",
+    "errorMinChars": "Password must be at least 8 characters long.",
     "toastSuccess": "Password successfully updated",
     "toastError": "Error updating password",
     "successTitle": "Password Saved!",
@@ -603,5 +710,122 @@
     "accept": "Accept all",
     "decline": "Decline optional",
     "info": "More info"
+  },
+  "common": {
+    "skip": "Skip to content",
+    "language": "Language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "backToTop": "Back to top",
+    "show": "Show",
+    "hide": "Hide",
+    "optional": "optional",
+    "retryIn": "Retry in {{s}} s"
+  },
+  "seo": {
+    "landingTitle": "KoreManager · Book padel, futsal and tennis courts",
+    "landingDesc": "Book municipal sports courts in seconds: padel, futsal and tennis. Live calendar, secure payment and instant confirmation.",
+    "loginTitle": "Log in · KoreManager",
+    "loginDesc": "Log in to your KoreManager account to book and manage your courts.",
+    "registerTitle": "Create account · KoreManager",
+    "registerDesc": "Create your free KoreManager account and book municipal sports courts in seconds.",
+    "forgotTitle": "Recover password · KoreManager",
+    "resetTitle": "New password · KoreManager",
+    "appTitle": "{{page}} · KoreManager"
+  },
+  "auth": {
+    "panelTitle": "Your court is waiting.",
+    "panelDesc": "Padel, futsal and tennis at your city's facilities. Book in seconds, pay securely and play.",
+    "panelPoints": [
+      "Live availability calendar",
+      "Secure payment with Stripe",
+      "Instant confirmation"
+    ],
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "tooMany": "Too many attempts. Wait {{s}} s before trying again.",
+    "rateLimited": "Too many requests in a row. Wait a moment and try again.",
+    "network": "Can't reach the server. Check your connection and try again.",
+    "emailNotConfirmed": "Confirm your email before logging in. Check your inbox.",
+    "capsLock": "Caps Lock is on"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "nameShort": "Enter your first name and at least one surname.",
+    "nameChars": "Use only letters, spaces, hyphens or apostrophes.",
+    "nameLong": "80 characters maximum.",
+    "email": "Enter a valid email, for example name@domain.com.",
+    "emailDisposable": "Temporary email addresses aren't accepted. Use your usual email.",
+    "emailTypo": "Did you mean {{suggestion}}?",
+    "phone": "Enter a 9-digit Spanish number (starting 6, 7, 8 or 9) or an international number with a + prefix.",
+    "dniFormat": "Valid format: 12345678Z (DNI) or X1234567L (NIE).",
+    "dniLetter": "The letter doesn't match the number. Check your document.",
+    "birthDate": "Enter a valid date.",
+    "birthFuture": "The date can't be in the future.",
+    "minAge": "You must be at least {{age}} years old to sign up.",
+    "maxAge": "Check the year of birth.",
+    "address": "Enter street and number (5 to 120 characters).",
+    "postalCode": "Postal codes have 5 digits and start between 01 and 52.",
+    "city": "Enter the town (letters only, 2 to 60 characters).",
+    "province": "Select your province.",
+    "provinceMismatch": "The province doesn't match the postal code ({{province}}).",
+    "passwordLength": "At least {{min}} characters.",
+    "passwordMax": "72 characters maximum.",
+    "passwordWeak": "Mix upper and lower case letters, numbers and symbols.",
+    "passwordPersonal": "Don't use your name or email in the password.",
+    "passwordCommon": "That password is too common.",
+    "passwordMatch": "Passwords don't match.",
+    "terms": "Accept the terms and privacy policy to continue.",
+    "fixErrors": "Check the highlighted fields.",
+    "strength": {
+      "label": "Strength",
+      "0": "Very weak",
+      "1": "Weak",
+      "2": "Fair",
+      "3": "Strong",
+      "4": "Very strong"
+    },
+    "rules": {
+      "length": "8 characters or more",
+      "lower": "One lowercase letter",
+      "upper": "One uppercase letter",
+      "number": "One number",
+      "symbol": "One symbol"
+    }
+  },
+  "chat": {
+    "open": "Open the Kore assistant",
+    "close": "Close the assistant",
+    "name": "Kore",
+    "role": "KoreManager assistant",
+    "online": "Online",
+    "teaser": "Questions? Ask me",
+    "teaserClose": "Hide message",
+    "greeting": "Hi{{name}}! I'm **Kore**, your assistant. Ask me anything about bookings, payments or facilities.",
+    "quick": "Frequently asked",
+    "personalQuick": [
+      "When is my next booking?",
+      "Do I have any pending payment?"
+    ],
+    "placeholder": "Type your question…",
+    "send": "Send",
+    "typing": "Kore is typing…",
+    "clear": "New conversation",
+    "disclaimer": "AI-generated answers (Google Gemini). They may contain mistakes; don't share sensitive data.",
+    "remaining": "You have {{n}} questions left this hour.",
+    "loginForPersonal": "To answer about your bookings I need you to [log in](/login).",
+    "errors": {
+      "user": "You've reached the question limit for now. You can continue {{when}}. Meanwhile, check the frequently asked questions.",
+      "busy": "I'm handling a lot of questions right now. Try again in a minute.",
+      "daily": "I've used up my AI answers for today. I can still help with the frequently asked questions.",
+      "generic": "I couldn't answer right now. Try one of the frequently asked questions or try again later.",
+      "tooFast": "Hold on, wait for my answer before sending another question.",
+      "tooLong": "Keep your question under {{n}} characters."
+    },
+    "inMinutes": "in {{n}} min",
+    "soon": "in a few minutes",
+    "faqAnswer": "Quick answer"
   }
 }

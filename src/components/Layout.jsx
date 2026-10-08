@@ -7,6 +7,7 @@ import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, C
 import { supabase } from '../supabaseClient';
 import LegalFooter from './LegalFooter';
 import ChangePasswordModal from './ChangePasswordModal';
+import Seo from './Seo';
 
 /**
  * Layout autenticado:
@@ -65,10 +66,23 @@ export default function Layout({ children }) {
   const avatarUrl = profile?.avatar_url || null;
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
 
-  // Cerrar drawer al cambiar de ruta
-  useEffect(() => {
+  // Cerrar drawer al cambiar de ruta (patrón "ajustar estado durante el render")
+  const [lastPath, setLastPath] = useState(location.pathname);
+  if (lastPath !== location.pathname) {
+    setLastPath(location.pathname);
     setDrawerOpen(false);
-  }, [location.pathname]);
+  }
+
+  // Escape cierra drawer y menú de ajustes
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setDrawerOpen(false);
+      setSettingsOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // Bloquear scroll del body cuando el drawer está abierto
   useEffect(() => {
@@ -141,9 +155,11 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen theme-bg theme-text transition-colors duration-300">
+      <Seo title={t('seo.appTitle', { page: activeItem?.label || 'Panel' })} noindex />
+      <a href="#app-content" className="skip-link">{t('common.skip')}</a>
 
       {/* SIDEBAR — escritorio */}
-      <aside className="w-72 theme-sidebar border-r theme-border flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50 transition-colors duration-300">
+      <aside aria-label="Menú principal" className="w-72 theme-sidebar border-r theme-border flex-col hidden md:flex fixed left-0 top-0 h-[100dvh] overflow-y-auto z-50 transition-colors duration-300">
         <div className="h-20 flex items-center px-6 border-b theme-border">
           <div className="flex items-center gap-3">
             <div className="w-16 h-16 rounded-3xl bg-black dark:bg-[#0F0F1A] border theme-border flex items-center justify-center overflow-hidden">
@@ -170,7 +186,7 @@ export default function Layout({ children }) {
             {/* Slot de avatar */}
             <div className="w-11 h-11 rounded-2xl theme-bg border theme-border flex items-center justify-center overflow-hidden">
               {avatarDisplayUrl ? (
-                <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={avatarDisplayUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="theme-faint"><ImageIcon size={18} /></div>
               )}
@@ -187,7 +203,7 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1">
+        <nav aria-label="Secciones" className="flex-1 px-4 py-4 space-y-1">
           {visibleMenu.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -195,13 +211,14 @@ export default function Layout({ children }) {
               <Link
                 key={item.path}
                 to={item.path}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-semibold ${
                   isActive
                     ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-lg dark:shadow-[0_0_15px_rgba(204,255,0,0.3)]'
                     : 'theme-text opacity-90 hover:opacity-100 hover:text-brand-purple dark:hover:text-white hover:bg-brand-purple/20 dark:hover:bg-white/10'
                 }`}
               >
-                <Icon size={20} />
+                <Icon size={20} aria-hidden="true" />
                 {item.label}
                 {isActive && <ChevronRight className="ml-auto" size={18} />}
               </Link>
@@ -228,7 +245,9 @@ export default function Layout({ children }) {
               {/* Botón hamburguesa — solo móvil */}
               <button
                 onClick={() => setDrawerOpen(true)}
-                aria-label="Abrir menú"
+                aria-expanded={drawerOpen}
+                aria-controls="app-drawer"
+                aria-label={t('common.openMenu')}
                 className="md:hidden w-10 h-10 rounded-2xl theme-bg border theme-border flex items-center justify-center theme-text hover:theme-elevated transition-all"
               >
                 <Menu size={20} />
@@ -237,7 +256,7 @@ export default function Layout({ children }) {
                 <p className="text-[11px] theme-faint font-bold uppercase tracking-widest">
                   Kore Manager
                 </p>
-                <p className="text-base md:text-lg font-black theme-text truncate">
+                <p className="font-display text-xl md:text-2xl font-black uppercase leading-none theme-text truncate">
                   {activeItem?.label || 'Panel'}
                 </p>
               </div>
@@ -245,6 +264,8 @@ export default function Layout({ children }) {
             <div className="flex items-center gap-3 relative" ref={settingsRef}>
               <button
                 onClick={() => setSettingsOpen(!settingsOpen)}
+                aria-expanded={settingsOpen}
+                aria-haspopup="true"
                 className={`p-2.5 rounded-xl border transition-all ${
                   settingsOpen 
                     ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg' 
@@ -324,7 +345,7 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        <div className="flex-1 p-6 md:p-8 pb-8 anim-popin">{children}</div>
+        <div id="app-content" tabIndex={-1} className="flex-1 p-6 md:p-8 pb-28 anim-popin focus:outline-none">{children}</div>
         <div className="mt-auto">
           <LegalFooter />
         </div>
@@ -349,7 +370,11 @@ export default function Layout({ children }) {
           flex flex-col shadow-2xl
           transition-transform duration-300 ease-out
           ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        id="app-drawer"
+        role="dialog"
+        aria-modal="true"
         aria-label="Menú de navegación"
+        inert={!drawerOpen}
       >
         {/* Cabecera del drawer */}
         <div className="h-20 flex items-center justify-between px-5 border-b theme-border">
@@ -367,7 +392,7 @@ export default function Layout({ children }) {
           </div>
           <button
             onClick={() => setDrawerOpen(false)}
-            aria-label="Cerrar menú"
+            aria-label={t('common.closeMenu')}
             className="w-9 h-9 rounded-xl theme-bg border theme-border flex items-center justify-center theme-faint hover:theme-text hover:theme-elevated transition-colors"
           >
             <X size={18} />
@@ -379,7 +404,7 @@ export default function Layout({ children }) {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl theme-bg border theme-border flex items-center justify-center overflow-hidden">
               {avatarDisplayUrl ? (
-                <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={avatarDisplayUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="theme-faint"><ImageIcon size={16} /></div>
               )}
@@ -411,7 +436,7 @@ export default function Layout({ children }) {
                     : 'theme-text opacity-90 hover:opacity-100 hover:theme-elevated'
                 }`}
               >
-                <Icon size={20} />
+                <Icon size={20} aria-hidden="true" />
                 {item.label}
                 {isActive && <ChevronRight className="ml-auto" size={18} />}
               </Link>

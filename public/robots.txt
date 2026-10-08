@@ -1,3 +1,15 @@
-﻿User-agent: *
+# KoreManager
+User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /reservar
+Disallow: /historial
+Disallow: /estadisticas
+Disallow: /inventario
+Disallow: /admin
+Disallow: /checkout/
+Disallow: /pago/
+Disallow: /reset-password
+
 Sitemap: https://kore-manager.vercel.app/sitemap.xml

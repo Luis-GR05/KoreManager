@@ -161,3 +161,30 @@ Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muest
     <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
   </a>
 </div>
+
+---
+
+## Actualización 2026-10 · Rediseño, seguridad y asistente Kore
+
+### Base de datos
+Aplica `supabase/migrations/20261008120000_seguridad_rate_limit_chatbot.sql` (SQL Editor o `supabase db push`).
+Corrige la escalada de rol (`rol_id`), protege el estado de pago de las reservas, valida el perfil en servidor
+(DNI/NIE con letra, CP, teléfono, edad ≥ 14), restringe Storage a la carpeta de cada usuario, añade la tabla
+`rate_limits` y elimina `tareas_ia` (generación de avatares con IA retirada).
+
+### Edge functions
+```bash
+supabase functions delete generate-avatar                # ya no se usa
+supabase secrets set GEMINI_API_KEY=xxxx                  # clave gratuita de Google AI Studio
+supabase secrets set ALLOWED_ORIGINS=https://kore-manager.vercel.app,http://localhost:5173
+supabase functions deploy kore-assistant
+supabase functions deploy create-payment-intent
+supabase functions deploy create-checkout-session
+```
+Variables opcionales del asistente: `GEMINI_MODEL` (por defecto `gemini-3.5-flash-lite`), `CHAT_DAILY_LIMIT` (900),
+`CHAT_MINUTE_LIMIT` (12), `CHAT_USER_HOURLY` (20), `CHAT_ANON_HOURLY` (8). Pagos: `SLOT_PRICE_CENTS` (500).
+El importe de cada pago se recalcula en servidor; ya no se confía en el precio enviado por el navegador.
+
+### Recomendado en el panel de Supabase
+- Authentication → Rate Limits: revisa los límites de inicio de sesión, registro y emails.
+- Authentication → Providers → Email: longitud mínima de contraseña 8 y "Leaked password protection".

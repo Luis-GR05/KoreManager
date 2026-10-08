@@ -1,156 +1,148 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Mail } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import PasswordInput from '../components/ui/PasswordInput';
+import AuthShell from '../components/auth/AuthShell';
+import Seo from '../components/Seo';
+import useCountdown from '../hooks/useCountdown';
+import { loginLimiter, authErrorKey } from '../lib/rateLimit';
+import { normalizeEmail, validateEmail } from '../lib/validation';
 
 /**
  * Página de login:
  * - autentica con Supabase (email/password)
+ * - limita los intentos fallidos (bloqueo progresivo con cuenta atrás)
  * - redirige a la ruta original guardada por `ProtectedRoute`
  *
  * @returns {import('react').JSX.Element}
  */
 export default function Login() {
   const { t } = useTranslation();
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
 
-  const [submitting,    setSubmitting]    = useState(false);
-  const [showPassword,  setShowPassword]  = useState(false);
-  const [formData,      setFormData]      = useState({ email: '', password: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
+  const [lockSeconds, startLock] = useCountdown(Math.ceil(loginLimiter.retryIn() / 1000));
 
-  const from = location.state?.from?.pathname ?? '/dashboard';
+  // Solo rutas internas como destino (evita redirecciones abiertas)
+  const rawFrom = location.state?.from?.pathname ?? '/dashboard';
+  const from = typeof rawFrom === 'string' && rawFrom.startsWith('/') && !rawFrom.startsWith('//') ? rawFrom : '/dashboard';
 
   useEffect(() => {
-    if (!authLoading && user) {
-      navigate(from, { replace: true });
-    }
+    if (!authLoading && user) navigate(from, { replace: true });
   }, [user, authLoading, navigate, from]);
 
-  /**
-   * Actualiza el estado del formulario.
-   * @param {import('react').ChangeEvent<HTMLInputElement>} e
-   * @returns {void}
-   */
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  /**
-   * Envía credenciales a Supabase y deja que el AuthContext gestione la navegación.
-   * @param {import('react').FormEvent} e
-   * @returns {Promise<void>}
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
+    if (submitting || lockSeconds > 0) return;
 
+    const emailErr = validateEmail(formData.email);
+    const next = {
+      email: emailErr ? t(`validation.${emailErr.key}`) : undefined,
+      password: formData.password ? undefined : t('validation.required'),
+    };
+    setErrors(next);
+    if (next.email || next.password) return;
+
+    setSubmitting(true);
+    setFormError('');
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email:    formData.email.trim(),
+        email: normalizeEmail(formData.email),
         password: formData.password,
       });
-
       if (error) throw error;
-
+      loginLimiter.reset();
       toast.success(t('landing.login.success'), { duration: 2000 });
-
     } catch (error) {
-      const msg = error.message === 'Invalid login credentials'
-        ? t('landing.login.errorCreds')
-        : error.message;
-      toast.error(msg);
+      const key = authErrorKey(error);
+      if (key !== 'auth.network' && key !== 'auth.emailNotConfirmed') {
+        const wait = loginLimiter.hit();
+        if (wait > 0) startLock(Math.ceil(wait / 1000));
+      }
+      setFormError(t(key || 'landing.login.errorCreds'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center theme-bg p-4 relative overflow-hidden">
-
-      {/* Fondos decorativos */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-purple/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-purple/5 dark:bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="w-full max-w-md theme-card backdrop-blur-xl border theme-border p-8 shadow-2xl relative z-10">
-
-        <div className="flex items-center justify-between mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm font-bold theme-faint hover:theme-text transition-colors"
-          >
-            <ArrowLeft size={16} />
-            {t('landing.login.back')}
+    <AuthShell
+      title={t('landing.login.welcome')}
+      footer={(
+        <p>
+          {t('landing.login.noAccount')}{' '}
+          <Link to="/register" className="font-bold theme-text underline-offset-4 hover:underline hover:text-brand-purple dark:hover:text-brand-lime">
+            {t('landing.login.register')}
           </Link>
-        </div>
+        </p>
+      )}
+    >
+      <Seo title={t('seo.loginTitle')} description={t('seo.loginDesc')} path="/login" />
 
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold theme-text mb-2 tracking-tight">
-            KORE <span className="text-brand-purple dark:text-brand-lime">MANAGER</span>
-          </h1>
-          <p className="theme-faint text-sm">{t('landing.login.welcome')}</p>
-        </div>
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        {formError && (
+          <div role="alert" className="rounded-xl border border-semantic-danger/30 bg-semantic-danger/10 px-4 py-3 text-sm font-medium text-semantic-danger">
+            {lockSeconds > 0 ? t('auth.tooMany', { s: lockSeconds }) : formError}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            icon={Mail}
-            name="email"
-            type="email"
-            placeholder={t('landing.login.emailPlaceholder')}
-            value={formData.email}
+        <Input
+          icon={Mail}
+          id="login-email"
+          name="email"
+          type="email"
+          label={t('auth.email')}
+          placeholder={t('landing.login.emailPlaceholder')}
+          autoComplete="email"
+          inputMode="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          value={formData.email}
+          onChange={handleChange}
+          error={errors.email}
+          required
+        />
+
+        <div>
+          <PasswordInput
+            id="login-password"
+            name="password"
+            label={t('auth.password')}
+            placeholder="••••••••"
+            autoComplete="current-password"
+            value={formData.password}
             onChange={handleChange}
+            error={errors.password}
             required
           />
-
-          <div className="relative group">
-            <Input
-              icon={Lock}
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="pr-12"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(v => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 theme-faint hover:theme-text transition-colors z-10"
-              tabIndex={-1}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-
-          <div className="flex justify-end mt-1">
-            <Link to="/forgot-password" className="text-sm font-bold theme-faint hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
+          <div className="mt-2 flex justify-end">
+            <Link to="/forgot-password" className="text-sm font-semibold theme-faint hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
               {t('landing.login.forgot')}
             </Link>
           </div>
-
-          <Button type="submit" variant="primary" isLoading={submitting} className="w-full mt-2">
-            {t('landing.login.submit')}
-            {!submitting && <ArrowRight size={20} />}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="theme-faint text-sm">
-            {t('landing.login.noAccount')}
-            <Link to="/register" className="ml-2 theme-text font-bold hover:text-brand-purple dark:hover:text-brand-lime transition-colors">
-              {t('landing.login.register')}
-            </Link>
-          </p>
         </div>
-      </div>
-    </div>
+
+        <Button type="submit" variant="primary" isLoading={submitting} disabled={lockSeconds > 0} className="w-full h-12">
+          {lockSeconds > 0 ? t('common.retryIn', { s: lockSeconds }) : t('landing.login.submit')}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

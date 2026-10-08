@@ -1,4 +1,7 @@
 import { createRoot } from 'react-dom/client';
+// Fuentes autoalojadas (sin peticiones a Google: mejor RGPD, CSP y rendimiento)
+import '@fontsource-variable/archivo/wdth';
+import '@fontsource-variable/big-shoulders-display';
 import './i18n'; // Configuración de react-i18next
 import './index.css';
 import App from './App.jsx';
