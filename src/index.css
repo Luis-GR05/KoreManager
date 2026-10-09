@@ -207,6 +207,10 @@ html:not(.dark) .anim-shine::after {
 /* ─────────────────────────────────────────────────────
    SELECTOR DE FECHA (DatePicker)
 ───────────────────────────────────────────────────── */
+/* Las tarjetas con backdrop-filter crean su propio contexto de apilado:
+   la que tiene el calendario abierto se eleva sobre las siguientes. */
+.theme-card:has(.kdp) { position: relative; z-index: 30; }
+
 .kdp {
   position: absolute;
   z-index: 50;

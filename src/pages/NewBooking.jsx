@@ -474,7 +474,7 @@ export default function NewBooking() {
         </section>
 
         {/* 2 · Día */}
-        <section className="theme-card p-5 md:p-6" aria-labelledby="step-date">
+        <section className="theme-card relative z-20 p-5 md:p-6" aria-labelledby="step-date">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 id="step-date" className="flex items-center gap-3 font-black theme-text">
               <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-purple dark:bg-brand-lime text-white dark:text-black text-xs">2</span>
