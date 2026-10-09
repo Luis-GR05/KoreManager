@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { COURTS, VIEW_W, VIEW_H, ballAt } from './courts';
+import { COURT_BY_ID, VIEW_W, VIEW_H, ballAt } from './courts';
 import useReducedMotion from '../../hooks/useReducedMotion';
 
 
@@ -16,7 +16,7 @@ const clamp = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
  *
  * @returns {import('react').JSX.Element}
  */
-export default function CourtScroll() {
+export default function CourtScroll({ sports: catalog = [] }) {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
   const sectionRef = useRef(null);
@@ -26,16 +26,16 @@ export default function CourtScroll() {
   const [active, setActive] = useState(0);
   const activeRef = useRef(0);
 
-  const sports = [
-    { key: 'padel', court: COURTS[0] },
-    { key: 'futsal', court: COURTS[1] },
-    { key: 'tennis', court: COURTS[2] },
-  ];
+  // Solo los deportes de la BD con plano reglamentario conocido
+  const sports = catalog
+    .filter((s) => s.court && COURT_BY_ID[s.court])
+    .map((s) => ({ ...s, key: s.id, court: COURT_BY_ID[s.court] }));
   const n = sports.length;
+  const sportsKey = sports.map((s) => `${s.key}:${s.pistas}`).join('|');
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return undefined;
+    if (!section || n === 0) return undefined;
 
     // Cachea los trazos de cada pista para no consultar el DOM en cada frame
     const pathsPerCourt = courtRefs.current.map((g) =>
@@ -96,7 +96,7 @@ export default function CourtScroll() {
       if (frame) cancelAnimationFrame(frame);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reduced]);
+  }, [reduced, sportsKey]);
 
   /** Lleva el scroll hasta el deporte elegido (con la pista ya dibujada). */
   const goTo = (i) => {
@@ -106,6 +106,8 @@ export default function CourtScroll() {
     const top = section.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: top + ((i + 0.62) / n) * total, behavior: reduced ? 'auto' : 'smooth' });
   };
+
+  if (n === 0) return null;
 
   return (
     <section
@@ -117,9 +119,9 @@ export default function CourtScroll() {
     >
       {/* Resumen accesible para lectores de pantalla */}
       <ul className="sr-only">
-        {sports.map(({ key }) => (
-          <li key={key}>
-            {t(`landing.sports.${key}.name`)}: {t(`landing.sports.${key}.courts`)}, {t(`landing.sports.${key}.size`)}. {t(`landing.sports.${key}.desc`)}
+        {sports.map((sp) => (
+          <li key={sp.key}>
+            {sp.name}: {t('sportsCatalog.courts', { count: sp.pistas })}, {sp.size}. {sp.desc}
           </li>
         ))}
       </ul>
@@ -133,8 +135,8 @@ export default function CourtScroll() {
             </h2>
 
             {/* Selector / progreso */}
-            <div role="group" aria-label={t('landing.sports.progress')} className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-              {sports.map(({ key }, i) => (
+            <div role="group" aria-label={t('landing.sports.progress')} className="mt-4 grid gap-2 sm:gap-3" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
+              {sports.map(({ key, ...sp }, i) => (
                 <button
                   key={key}
                   type="button"
@@ -150,7 +152,7 @@ export default function CourtScroll() {
                     />
                   </span>
                   <span className="mt-2 block text-xs sm:text-sm font-semibold">
-                    {t(`landing.sports.${key}.name`)}
+                    {sp.name}
                   </span>
                 </button>
               ))}
@@ -158,7 +160,7 @@ export default function CourtScroll() {
 
             {/* Ficha del deporte activo */}
             <div className="court-scroll__info relative mt-6 lg:mt-10">
-              {sports.map(({ key }, i) => (
+              {sports.map(({ key, ...sp }, i) => (
                 <article
                   key={key}
                   className="court-info"
@@ -167,30 +169,30 @@ export default function CourtScroll() {
                   aria-hidden={i !== active}
                 >
                   <h3 className="font-display font-black uppercase leading-[0.82] text-white text-[clamp(4rem,11vw,9.5rem)]">
-                    {t(`landing.sports.${key}.name`)}
+                    {sp.name}
                   </h3>
                   <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                     <div className="flex items-baseline gap-2">
                       <dt className="sr-only">{t('landing.stats.installations')}</dt>
-                      <dd className="font-display text-2xl font-extrabold text-brand-lime tabular">{t(`landing.sports.${key}.courts`)}</dd>
+                      <dd className="font-display text-2xl font-extrabold text-brand-lime tabular">{t('sportsCatalog.courts', { count: sp.pistas })}</dd>
                     </div>
                     <div className="flex items-baseline gap-2 text-white/70">
                       <dt className="sr-only">{t('landing.sports.length')} × {t('landing.sports.width')}</dt>
-                      <dd className="tabular">{t(`landing.sports.${key}.size`)}</dd>
+                      <dd className="tabular">{sp.size}</dd>
                     </div>
                     <div className="flex items-baseline gap-2 text-white/70">
                       <dt className="sr-only">Superficie</dt>
-                      <dd>{t(`landing.sports.${key}.surface`)}</dd>
+                      <dd>{sp.surface}</dd>
                     </div>
                   </dl>
                   <p className="mt-4 max-w-md text-base sm:text-lg leading-relaxed text-white/75">
-                    {t(`landing.sports.${key}.desc`)}
+                    {sp.desc}
                   </p>
                   <Link
                     to="/reservar"
                     className="mt-7 inline-flex items-center gap-3 rounded-full bg-brand-lime px-6 py-3.5 font-bold text-[#0F0F1A] transition-transform duration-300 ease-out-expo hover:-translate-y-0.5"
                   >
-                    {t('landing.sports.cta')} {t(`landing.sports.${key}.name`).toLowerCase()}
+                    {t('landing.sports.cta')} {sp.name.toLowerCase()}
                   </Link>
                 </article>
               ))}

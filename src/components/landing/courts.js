@@ -122,7 +122,54 @@ function tennis() {
   };
 }
 
+/* ───────────── BALONCESTO · 28 × 15 m ───────────── */
+function basketball() {
+  const L = 28, W = 15;
+  const { X, Y, s, ...box } = makeScale(L, W);
+  const hoop = 1.575; // centro del aro desde la línea de fondo
+  const R3 = 6.75 * s; // radio de la línea de triple
+  const yIn = 0.9; // tramo recto del triple, a 0,9 m de la banda
+  const dx = Math.sqrt(6.75 ** 2 - (W / 2 - yIn) ** 2); // dónde el arco corta el tramo recto
+  const three = (side) => {
+    const x0 = side === 'l' ? 0 : L;
+    const dir = side === 'l' ? 1 : -1;
+    const hx = x0 + dir * hoop;
+    const sweep = side === 'l' ? 1 : 0;
+    return `M${X(x0)} ${Y(yIn)}L${X(hx + dir * dx)} ${Y(yIn)}`
+      + `A${R3} ${R3} 0 0 ${sweep} ${X(hx + dir * dx)} ${Y(W - yIn)}L${X(x0)} ${Y(W - yIn)}`;
+  };
+  const key = (side) => {
+    const x0 = side === 'l' ? 0 : L - 5.8;
+    return rect(X, Y, x0, W / 2 - 2.45, x0 + 5.8, W / 2 + 2.45);
+  };
+  const c = 1.8 * s;
+  return {
+    id: 'basketball',
+    length: L,
+    width: W,
+    box,
+    lines: [
+      { d: rect(X, Y, 0, 0, L, W), weight: 'main' },
+      { d: line(X, Y, L / 2, 0, L / 2, W) },
+      { d: `M${X(L / 2 + 1.8)} ${Y(W / 2)}A${c} ${c} 0 1 1 ${X(L / 2 - 1.8)} ${Y(W / 2)}A${c} ${c} 0 1 1 ${X(L / 2 + 1.8)} ${Y(W / 2)}` },
+      { d: three('l') },
+      { d: three('r') },
+      { d: key('l') },
+      { d: key('r') },
+    ],
+    walls: [],
+    dots: [hoop, L - hoop].map((mx) => ({ cx: X(mx), cy: Y(W / 2), r: s * 0.3 })),
+    ball: { from: [6, 11], to: [L - hoop, W / 2], arc: 2.4, r: s * 0.16 },
+  };
+}
+
 export const COURTS = [padel(), futsal(), tennis()];
+export const COURT_BY_ID = {
+  padel: COURTS[0],
+  futsal: COURTS[1],
+  tennis: COURTS[2],
+  basketball: basketball(),
+};
 
 /**
  * Posición de la pelota para un progreso t ∈ [0,1] (trayectoria parabólica

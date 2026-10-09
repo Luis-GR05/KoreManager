@@ -158,7 +158,14 @@ serve(async (req) => {
     return json(req, { error: "rate_limited", scope: "daily", resetAt: daily.resetAt }, 429, { "retry-after": retryAfter(daily.resetAt) });
   }
 
-  const context = userId
+  // Instalaciones actuales (las gestiona el administrador): siempre desde la BD
+  const { data: inst } = await admin.from("instalaciones").select("nombre, tipo, estado").order("tipo").order("nombre").limit(80);
+  const installations = (inst ?? [])
+    // deno-lint-ignore no-explicit-any
+    .map((i: any) => `- ${i.nombre} (${i.tipo ?? "otros"}): ${i.estado ?? "disponible"}`)
+    .join("\n") || "- (no hay instalaciones dadas de alta)";
+
+  const personalContext = userId
     ? await userContext(admin, userId, lang)
     : `Visitante sin sesión iniciada. Fecha de hoy: ${new Date().toISOString().slice(0, 10)}. Para ver o gestionar reservas debe [iniciar sesión](/login) o [crear una cuenta](/register).`;
 
@@ -173,7 +180,7 @@ serve(async (req) => {
         signal: controller.signal,
         headers: { "content-type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt(context, lang) }] },
+          systemInstruction: { parts: [{ text: systemPrompt(`INSTALACIONES ACTUALES\n${installations}\n\n${personalContext}`, lang) }] },
           contents: turns.map((t) => ({ role: t.role === "assistant" ? "model" : "user", parts: [{ text: t.content }] })),
           generationConfig: { temperature: 0.4, maxOutputTokens: 400 },
         }),

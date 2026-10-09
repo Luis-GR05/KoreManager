@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail, User, Phone, MapPin, Calendar, IdCard, ArrowRight, ArrowLeft, CheckCircle, Building2 } from 'lucide-react';
+import { Mail, User, Phone, MapPin, IdCard, ArrowRight, ArrowLeft, CheckCircle, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import PasswordInput, { PasswordStrength } from '../components/ui/PasswordInput';
+import DatePicker from '../components/ui/DatePicker';
 import AuthShell from '../components/auth/AuthShell';
 import Seo, { SITE_URL } from '../components/Seo';
 import useCountdown from '../hooks/useCountdown';
 import { registerLimiter, authErrorKey } from '../lib/rateLimit';
 import {
   MIN_AGE, PROVINCE_LIST, normalizeDni, normalizeEmail, normalizePhone, normalizeSpaces,
-  provinceFromPostalCode, suggestEmail, validateAddress, validateBirthDate, validateCity, validateDni,
+  provinceFromPostalCode, suggestEmail, dniLetterFor, cleanDniNumber, validateAddress, validateBirthDate, validateCity, validateDni,
   validateEmail, validateName, validatePassword, validatePasswordMatch, validatePhone,
   validatePostalCode, validateProvince,
 } from '../lib/validation';
@@ -102,7 +103,12 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
     let v = type === 'checkbox' ? checked : value;
-    if (name === 'dni') v = String(v).toUpperCase().replace(/\s/g, '').slice(0, 10);
+    if (name === 'dni') {
+      // El usuario escribe solo los números; la letra se calcula y se añade sola
+      const num = cleanDniNumber(v);
+      const letter = dniLetterFor(num);
+      v = letter ? num + letter : num;
+    }
     if (name === 'postalCode') v = String(v).replace(/\D/g, '').slice(0, 5);
     setFormData((prev) => {
       const next = { ...prev, [name]: v };
@@ -239,6 +245,10 @@ export default function Register() {
     );
   }
 
+  // DNI: se muestra solo la parte numérica; la letra va en una etiqueta aparte
+  const dniLetter = /[A-Z]$/.test(formData.dni) && formData.dni.length === 9 ? formData.dni.slice(-1) : null;
+  const dniNumberPart = dniLetter ? formData.dni.slice(0, -1) : formData.dni;
+
   const field = (name) => ({
     name,
     value: formData[name],
@@ -334,9 +344,35 @@ export default function Register() {
           {step === 1 && (
             <>
               <Input icon={Phone} id="reg-phone" type="tel" label={t('register.phone')} hint={t('register.phoneHint')} autoComplete="tel" inputMode="tel" maxLength={20} {...field('phone')} />
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Input icon={IdCard} id="reg-dni" label={t('register.dni')} hint={t('register.dniHint')} autoComplete="off" autoCapitalize="characters" spellCheck={false} {...field('dni')} />
-                <Input icon={Calendar} id="reg-birth" type="date" label={t('register.birthDate')} autoComplete="bday" max={maxBirthDate()} min="1900-01-01" {...field('birthDate')} />
+              <div className="grid gap-5 sm:grid-cols-2 sm:items-start">
+                <Input
+                  icon={IdCard}
+                  id="reg-dni"
+                  label={t('register.dni')}
+                  hint={t('register.dniHint')}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  inputMode={/^[XYZ]/.test(formData.dni) ? 'text' : 'numeric'}
+                  maxLength={9}
+                  {...field('dni')}
+                  value={dniNumberPart}
+                  trailing={(
+                    <span
+                      aria-live="polite"
+                      className={`grid h-9 min-w-9 place-items-center rounded-lg px-2 font-display text-xl font-black transition-colors ${dniLetter ? 'bg-brand-purple text-white dark:bg-brand-lime dark:text-[#0F0F1A]' : 'theme-elevated theme-faint'}`}
+                    >
+                      <span className="sr-only">{t('register.dniLetter')}: </span>{dniLetter ?? '?'}
+                    </span>
+                  )}
+                />
+                <DatePicker
+                  id="reg-birth"
+                  label={t('register.birthDate')}
+                  max={maxBirthDate()}
+                  min="1900-01-01"
+                  {...field('birthDate')}
+                />
               </div>
             </>
           )}

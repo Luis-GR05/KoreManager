@@ -17,12 +17,7 @@ const BARS = [6, 9, 7, 12, 10, 15];
  */
 function Timetable({ inView }) {
   const { t } = useTranslation();
-  const COURTS = [
-    `${t('landing.sports.padel.name')} 1`,
-    `${t('landing.sports.padel.name')} 2`,
-    `${t('landing.sports.tennis.name')} 1`,
-    t('landing.sports.futsal.name'),
-  ];
+  const COURTS = [1, 2, 3, 4].map((n) => t('landing.features.mock.court', { n }));
   return (
     <div className="mt-8" aria-hidden="true">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs text-white/65">

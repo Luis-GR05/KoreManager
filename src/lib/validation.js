@@ -119,6 +119,32 @@ export function dniLetterOk(v) {
   return DNI_LETTERS[num % 23] === d.slice(-1);
 }
 
+/**
+ * Letra de control de un DNI (8 números) o NIE (X/Y/Z + 7 números).
+ * @param {string} num  parte numérica, p. ej. "12345678" o "X1234567"
+ * @returns {string|null}  la letra, o null si el número aún está incompleto
+ */
+export function dniLetterFor(num) {
+  const n = String(num ?? '').toUpperCase();
+  if (!/^([0-9]{8}|[XYZ][0-9]{7})$/.test(n)) return null;
+  const value = Number(n.replace('X', '0').replace('Y', '1').replace('Z', '2'));
+  return DNI_LETTERS[value % 23];
+}
+
+/**
+ * Limpia lo que escribe el usuario en el campo DNI/NIE: solo números (y X/Y/Z
+ * al principio para NIE), máximo 8 caracteres. Si pega un DNI completo con
+ * letra, se descarta su letra porque la calculamos nosotros.
+ * @param {string} raw
+ */
+export function cleanDniNumber(raw) {
+  let s = String(raw ?? '').toUpperCase().replace(/[^0-9XYZA-Z]/g, '');
+  if (/^([0-9]{8}|[XYZ][0-9]{7})[A-Z]$/.test(s)) s = s.slice(0, -1);
+  const first = /^[XYZ]/.test(s) ? s[0] : '';
+  const digits = s.slice(first ? 1 : 0).replace(/\D/g, '');
+  return (first + digits).slice(0, 8);
+}
+
 export function validateDni(v) {
   const d = normalizeDni(v);
   if (!d) return err('required');

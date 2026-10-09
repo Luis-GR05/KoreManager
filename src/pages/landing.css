@@ -43,62 +43,98 @@
 .nav-link:hover::after,
 .nav-link:focus-visible::after { transform: scaleX(1); transform-origin: left; }
 
-/* ── Hero a sangre ───────────────────────────────────────── */
-.hero__photo { object-position: 38% 40%; }
-.hero__shade {
+/* ── Hero de marca ───────────────────────────────────────── */
+.hero__bg {
   background:
-    linear-gradient(180deg, rgba(10, 7, 27, 0.55) 0%, rgba(10, 7, 27, 0) 22%, rgba(10, 7, 27, 0.1) 45%, rgba(10, 7, 27, 0.92) 82%, #0A071B 100%),
-    linear-gradient(90deg, rgba(42, 11, 82, 0.55), rgba(10, 7, 27, 0) 60%);
+    radial-gradient(55% 60% at 75% 45%, rgba(138, 43, 226, 0.42), transparent 70%),
+    radial-gradient(40% 50% at 10% 90%, rgba(46, 242, 200, 0.10), transparent 70%),
+    radial-gradient(80% 80% at 50% 0%, #1E0B3D 0%, transparent 70%),
+    linear-gradient(180deg, #120A26 0%, #0A071B 100%);
 }
-.hero__title {
-  font-size: clamp(3.6rem, 11.2vw, 12.5rem);
-  line-height: 0.82;
-  letter-spacing: -0.012em;
-}
-.hero__title-2 { padding-left: 0.6em; }
-@media (max-width: 639px) { .hero__title-2 { padding-left: 0; } }
+.hero__vignette { background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(5, 3, 15, 0.75) 100%); pointer-events: none; }
 
-/* Marcador de retransmisión */
-.scorebug {
-  position: absolute;
-  top: 6.5rem;
-  right: clamp(1.25rem, 3vw, 2.5rem);
-  width: 17.5rem;
-  border-radius: 0.9rem;
-  overflow: hidden;
-  background: rgba(10, 7, 27, 0.72);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 20px 40px -20px rgba(0, 0, 0, 0.8);
-  color: #fff;
-  font-size: 0.8rem;
+.stream { stroke-dasharray: 260 1400; animation: stream-flow 7s linear infinite; }
+.stream--2 { animation-duration: 9s; animation-delay: -3s; stroke-dasharray: 180 1200; }
+.stream--3 { animation-duration: 11s; animation-delay: -6s; opacity: 0.7; }
+@keyframes stream-flow { from { stroke-dashoffset: 1660; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .stream { animation: none; stroke-dasharray: none; opacity: 0.35; } }
+
+.hero__title {
+  font-size: clamp(3.3rem, 7vw, 7.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
 }
-.scorebug__head {
+.hero__title-glow {
+  color: transparent;
+  background: linear-gradient(90deg, #CCFF00 0%, #9BF53A 45%, #2EF2C8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Escenario del logo */
+.hero-stage {
+  --mx: 0;
+  --my: 0;
+  position: relative;
+  height: clamp(320px, 42vw, 600px);
+  perspective: 1200px;
+}
+.hero-stage__halo {
+  position: absolute;
+  inset: 12% 14%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(204, 255, 0, 0.22), rgba(138, 43, 226, 0.28) 55%, transparent 75%);
+  filter: blur(30px);
+  animation: halo 6s ease-in-out infinite;
+}
+@keyframes halo { 50% { transform: scale(1.08); opacity: 0.8; } }
+.hero-stage__logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 92%;
+  width: auto;
+  transform: translate(-50%, -50%) rotateY(calc(var(--mx) * 16deg)) rotateX(calc(var(--my) * -12deg));
+  transition: transform 0.6s var(--ease-out);
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 30px rgba(138, 43, 226, 0.45));
+  animation: logo-float 7s ease-in-out infinite;
+}
+@keyframes logo-float { 50% { margin-top: -14px; } }
+
+.glass-chip {
+  position: absolute;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.85rem;
-  background: var(--lime);
-  color: var(--ink);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 0.7rem;
+  gap: 0.7rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16), 0 20px 40px -18px rgba(0, 0, 0, 0.8);
+  transition: transform 0.6s var(--ease-out);
 }
-.scorebug__live { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--ink); }
-@keyframes live { 50% { opacity: 0.3; } }
-.scorebug ul { padding: 0.35rem 0.85rem 0.5rem; }
-.scorebug li { display: flex; align-items: center; justify-content: space-between; padding: 0.3rem 0; font-weight: 600; }
-.scorebug li + li { border-top: 1px solid rgba(255, 255, 255, 0.1); }
-@media (max-width: 767px) { .scorebug { display: none; } }
-
-/* ── Valla LED ───────────────────────────────────────────── */
-.ticker { overflow: hidden; background: var(--lime); color: var(--ink); border-block: 1px solid rgba(0, 0, 0, 0.2); }
-.ticker__track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
-.ticker:hover .ticker__track { animation-play-state: paused; }
-.ticker__row { display: flex; gap: 2rem; padding: 1rem 1rem; font-family: 'Big Shoulders Display Variable', sans-serif; font-weight: 900; font-size: clamp(1.6rem, 3vw, 2.6rem); text-transform: uppercase; white-space: nowrap; line-height: 1; }
-@keyframes marquee { to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .ticker__track { animation: none; } }
+.glass-chip--a { left: -2%; top: 14%; transform: translate(calc(var(--mx) * -18px), calc(var(--my) * -14px)); }
+.glass-chip--b { right: -2%; top: 46%; transform: translate(calc(var(--mx) * 22px), calc(var(--my) * 16px)); max-width: 14rem; }
+.glass-chip--c { left: 8%; bottom: 8%; transform: translate(calc(var(--mx) * -12px), calc(var(--my) * 20px)); }
+@media (max-width: 1023px) {
+  .hero-stage { order: -1; height: 300px; }
+  .glass-chip--a { left: 0; top: 4%; }
+  .glass-chip--b { right: 0; top: auto; bottom: 6%; }
+  .glass-chip--c { display: none; }
+}
+@media (max-width: 639px) {
+  .hero-stage { height: 250px; margin-bottom: 0.5rem; }
+  .hero-stage__logo { height: 84%; }
+  .glass-chip { padding: 0.5rem 0.7rem; }
+  .glass-chip--b { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage__logo, .hero-stage__halo { animation: none; }
+}
 
 /* ── Paneles de deportes (acordeón horizontal) ───────────── */
 .panels { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -114,7 +150,11 @@
 .panel__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10, 7, 27, 0.1) 30%, rgba(10, 7, 27, 0.92) 100%); transition: background 0.6s ease; }
 .panel__toggle { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; text-align: left; cursor: pointer; }
 .panel__toggle:focus-visible { outline-offset: -6px; border-radius: 1.5rem; }
-.panel__num { font-size: 1.25rem; font-weight: 800; color: var(--lime); }
+.panel__num { display: inline-flex; align-items: center; gap: 0.5rem; align-self: flex-start; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(10, 7, 27, 0.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: 0.8rem; font-weight: 700; color: #fff; }
+.panel__dot { width: 0.55rem; height: 0.55rem; border-radius: 999px; background: #FFCC00; flex-shrink: 0; }
+.panel__dot[data-ok='true'] { background: var(--lime); box-shadow: 0 0 10px rgba(204, 255, 0, 0.8); }
+.panel--skeleton { background: linear-gradient(110deg, #1A1A2E 30%, #24244A 50%, #1A1A2E 70%) 0 0 / 200% 100%; animation: shimmer 1.6s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
 .panel__vname { display: none; }
 .panel__body { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; min-height: 30rem; padding: 2rem; pointer-events: none; }
 .panel__body a { pointer-events: auto; }

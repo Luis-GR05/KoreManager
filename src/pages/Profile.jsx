@@ -6,6 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import DatePicker from '../components/ui/DatePicker';
 import { useProfile } from '../hooks/useprofile';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
@@ -406,12 +407,14 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.birthDate')}</label>
-                <Input
-                  icon={Calendar}
-                  type="date"
+                <DatePicker
+                  id="profile-birth"
+                  name="fecha_nacimiento"
+                  label={t('profile.birthDate')}
+                  min="1900-01-01"
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 14)).toISOString().slice(0, 10)}
                   value={formData.fecha_nacimiento}
-                  onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value === 'invalid' ? '' : e.target.value })}
                   required
                 />
               </div>

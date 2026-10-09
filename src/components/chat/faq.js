@@ -57,10 +57,9 @@ export const FAQ = [
     id: 'facilities',
     q: { es: '¿Qué instalaciones hay?', en: 'Which facilities are there?' },
     a: {
-      es: '- **Pádel:** 6 pistas cubiertas y descubiertas con LED.\n- **Fútbol sala:** 3 campos de resina con marcaje oficial.\n- **Tenis:** 4 pistas de tierra batida y pista dura.\nEl estado de cada una (disponible o en mantenimiento) aparece en tu [panel](/dashboard).',
-      en: '- **Padel:** 6 indoor and outdoor courts with LED lighting.\n- **Futsal:** 3 resin pitches with official markings.\n- **Tennis:** 4 clay and hard courts.\nEach court\'s status (available or under maintenance) is on your [dashboard](/dashboard).',
+      es: 'Las pistas y deportes disponibles los gestiona el ayuntamiento y pueden cambiar. Puedes verlos todos, con su estado (disponible o en mantenimiento), en tu [panel](/dashboard) y al [Reservar](/reservar). Si quieres, pregúntame y te digo qué hay ahora mismo.',
+      en: 'Courts and sports are managed by the council and may change. You can see them all, with their status (available or under maintenance), on your [dashboard](/dashboard) and when you [Book](/reservar). Ask me and I\'ll tell you what\'s available right now.',
     },
-    weight: 0.6, // palabras muy genéricas: pesan menos que las de intención
     keywords: ['instalacion', 'pista', 'padel', 'tenis', 'futbol', 'sala', 'campo', 'deporte', 'facilit', 'court', 'tennis', 'futsal', 'sport', 'pitch'],
   },
   {

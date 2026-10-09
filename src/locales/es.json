@@ -471,20 +471,18 @@
     },
     "hero": {
       "badge": "GESTIÓN MUNICIPAL INTELIGENTE",
-      "title1": "Reserva tu pista",
-      "title2": "en 30 segundos.",
-      "desc": "Pádel, fútbol sala y tenis en las instalaciones municipales de tu ciudad. Mira qué está libre, elige tu hora y paga desde el móvil. Sin colas ni llamadas.",
+      "title1": "El deporte de tu ciudad,",
+      "title2": "a un clic de distancia.",
+      "desc": "Las pistas municipales de tu ciudad, en tu móvil. Mira qué está libre, elige tu hora y paga en segundos. Sin colas ni llamadas.",
       "cta1": "Reserva tu pista",
       "cta2": "Ver instalaciones",
       "scoreboard": "Cifras de KoreManager",
-      "photos": "Deportes disponibles",
-      "bug": "Pistas",
-      "bugCourts": "pistas",
-      "open": "Abierto 09:00–22:00"
+      "realtime": "Disponibilidad en tiempo real",
+      "realtimeDesc": "Lo que ves libre, está libre"
     },
     "stats": {
       "members": "Socios activos",
-      "installations": "Instalaciones",
+      "installations": "Pistas",
       "availability": "Disponibilidad",
       "time": "Para reservar"
     },
@@ -534,27 +532,6 @@
       "badge": "INSTALACIONES",
       "title": "Pistas reglamentarias",
       "desc": "Nuestras instalaciones están preparadas para ofrecerte la mejor experiencia deportiva, sea cual sea tu nivel.",
-      "padel": {
-        "name": "Pádel",
-        "courts": "6 pistas",
-        "desc": "Pistas cubiertas y descubiertas con iluminación LED profesional.",
-        "size": "20 × 10 m",
-        "surface": "Cristal y malla"
-      },
-      "futsal": {
-        "name": "Fútbol Sala",
-        "courts": "3 campos",
-        "desc": "Campos de resina con marcaje oficial y cabinas de arbitraje.",
-        "size": "40 × 20 m",
-        "surface": "Resina"
-      },
-      "tennis": {
-        "name": "Tenis",
-        "courts": "4 pistas",
-        "desc": "Superficie de tierra batida y pista dura certificada.",
-        "size": "23,77 × 10,97 m",
-        "surface": "Tierra batida y pista dura"
-      },
       "cta": "Reservar",
       "progress": "Elige deporte",
       "scrollHint": "Sigue bajando: la siguiente pista se dibuja sola",
@@ -595,7 +572,7 @@
         "taken": "Ocupada",
         "yours": "Tu reserva",
         "confirmed": "Reserva confirmada",
-        "booking": "Pista 2 Pádel, hoy a las 19:00",
+        "booking": "Pista 2, hoy a las 19:00",
         "reminder": "Te avisamos 1 h antes",
         "hours": "Horas en pista",
         "months": [
@@ -605,7 +582,8 @@
           "Ago",
           "Sep",
           "Oct"
-        ]
+        ],
+        "court": "Pista {{n}}"
       }
     },
     "about": {
@@ -637,20 +615,11 @@
       "title1": "Menos llamadas.",
       "title2": "Más partidos."
     },
-    "ticker": [
-      "Pádel",
-      "Fútbol sala",
-      "Tenis",
-      "Reserva en 30 segundos",
-      "500+ socios",
-      "Pago seguro",
-      "13 pistas",
-      "Abierto todos los días"
-    ],
     "panels": {
-      "title": "Tres deportes. Trece pistas.",
-      "desc": "Elige deporte y mira qué pistas están libres ahora mismo.",
-      "open": "Ver {{sport}}"
+      "title": "Elige tu deporte",
+      "desc": "Mira qué pistas están disponibles y reserva la tuya.",
+      "open": "Ver {{sport}}",
+      "loading": "Cargando deportes…"
     }
   },
   "register": {
@@ -696,11 +665,12 @@
     "next": "Continuar",
     "prev": "Atrás",
     "phoneHint": "Ej.: 600 123 456",
-    "dniHint": "8 números y letra, o NIE (X, Y, Z)",
+    "dniHint": "Escribe solo los números (o X, Y, Z + 7 números): la letra se calcula sola.",
     "birthDate": "Fecha de nacimiento",
     "addressHint": "Calle, número, piso",
     "provinceAuto": "Se rellena con tu código postal",
-    "honeypot": "No rellenes este campo"
+    "honeypot": "No rellenes este campo",
+    "dniLetter": "Letra"
   },
   "forgot": {
     "toastSuccess": "Correo de recuperación enviado",
@@ -749,8 +719,8 @@
     "retryIn": "Reintenta en {{s}} s"
   },
   "seo": {
-    "landingTitle": "KoreManager · Reserva pistas de pádel, fútbol sala y tenis",
-    "landingDesc": "Reserva pistas deportivas municipales en segundos: pádel, fútbol sala y tenis. Calendario en tiempo real, pago seguro y confirmación al instante.",
+    "landingTitle": "KoreManager · Reserva pistas deportivas municipales",
+    "landingDesc": "Reserva pistas deportivas municipales en segundos. Calendario en tiempo real, pago seguro y confirmación al instante.",
     "loginTitle": "Iniciar sesión · KoreManager",
     "loginDesc": "Accede a tu cuenta de KoreManager para reservar y gestionar tus pistas.",
     "registerTitle": "Crear cuenta · KoreManager",
@@ -761,7 +731,7 @@
   },
   "auth": {
     "panelTitle": "Tu pista te espera.",
-    "panelDesc": "Pádel, fútbol sala y tenis en las instalaciones de tu ciudad. Reserva en segundos, paga con seguridad y juega.",
+    "panelDesc": "Las instalaciones deportivas de tu ciudad, a un clic. Reserva en segundos, paga con seguridad y juega.",
     "panelPoints": [
       "Calendario en tiempo real",
       "Pago seguro con Stripe",
@@ -853,5 +823,49 @@
     "inMinutes": "en {{n}} min",
     "soon": "en unos minutos",
     "faqAnswer": "Respuesta rápida"
+  },
+  "datepicker": {
+    "placeholder": "dd/mm/aaaa",
+    "open": "Elegir fecha en el calendario",
+    "prev": "Mes anterior",
+    "next": "Mes siguiente",
+    "month": "Mes",
+    "year": "Año",
+    "clear": "Borrar",
+    "keys": "Flechas para moverte · Intro para elegir"
+  },
+  "sportsCatalog": {
+    "padel": {
+      "name": "Pádel",
+      "desc": "Pistas con cerramiento de cristal e iluminación para jugar también de noche.",
+      "size": "20 × 10 m",
+      "surface": "Cristal y malla"
+    },
+    "futsal": {
+      "name": "Fútbol sala",
+      "desc": "Campos con marcaje oficial para partidos entre amigos o entrenamientos.",
+      "size": "40 × 20 m",
+      "surface": "Pista cubierta"
+    },
+    "tennis": {
+      "name": "Tenis",
+      "desc": "Pistas reglamentarias para individuales y dobles.",
+      "size": "23,77 × 10,97 m",
+      "surface": "Tierra batida o pista dura"
+    },
+    "basketball": {
+      "name": "Baloncesto",
+      "desc": "Canchas con canastas reglamentarias para 3x3 o partido completo.",
+      "size": "28 × 15 m",
+      "surface": "Parqué o sintético"
+    },
+    "generic": {
+      "desc": "Reserva tu pista de {{sport}} en segundos y comprueba su disponibilidad en tiempo real."
+    },
+    "courts_one": "{{count}} pista",
+    "courts_other": "{{count}} pistas",
+    "available_one": "{{count}} disponible ahora",
+    "available_other": "{{count}} disponibles ahora",
+    "none": "Pronto habrá pistas disponibles. Vuelve en unos días."
   }
 }

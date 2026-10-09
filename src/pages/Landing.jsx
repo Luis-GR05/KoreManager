@@ -3,13 +3,14 @@ import Seo, { SITE_URL } from '../components/Seo';
 import LandingNav from '../components/landing/LandingNav';
 import Hero from '../components/landing/Hero';
 import CourtScroll from '../components/landing/CourtScroll';
-import Ticker from '../components/landing/Ticker';
 import SportPanels from '../components/landing/SportPanels';
 import HowItWorks from '../components/landing/HowItWorks';
 import FeatureBento from '../components/landing/FeatureBento';
 import FinalCta from '../components/landing/FinalCta';
 import VideoCarousel3D from '../components/ui/VideoCarousel3D';
 import Footer from '../components/Footer';
+import useSportsSummary from '../hooks/useSportsSummary';
+import { describeSport } from '../lib/sports';
 import './landing.css';
 
 /**
@@ -56,6 +57,9 @@ function StructuredData({ description }) {
  */
 export default function Landing() {
   const { t } = useTranslation();
+  // Deportes y pistas reales (los gestiona el administrador en la BD)
+  const summary = useSportsSummary();
+  const sports = summary.rows.map((row) => describeSport(row, t));
 
   return (
     <div className="landing min-h-screen bg-[#0F0F1A] text-white">
@@ -66,10 +70,9 @@ export default function Landing() {
       <LandingNav />
 
       <main id="contenido" tabIndex={-1}>
-        <Hero />
-        <Ticker />
-        <div id="deportes"><SportPanels /></div>
-        <CourtScroll />
+        <Hero totalCourts={summary.total} />
+        <div id="deportes"><SportPanels sports={sports} loading={summary.loading} /></div>
+        <CourtScroll sports={sports} />
         <HowItWorks />
         <FeatureBento />
 

@@ -471,20 +471,18 @@
     },
     "hero": {
       "badge": "SMART MUNICIPAL MANAGEMENT",
-      "title1": "Book your court",
-      "title2": "in 30 seconds.",
-      "desc": "Padel, futsal and tennis at your city's municipal facilities. See what's free, pick your time and pay from your phone. No queues, no calls.",
+      "title1": "Your city's sport,",
+      "title2": "one click away.",
+      "desc": "Your city's municipal courts, on your phone. See what's free, pick your time and pay in seconds. No queues, no calls.",
       "cta1": "Book your court",
       "cta2": "See facilities",
       "scoreboard": "KoreManager in numbers",
-      "photos": "Available sports",
-      "bug": "Courts",
-      "bugCourts": "courts",
-      "open": "Open 09:00–22:00"
+      "realtime": "Real-time availability",
+      "realtimeDesc": "If it shows as free, it is free"
     },
     "stats": {
       "members": "Active members",
-      "installations": "Installations",
+      "installations": "Courts",
       "availability": "Availability",
       "time": "To book"
     },
@@ -534,27 +532,6 @@
       "badge": "INSTALLATIONS",
       "title": "Regulation courts",
       "desc": "Our facilities are prepared to offer you the best sporting experience, whatever your level.",
-      "padel": {
-        "name": "Padel",
-        "courts": "6 courts",
-        "desc": "Indoor and outdoor courts with professional LED lighting.",
-        "size": "20 × 10 m",
-        "surface": "Glass and mesh"
-      },
-      "futsal": {
-        "name": "Futsal",
-        "courts": "3 pitches",
-        "desc": "Resin pitches with official markings and referee cabins.",
-        "size": "40 × 20 m",
-        "surface": "Resin"
-      },
-      "tennis": {
-        "name": "Tennis",
-        "courts": "4 courts",
-        "desc": "Clay surface and certified hard court.",
-        "size": "23.77 × 10.97 m",
-        "surface": "Clay and hard court"
-      },
       "cta": "Book",
       "progress": "Choose a sport",
       "scrollHint": "Keep scrolling: the next court draws itself",
@@ -595,7 +572,7 @@
         "taken": "Taken",
         "yours": "Your booking",
         "confirmed": "Booking confirmed",
-        "booking": "Court 2 Padel, today at 19:00",
+        "booking": "Court 2, today at 19:00",
         "reminder": "We'll remind you 1 h before",
         "hours": "Hours on court",
         "months": [
@@ -605,7 +582,8 @@
           "Aug",
           "Sep",
           "Oct"
-        ]
+        ],
+        "court": "Court {{n}}"
       }
     },
     "about": {
@@ -637,20 +615,11 @@
       "title1": "Fewer calls.",
       "title2": "More games."
     },
-    "ticker": [
-      "Padel",
-      "Futsal",
-      "Tennis",
-      "Book in 30 seconds",
-      "500+ members",
-      "Secure payment",
-      "13 courts",
-      "Open every day"
-    ],
     "panels": {
-      "title": "Three sports. Thirteen courts.",
-      "desc": "Pick a sport and see which courts are free right now.",
-      "open": "See {{sport}}"
+      "title": "Pick your sport",
+      "desc": "See which courts are available and book yours.",
+      "open": "See {{sport}}",
+      "loading": "Loading sports…"
     }
   },
   "register": {
@@ -693,14 +662,15 @@
     "next": "Continue",
     "prev": "Back",
     "phoneHint": "E.g. 600 123 456",
-    "dniHint": "8 digits and a letter, or NIE (X, Y, Z)",
+    "dniHint": "Type only the numbers (or X, Y, Z + 7 digits): the letter is calculated for you.",
     "birthDate": "Date of birth",
     "addressHint": "Street, number, floor",
     "provinceAuto": "Filled in from your postal code",
     "errorEmail": "Enter a valid email address.",
     "errorPhone": "Enter a valid phone number.",
     "errorDni": "The DNI/NIE is not valid.",
-    "honeypot": "Leave this field empty"
+    "honeypot": "Leave this field empty",
+    "dniLetter": "Letter"
   },
   "forgot": {
     "toastSuccess": "Recovery email sent",
@@ -749,8 +719,8 @@
     "retryIn": "Retry in {{s}} s"
   },
   "seo": {
-    "landingTitle": "KoreManager · Book padel, futsal and tennis courts",
-    "landingDesc": "Book municipal sports courts in seconds: padel, futsal and tennis. Live calendar, secure payment and instant confirmation.",
+    "landingTitle": "KoreManager · Book municipal sports courts",
+    "landingDesc": "Book municipal sports courts in seconds. Live calendar, secure payment and instant confirmation.",
     "loginTitle": "Log in · KoreManager",
     "loginDesc": "Log in to your KoreManager account to book and manage your courts.",
     "registerTitle": "Create account · KoreManager",
@@ -761,7 +731,7 @@
   },
   "auth": {
     "panelTitle": "Your court is waiting.",
-    "panelDesc": "Padel, futsal and tennis at your city's facilities. Book in seconds, pay securely and play.",
+    "panelDesc": "Your city's sports facilities, one click away. Book in seconds, pay securely and play.",
     "panelPoints": [
       "Live availability calendar",
       "Secure payment with Stripe",
@@ -853,5 +823,49 @@
     "inMinutes": "in {{n}} min",
     "soon": "in a few minutes",
     "faqAnswer": "Quick answer"
+  },
+  "datepicker": {
+    "placeholder": "dd/mm/yyyy",
+    "open": "Pick a date from the calendar",
+    "prev": "Previous month",
+    "next": "Next month",
+    "month": "Month",
+    "year": "Year",
+    "clear": "Clear",
+    "keys": "Arrow keys to move · Enter to pick"
+  },
+  "sportsCatalog": {
+    "padel": {
+      "name": "Padel",
+      "desc": "Glass-walled courts with lighting so you can play at night too.",
+      "size": "20 × 10 m",
+      "surface": "Glass and mesh"
+    },
+    "futsal": {
+      "name": "Futsal",
+      "desc": "Pitches with official markings for friendly games or training.",
+      "size": "40 × 20 m",
+      "surface": "Indoor court"
+    },
+    "tennis": {
+      "name": "Tennis",
+      "desc": "Regulation courts for singles and doubles.",
+      "size": "23.77 × 10.97 m",
+      "surface": "Clay or hard court"
+    },
+    "basketball": {
+      "name": "Basketball",
+      "desc": "Courts with regulation hoops for 3x3 or full games.",
+      "size": "28 × 15 m",
+      "surface": "Parquet or synthetic"
+    },
+    "generic": {
+      "desc": "Book your {{sport}} court in seconds and check availability in real time."
+    },
+    "courts_one": "{{count}} court",
+    "courts_other": "{{count}} courts",
+    "available_one": "{{count}} available now",
+    "available_other": "{{count}} available now",
+    "none": "Courts will be available soon. Check back in a few days."
   }
 }

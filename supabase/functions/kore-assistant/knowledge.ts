@@ -4,9 +4,7 @@
  */
 export const KNOWLEDGE = `
 INSTALACIONES
-- Pádel: 6 pistas (20 × 10 m), cubiertas y descubiertas, iluminación LED, cerramiento de cristal y malla.
-- Fútbol sala: 3 campos (40 × 20 m) de resina con marcaje oficial.
-- Tenis: 4 pistas (23,77 × 10,97 m) de tierra batida y pista dura.
+- Los deportes y las pistas los gestiona el administrador y pueden cambiar: usa SIEMPRE la lista de INSTALACIONES ACTUALES del contexto, nunca cifras de memoria.
 - El estado de cada pista (disponible, mantenimiento, ocupada) se ve en el panel (/dashboard). Las pistas en mantenimiento no se pueden reservar.
 
 HORARIOS Y PRECIO
