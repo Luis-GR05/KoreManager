@@ -22,11 +22,18 @@
       "legal": "Aviso legal",
       "cookies": "Política de cookies"
     },
-    "copyright": "© 2026 Luis Gordillo Rodríguez · Proyecto de Fin de Grado",
+    "copyright": "© 2026 KoreManager",
     "explore": "Explora",
     "legalTitle": "Legal",
     "account": "Tu cuenta",
-    "register": "Crear cuenta"
+    "register": "Crear cuenta",
+    "devBy": "Desarrollado por",
+    "portfolio": "Ver portfolio",
+    "play": "¿Jugamos?",
+    "playDesc": "Tu próxima pista está a tres pasos.",
+    "credits": "Créditos",
+    "newTab": "(se abre en una pestaña nueva)",
+    "photos": "Fotos: Unsplash"
   },
   "menu": {
     "dashboard": "Inicio",
@@ -464,12 +471,13 @@
     },
     "hero": {
       "badge": "GESTIÓN MUNICIPAL INTELIGENTE",
-      "title1": "El deporte de tu ciudad,",
-      "title2": "a un clic de distancia.",
-      "desc": "Olvídate de las colas y las llamadas. Reserva tu pista, gestiona tu equipo y disfruta del deporte con la plataforma municipal más avanzada.",
+      "title1": "Reserva tu pista",
+      "title2": "en 30 segundos.",
+      "desc": "Pádel, fútbol sala y tenis en las instalaciones municipales de tu ciudad. Mira qué está libre, elige tu hora y paga desde el móvil. Sin colas ni llamadas.",
       "cta1": "Reserva tu pista",
       "cta2": "Ver instalaciones",
-      "scoreboard": "Cifras de KoreManager"
+      "scoreboard": "Cifras de KoreManager",
+      "photos": "Deportes disponibles"
     },
     "stats": {
       "members": "Socios activos",

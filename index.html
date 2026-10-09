@@ -18,10 +18,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/favicon/site.webmanifest" />
 
-    <!-- Rendimiento: precarga de la imagen del hero (LCP) -->
-    <link rel="preload" as="image" type="image/avif"
-      imagesrcset="/images/fondoHero-960.avif 960w, /images/fondoHero-1600.avif 1600w, /images/fondoHero-2400.avif 2400w"
-      imagesizes="100vw" fetchpriority="high" />
+    <!-- Rendimiento: las fotos se sirven desde el CDN de Unsplash -->
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check } from 'lucide-react';
 import { COURTS, VIEW_W, VIEW_H } from '../landing/courts';
 import { LangSwitch } from '../landing/LandingNav';
+import { photoUrl, photoSrcSet } from '../../lib/photos';
 
 /**
  * Estructura común de las pantallas de acceso (login, registro, recuperación):
@@ -23,11 +24,16 @@ export default function AuthShell({ title, subtitle, children, backTo = '/', bac
     <div className="min-h-[100dvh] w-full lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] theme-bg">
       {/* ── Panel de marca ── */}
       <aside className="auth-panel relative hidden overflow-hidden bg-[#0A071B] lg:flex lg:flex-col lg:justify-between p-10 xl:p-14 text-white">
-        <picture className="absolute inset-0 -z-0" aria-hidden="true">
-          <source type="image/avif" srcSet="/images/fondoHero-960.avif" />
-          <img src="/images/fondoHero-960.webp" alt="" className="h-full w-full object-cover object-[22%_50%] opacity-70" />
-        </picture>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A071B] via-[#0A071B]/70 to-[#0A071B]/30" aria-hidden="true" />
+        <img
+          src={photoUrl('auth', { w: 1000, h: 1300 })}
+          srcSet={photoSrcSet('auth', [700, 1000, 1400], 1.3)}
+          sizes="45vw"
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A071B] via-[#0A071B]/75 to-[#2a0b52]/45" aria-hidden="true" />
 
         <Link to="/" className="relative z-10 flex w-max items-center gap-3 rounded-xl">
           <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-2xl bg-[#0F0F1A] ring-1 ring-white/10">
@@ -70,7 +76,7 @@ export default function AuthShell({ title, subtitle, children, backTo = '/', bac
           )}
         </div>
 
-        <p className="relative z-10 text-xs text-white/40">{t('footer.copyright')}</p>
+        <p className="relative z-10 text-xs text-white/60">{t('footer.copyright')}</p>
       </aside>
 
       {/* ── Formulario ── */}

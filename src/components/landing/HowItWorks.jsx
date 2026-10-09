@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import useInView from '../../hooks/useInView';
+import { photoUrl, photoSrcSet } from '../../lib/photos';
 
 /**
  * Proceso de reserva en tres pasos. Es una secuencia real, por eso va numerada;
@@ -11,7 +12,17 @@ export default function HowItWorks() {
   const steps = ['s1', 's2', 's3'];
 
   return (
-    <section aria-labelledby="how-title" className="relative overflow-hidden border-y border-white/10 bg-[#13132A] px-5 sm:px-8 py-20 sm:py-28">
+    <section aria-labelledby="how-title" className="relative isolate overflow-hidden border-y border-white/10 bg-[#13132A] px-5 sm:px-8 py-20 sm:py-28">
+      <img
+        src={photoUrl('how', { w: 1600, h: 700 })}
+        srcSet={photoSrcSet('how', [800, 1600, 2400], 0.44)}
+        sizes="100vw"
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30"
+      />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#13132A] via-[#13132A]/85 to-[#13132A]/40" aria-hidden="true" />
       <div ref={ref} className="mx-auto max-w-7xl">
         <h2 id="how-title" className="font-display text-4xl sm:text-6xl font-black uppercase leading-[0.9] text-white">
           {t('landing.how.title')}

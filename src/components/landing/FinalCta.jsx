@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { COURTS, VIEW_W, VIEW_H } from './courts';
+import { PHOTOS, photoUrl, photoSrcSet } from '../../lib/photos';
 
 /**
  * Cierre de la landing: lema a gran tamaño sobre una pista de tenis en
@@ -29,7 +30,7 @@ export default function FinalCta() {
         </h2>
 
         <div className="mt-14 grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-6">
+          <div className="self-center lg:col-span-6">
             <h3 className="text-2xl font-bold text-white">
               {t('landing.about.title2')} {t('landing.about.title3')}
             </h3>
@@ -44,11 +45,22 @@ export default function FinalCta() {
             </div>
           </div>
 
-          <figure className="lg:col-span-5 lg:col-start-8 self-end border-l-2 border-brand-purple pl-6">
-            <blockquote className="font-display text-3xl sm:text-4xl font-bold leading-[1.05] text-white">
-              {t('landing.about.testimonial')}
-            </blockquote>
-            <figcaption className="mt-5 text-sm text-white/55">{t('landing.about.testimonialAuthor')}</figcaption>
+          <figure className="final-photo lg:col-span-6">
+            <img
+              src={photoUrl('final', { w: 900, h: 1000 })}
+              srcSet={photoSrcSet('final', [500, 900, 1300], 1.11)}
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              alt={PHOTOS.final.alt}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+            <figcaption className="final-photo__quote">
+              <blockquote className="font-display text-3xl sm:text-4xl font-bold leading-[1.02] text-white">
+                {t('landing.about.testimonial')}
+              </blockquote>
+              <p className="mt-4 text-sm text-white/70">{t('landing.about.testimonialAuthor')}</p>
+            </figcaption>
           </figure>
         </div>
       </div>

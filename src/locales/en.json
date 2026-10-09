@@ -22,11 +22,18 @@
       "legal": "Legal notice",
       "cookies": "Cookie policy"
     },
-    "copyright": "© 2026 Luis Gordillo Rodríguez · Final Degree Project",
+    "copyright": "© 2026 KoreManager",
     "explore": "Explore",
     "legalTitle": "Legal",
     "account": "Your account",
-    "register": "Sign up"
+    "register": "Sign up",
+    "devBy": "Developed by",
+    "portfolio": "View portfolio",
+    "play": "Game on?",
+    "playDesc": "Your next court is three steps away.",
+    "credits": "Credits",
+    "newTab": "(opens in a new tab)",
+    "photos": "Photos: Unsplash"
   },
   "menu": {
     "dashboard": "Dashboard",
@@ -464,12 +471,13 @@
     },
     "hero": {
       "badge": "SMART MUNICIPAL MANAGEMENT",
-      "title1": "Your city's sports,",
-      "title2": "just a click away.",
-      "desc": "Forget about queues and calls. Book your court, manage your team and enjoy sports with the most advanced municipal platform.",
+      "title1": "Book your court",
+      "title2": "in 30 seconds.",
+      "desc": "Padel, futsal and tennis at your city's municipal facilities. See what's free, pick your time and pay from your phone. No queues, no calls.",
       "cta1": "Book your court",
       "cta2": "See facilities",
-      "scoreboard": "KoreManager in numbers"
+      "scoreboard": "KoreManager in numbers",
+      "photos": "Available sports"
     },
     "stats": {
       "members": "Active members",
