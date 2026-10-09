@@ -477,7 +477,10 @@
       "cta1": "Book your court",
       "cta2": "See facilities",
       "scoreboard": "KoreManager in numbers",
-      "photos": "Available sports"
+      "photos": "Available sports",
+      "bug": "Courts",
+      "bugCourts": "courts",
+      "open": "Open 09:00–22:00"
     },
     "stats": {
       "members": "Active members",
@@ -529,7 +532,7 @@
     },
     "sports": {
       "badge": "INSTALLATIONS",
-      "title": "Sports for everyone",
+      "title": "Regulation courts",
       "desc": "Our facilities are prepared to offer you the best sporting experience, whatever your level.",
       "padel": {
         "name": "Padel",
@@ -633,6 +636,21 @@
     "final": {
       "title1": "Fewer calls.",
       "title2": "More games."
+    },
+    "ticker": [
+      "Padel",
+      "Futsal",
+      "Tennis",
+      "Book in 30 seconds",
+      "500+ members",
+      "Secure payment",
+      "13 courts",
+      "Open every day"
+    ],
+    "panels": {
+      "title": "Three sports. Thirteen courts.",
+      "desc": "Pick a sport and see which courts are free right now.",
+      "open": "See {{sport}}"
     }
   },
   "register": {

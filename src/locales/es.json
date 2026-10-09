@@ -477,7 +477,10 @@
       "cta1": "Reserva tu pista",
       "cta2": "Ver instalaciones",
       "scoreboard": "Cifras de KoreManager",
-      "photos": "Deportes disponibles"
+      "photos": "Deportes disponibles",
+      "bug": "Pistas",
+      "bugCourts": "pistas",
+      "open": "Abierto 09:00–22:00"
     },
     "stats": {
       "members": "Socios activos",
@@ -529,7 +532,7 @@
     },
     "sports": {
       "badge": "INSTALACIONES",
-      "title": "Deportes para todos",
+      "title": "Pistas reglamentarias",
       "desc": "Nuestras instalaciones están preparadas para ofrecerte la mejor experiencia deportiva, sea cual sea tu nivel.",
       "padel": {
         "name": "Pádel",
@@ -633,6 +636,21 @@
     "final": {
       "title1": "Menos llamadas.",
       "title2": "Más partidos."
+    },
+    "ticker": [
+      "Pádel",
+      "Fútbol sala",
+      "Tenis",
+      "Reserva en 30 segundos",
+      "500+ socios",
+      "Pago seguro",
+      "13 pistas",
+      "Abierto todos los días"
+    ],
+    "panels": {
+      "title": "Tres deportes. Trece pistas.",
+      "desc": "Elige deporte y mira qué pistas están libres ahora mismo.",
+      "open": "Ver {{sport}}"
     }
   },
   "register": {

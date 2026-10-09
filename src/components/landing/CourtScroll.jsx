@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { COURTS, VIEW_W, VIEW_H, ballAt } from './courts';
 import useReducedMotion from '../../hooks/useReducedMotion';
-import { photoSrcSet, photoUrl } from '../../lib/photos';
 
-const SPORT_PHOTOS = { padel: 'scrollPadel', futsal: 'scrollFutsal', tennis: 'scrollTennis' };
 
 const clamp = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
 
@@ -111,7 +109,7 @@ export default function CourtScroll() {
 
   return (
     <section
-      id="deportes"
+      id="pistas"
       ref={sectionRef}
       className="court-scroll relative bg-[#0F0F1A]"
       style={{ height: `${n * 100 + 70}vh` }}
@@ -205,22 +203,6 @@ export default function CourtScroll() {
 
           {/* ── Pista ── */}
           <div className="court-scroll__stage" aria-hidden="true">
-            {/* Foto real de cada deporte detrás del plano de la pista */}
-            <div className="court-photos">
-              {sports.map(({ key }, i) => (
-                <img
-                  key={key}
-                  src={photoUrl(SPORT_PHOTOS[key], { w: 1100, h: 760 })}
-                  srcSet={photoSrcSet(SPORT_PHOTOS[key], [600, 1100, 1600], 0.69)}
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  data-active={i === active}
-                  className="court-photo"
-                />
-              ))}
-            </div>
             <div className="court-scroll__plane">
               <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="h-auto w-full overflow-visible">
                 {sports.map(({ key, court }, i) => {

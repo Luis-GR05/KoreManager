@@ -43,93 +43,107 @@
 .nav-link:hover::after,
 .nav-link:focus-visible::after { transform: scaleX(1); transform-origin: left; }
 
-/* ── Hero ─────────────────────────────────────────────────── */
-.hero__art { opacity: 0.32; }
-.hero__art img { object-position: 30% 50%; filter: saturate(1.1); }
-.hero__veil {
+/* ── Hero a sangre ───────────────────────────────────────── */
+.hero__photo { object-position: 38% 40%; }
+.hero__shade {
   background:
-    radial-gradient(60% 70% at 78% 45%, rgba(138, 43, 226, 0.28), transparent 70%),
-    linear-gradient(180deg, rgba(15, 15, 26, 0.55) 0%, rgba(15, 15, 26, 0.85) 70%, #0F0F1A 100%);
+    linear-gradient(180deg, rgba(10, 7, 27, 0.55) 0%, rgba(10, 7, 27, 0) 22%, rgba(10, 7, 27, 0.1) 45%, rgba(10, 7, 27, 0.92) 82%, #0A071B 100%),
+    linear-gradient(90deg, rgba(42, 11, 82, 0.55), rgba(10, 7, 27, 0) 60%);
 }
-
 .hero__title {
-  font-size: clamp(3.4rem, 7.4vw, 7.6rem);
-  line-height: 0.84;
-  text-wrap: balance;
-  letter-spacing: -0.01em;
+  font-size: clamp(3.6rem, 11.2vw, 12.5rem);
+  line-height: 0.82;
+  letter-spacing: -0.012em;
 }
-.hero__stroke path {
-  fill: none;
-  stroke: var(--lime);
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
-  vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 6px rgba(204, 255, 0, 0.6));
-}
+.hero__title-2 { padding-left: 0.6em; }
+@media (max-width: 639px) { .hero__title-2 { padding-left: 0; } }
 
-/* Abanico de fotos ("cromos") */
-.hero-fan {
-  --mx: 0;
-  --my: 0;
-  position: relative;
-  height: clamp(300px, 46vw, 560px);
-  max-width: 620px;
-  margin-inline: auto;
-}
-.hero-card {
+/* Marcador de retransmisión */
+.scorebug {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 46%;
-  aspect-ratio: 3 / 4;
-  border-radius: 1.25rem;
+  top: 6.5rem;
+  right: clamp(1.25rem, 3vw, 2.5rem);
+  width: 17.5rem;
+  border-radius: 0.9rem;
   overflow: hidden;
-  background: #1A1A2E;
-  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
-  transition: transform 0.9s var(--ease-out), box-shadow 0.4s ease;
-  will-change: transform;
-}
-.hero-card img { transition: transform 1.2s var(--ease-out); }
-.hero-card--0 {
-  z-index: 1;
-  transform: translate(calc(-50% - 62% + var(--mx) * -10px), calc(-50% + 6% + var(--my) * -8px)) rotate(-9deg);
-}
-.hero-card--1 {
-  z-index: 3;
-  width: 50%;
-  transform: translate(calc(-50% + var(--mx) * 14px), calc(-50% - 4% + var(--my) * 10px)) rotate(1.5deg);
-  box-shadow: 0 40px 80px -24px rgba(0, 0, 0, 0.9), 0 0 0 2px rgba(204, 255, 0, 0.6);
-}
-.hero-card--2 {
-  z-index: 2;
-  transform: translate(calc(-50% + 62% + var(--mx) * -10px), calc(-50% + 9% + var(--my) * -8px)) rotate(10deg);
-}
-.hero-fan:hover .hero-card--0 { transform: translate(calc(-50% - 72%), calc(-50% + 4%)) rotate(-13deg); }
-.hero-fan:hover .hero-card--2 { transform: translate(calc(-50% + 72%), calc(-50% + 7%)) rotate(14deg); }
-.hero-card:hover img { transform: scale(1.06); }
-.hero-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 50%, rgba(10, 7, 27, 0.85) 100%);
-  pointer-events: none;
-}
-.hero-card__tag {
-  position: absolute;
-  left: 1rem;
-  bottom: 0.9rem;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  background: rgba(10, 7, 27, 0.72);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 20px 40px -20px rgba(0, 0, 0, 0.8);
   color: #fff;
+  font-size: 0.8rem;
 }
-.hero-card--1 .hero-card__tag span:first-child { color: var(--lime); }
-@media (prefers-reduced-motion: reduce) {
-  .hero-card, .hero-card img { transition: none; }
+.scorebug__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--lime);
+  color: var(--ink);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.7rem;
 }
+.scorebug__live { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--ink); }
+@keyframes live { 50% { opacity: 0.3; } }
+.scorebug ul { padding: 0.35rem 0.85rem 0.5rem; }
+.scorebug li { display: flex; align-items: center; justify-content: space-between; padding: 0.3rem 0; font-weight: 600; }
+.scorebug li + li { border-top: 1px solid rgba(255, 255, 255, 0.1); }
+@media (max-width: 767px) { .scorebug { display: none; } }
+
+/* ── Valla LED ───────────────────────────────────────────── */
+.ticker { overflow: hidden; background: var(--lime); color: var(--ink); border-block: 1px solid rgba(0, 0, 0, 0.2); }
+.ticker__track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
+.ticker:hover .ticker__track { animation-play-state: paused; }
+.ticker__row { display: flex; gap: 2rem; padding: 1rem 1rem; font-family: 'Big Shoulders Display Variable', sans-serif; font-weight: 900; font-size: clamp(1.6rem, 3vw, 2.6rem); text-transform: uppercase; white-space: nowrap; line-height: 1; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .ticker__track { animation: none; } }
+
+/* ── Paneles de deportes (acordeón horizontal) ───────────── */
+.panels { display: flex; flex-direction: column; gap: 0.75rem; }
+.panel {
+  position: relative;
+  min-height: 30rem;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  isolation: isolate;
+  background: #1A1A2E;
+}
+.panel__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform 1.2s var(--ease-out), filter 0.8s ease; }
+.panel__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10, 7, 27, 0.1) 30%, rgba(10, 7, 27, 0.92) 100%); transition: background 0.6s ease; }
+.panel__toggle { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; text-align: left; cursor: pointer; }
+.panel__toggle:focus-visible { outline-offset: -6px; border-radius: 1.5rem; }
+.panel__num { font-size: 1.25rem; font-weight: 800; color: var(--lime); }
+.panel__vname { display: none; }
+.panel__body { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; min-height: 30rem; padding: 2rem; pointer-events: none; }
+.panel__body a { pointer-events: auto; }
+
+@media (min-width: 1024px) {
+  .panels { flex-direction: row; height: min(78vh, 720px); }
+  .panel { flex: 1; min-height: 0; transition: flex 0.9s var(--ease-out); }
+  .panel[data-open='true'] { flex: 4.2; }
+  .panel[data-open='false'] .panel__img { filter: grayscale(0.7) brightness(0.55); }
+  .panel[data-open='false'] .panel__shade { background: linear-gradient(180deg, rgba(42, 11, 82, 0.35), rgba(10, 7, 27, 0.85)); }
+  .panel[data-open='true'] .panel__img { transform: scale(1.03); }
+  .panel__vname {
+    display: block;
+    align-self: flex-start;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: clamp(2.5rem, 4vw, 4.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.9;
+    color: #fff;
+    transition: opacity 0.4s ease;
+  }
+  .panel[data-open='true'] .panel__vname { opacity: 0; }
+  .panel[data-open='true'] .panel__toggle { pointer-events: none; }
+  .panel__body { min-height: 0; padding: 2.5rem; min-width: 30rem; transition: opacity 0.5s ease 0.25s, transform 0.7s var(--ease-out) 0.2s; }
+  .panel[data-open='false'] .panel__body { opacity: 0; transform: translateY(20px); transition-delay: 0s; }
+}
+@media (prefers-reduced-motion: reduce) { .panel, .panel__img, .panel__body { transition: none !important; } }
 
 /* Marcador de estadio */
 .scoreboard {

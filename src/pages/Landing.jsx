@@ -3,6 +3,8 @@ import Seo, { SITE_URL } from '../components/Seo';
 import LandingNav from '../components/landing/LandingNav';
 import Hero from '../components/landing/Hero';
 import CourtScroll from '../components/landing/CourtScroll';
+import Ticker from '../components/landing/Ticker';
+import SportPanels from '../components/landing/SportPanels';
 import HowItWorks from '../components/landing/HowItWorks';
 import FeatureBento from '../components/landing/FeatureBento';
 import FinalCta from '../components/landing/FinalCta';
@@ -65,6 +67,8 @@ export default function Landing() {
 
       <main id="contenido" tabIndex={-1}>
         <Hero />
+        <Ticker />
+        <div id="deportes"><SportPanels /></div>
         <CourtScroll />
         <HowItWorks />
         <FeatureBento />
