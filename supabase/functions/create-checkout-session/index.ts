@@ -47,13 +47,14 @@ serve(async (req) => {
     // Cargar reserva y validar ownership + estado
     const { data: reserva, error: rErr } = await supabaseAdmin
       .from("reservas")
-      .select("id, user_id, precio_cents, currency, payment_status, instalaciones(nombre)")
+      .select("id, user_id, installation_id, precio_cents, currency, payment_status, instalaciones(nombre)")
       .eq("id", reservaId)
       .single();
 
     if (rErr || !reserva) return json({ error: "Reserva no encontrada" }, 404);
     if (reserva.user_id !== user.id) return json({ error: "Forbidden" }, 403);
     if (reserva.payment_status === "paid") return json({ error: "Ya está pagada" }, 409);
+    if (reserva.payment_status !== "pending") return json({ error: "expired" }, 409);
 
     // Solo redirigimos a orígenes de confianza (evita redirecciones abiertas)
     const reqOrigin = req.headers.get("origin");

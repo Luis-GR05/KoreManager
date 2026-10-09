@@ -72,7 +72,8 @@
     "maxLevel": "¡Has alcanzado el nivel máximo!",
     "monthlyGoal": "Meta del Mes",
     "monthlyGoalDesc": "de {{meta}} partidos reservados",
-    "courtSport": "Pista Deportiva"
+    "courtSport": "Pista Deportiva",
+    "fullStats": "Ver estadísticas completas"
   },
   "history": {
     "title": "Mis",
@@ -95,8 +96,10 @@
       "inProgress": "En curso",
       "completed": "Completada",
       "paid": "Pagada",
-      "pending": "Pendiente Pago",
-      "cancelled": "Cancelada"
+      "pending": "Pendiente de pago",
+      "cancelled": "Cancelada",
+      "refunded": "Reembolsada",
+      "failed": "Pago fallido"
     },
     "empty": {
       "noBookings": "Aún no tienes reservas",
@@ -111,7 +114,9 @@
       "freeSlot": "La franja horaria quedará libre para otros usuarios.",
       "paidNote": "Nota: Esta reserva ya está pagada. Contacta con el club para gestionar posibles reembolsos.",
       "back": "Volver",
-      "confirm": "Sí, cancelar"
+      "confirm": "Sí, cancelar",
+      "refundNote": "Está pagada: te devolveremos {{amount}} a la tarjeta.",
+      "noRefundNote": "Las reservas pagadas solo se pueden cancelar con reembolso hasta {{hours}} h antes. Contacta con el centro."
     },
     "pay": "Pagar",
     "cancel": "Cancelar",
@@ -119,7 +124,15 @@
     "errorCancel": "Error al cancelar la reserva.",
     "cancelSuccess": "Reserva cancelada correctamente.",
     "cancelSuccessMulti": "Reservas canceladas correctamente.",
-    "sport": "Pista Deportiva"
+    "sport": "Pista Deportiva",
+    "cancelling": "Cancelando…",
+    "refundSuccess": "Reserva cancelada. El reembolso llegará a tu tarjeta en unos días.",
+    "errors": {
+      "notFound": "La reserva no existe.",
+      "past": "La reserva ya ha empezado o ha pasado.",
+      "rateLimited": "Demasiadas cancelaciones seguidas. Espera unos minutos.",
+      "tooLate": "Ya no se puede cancelar con reembolso (menos de {{hours}} h para empezar)."
+    }
   },
   "profile": {
     "loading": "Cargando ficha de jugador...",
@@ -160,13 +173,16 @@
     "legalNotice": "Aviso legal",
     "privacyPolicy": "Política de privacidad",
     "cookiesPolicy": "Política de cookies",
-    "terms": "Términos de uso"
+    "terms": "Términos de uso",
+    "saved": "Perfil actualizado.",
+    "saveError": "No se pudo guardar: {{msg}}",
+    "dniTaken": "Ese DNI/NIE ya está registrado en otra cuenta."
   },
   "booking": {
     "loading": "Cargando...",
     "pendingTitle": "Tienes una reserva pendiente",
-    "pendingDesc": "Debes completar el pago de tu reserva actual antes de poder realizar una nueva. Las reservas pendientes caducan en {{hours}} horas.",
-    "pendingWarning": "⚠️ Si la reserva es para dentro de menos de 3 horas, caducará en 15 minutos si no se paga.",
+    "pendingDesc": "Paga o cancela tu reserva actual antes de hacer otra. Las reservas sin pagar caducan a las {{hours}} horas.",
+    "pendingWarning": "Si la reserva es para dentro de menos de 3 horas, caducará en 15 minutos si no se paga.",
     "pendingDate": "Fecha:",
     "pendingTime": "Hora:",
     "goToHistory": "Ir al Historial de Pagos",
@@ -211,13 +227,48 @@
       "pastDate": "No puedes reservar en una fecha pasada.",
       "pastSlot": "Ese horario ya ha pasado.",
       "slotTaken": "Ese horario ya fue reservado. Elige otro.",
-      "bookingError": "Error al reservar: ",
+      "bookingError": "No se pudo crear la reserva.",
       "materialError": "No se pudo guardar el material solicitado.",
       "stockError": "No hay stock suficiente para el material solicitado.",
       "secondaryError": "Atención: No se pudieron registrar algunas horas seleccionadas.",
-      "confirming": "Confirmando reserva..."
+      "confirming": "Confirmando reserva...",
+      "loadCourts": "No se pudieron cargar las pistas.",
+      "maxSlots": "Puedes reservar como máximo {{max}} franjas a la vez.",
+      "migration": "Falta aplicar la última migración de la base de datos (reservas y pagos)."
     },
-    "success": "Reserva creada. Redirigiendo a pago..."
+    "success": "Reserva creada. Redirigiendo a pago...",
+    "afternoon": "Tarde",
+    "allSports": "Todos",
+    "cancelPending": "Cancelar reserva",
+    "confirmNote": "Tendrás que pagarla para confirmarla; si no, caducará y la franja quedará libre.",
+    "continue": "Continuar",
+    "court": "Pista",
+    "freeCount_one": "{{count}} franja libre",
+    "freeCount_other": "{{count}} franjas libres",
+    "hours": "Horas",
+    "kicker": "Reserva en 3 pasos",
+    "leadNote": "Las franjas se pueden reservar hasta {{hours}} h antes de empezar.",
+    "less": "Quitar {{item}}",
+    "more": "Añadir {{item}}",
+    "maxAhead": "Hasta {{days}} días de antelación.",
+    "maxSlotsHint": "máx. {{max}} por reserva",
+    "morning": "Mañana",
+    "noCourtsTitle": "Aún no hay pistas",
+    "noCourtsDesc": "El centro todavía no ha publicado pistas. Vuelve pronto.",
+    "optional": "opcional",
+    "otherDate": "Otra fecha",
+    "past": "Pasada",
+    "payNow": "Pagar ahora",
+    "pendingBadge": "Pago pendiente",
+    "sport": "Deporte",
+    "today": "Hoy",
+    "tooSoon": "Cerrada",
+    "status": {
+      "available": "Disponible",
+      "disponible": "Disponible",
+      "mantenimiento": "Mantenimiento",
+      "ocupada": "Ocupada"
+    }
   },
   "inventory": {
     "title": "Control de Material",
@@ -285,7 +336,7 @@
       "noData": "Aún no hay datos."
     },
     "achievements": "Logros",
-    "unlocked": "✓ Desbloqueado",
+    "unlocked": "Desbloqueado",
     "logros": {
       "primer_partido": {
         "title": "¡Primer Saque!",
@@ -334,7 +385,10 @@
       },
       "noName": "Sin nombre",
       "noPhone": "—",
-      "notFound": "No se encontraron usuarios."
+      "notFound": "No se encontraron usuarios.",
+      "roleError": "No se pudo cambiar el rol: {{msg}}",
+      "roleUpdated": "Rol actualizado.",
+      "selfRole": "No puedes cambiar tu propio rol"
     },
     "courts": {
       "loading": "Cargando instalaciones...",
@@ -351,12 +405,20 @@
       "save": "Guardar",
       "saving": "Guardando...",
       "edit": "Editar",
-      "deleteConfirm": "¿Seguro que deseas eliminar esta pista permanentemente? (Podría fallar si tiene referencias)",
-      "deleteError": "PostgreSQL avisó: error al borrar. Puede que tenga reservas activas.",
+      "deleteConfirm": "Se borrará la pista definitivamente. Si tiene reservas, la base de datos no lo permitirá: en ese caso, ponla en mantenimiento.",
+      "deleteError": "No se puede eliminar: tiene reservas asociadas. Ponla en mantenimiento para que no se pueda reservar.",
       "deleteSuccess": "Instalación eliminada definitivamente.",
       "updateSuccess": "Pista actualizada",
       "createSuccess": "Pista creada",
-      "nameRequired": "El nombre es obligatorio"
+      "nameRequired": "El nombre es obligatorio",
+      "delete": "Eliminar",
+      "deleteTitle": "¿Eliminar {{name}}?",
+      "empty": "Todavía no hay pistas. Crea la primera para que los usuarios puedan reservar.",
+      "price": "Precio / hora",
+      "priceInvalid": "Introduce un precio válido (0 – 1000 €).",
+      "typeHint": "Elige uno existente o escribe uno nuevo para crear un deporte.",
+      "typePlaceholder": "Ej: pádel, tenis, voley…",
+      "typeRequired": "Indica el deporte (2–40 caracteres)."
     },
     "alerts": {
       "loading": "Cargando avisos...",
@@ -373,7 +435,10 @@
       "deleteConfirm": "¿Eliminar este aviso permanentemente?",
       "deleteSuccess": "Aviso eliminado.",
       "titleRequired": "El título es obligatorio.",
-      "createError": "Error al crear: "
+      "createError": "Error al crear: ",
+      "activate": "Activar aviso",
+      "deactivate": "Desactivar aviso",
+      "messageRequired": "El mensaje no puede estar vacío."
     },
     "bookings": {
       "loading": "Cargando reservas del sistema...",
@@ -402,19 +467,22 @@
       "more": "+{{count}} más",
       "cancelModal": {
         "title": "¿Cancelar esta reserva?",
-        "desc": "Se eliminará permanentemente y el usuario perderá su franja horaria.",
+        "desc": "La reserva se cancelará y la franja quedará libre para otros usuarios.",
         "back": "Volver",
         "cancelling": "Cancelando...",
-        "confirm": "Sí, cancelar"
+        "confirm": "Sí, cancelar",
+        "descPaid": "Está pagada: se devolverán {{amount}} al usuario automáticamente y la franja quedará libre."
       },
       "noResults": "No hay reservas en este período.",
       "noResultsSearch": "No se encontraron reservas con ese criterio.",
       "showing": "Mostrando {{shown}} de {{total}} reservas",
-      "loaded": "(cargadas {{count}})",
+      "loaded": "Cargadas {{count}}",
       "loadMore": "Cargar más",
       "loading2": "Cargando...",
       "cancelSuccess": "Reserva cancelada.",
-      "cancelError": "Error al cancelar: "
+      "cancelError": "Error al cancelar: ",
+      "onlyActive": "Solo activas",
+      "revenue": "Ingresos cobrados"
     },
     "adminStats": {
       "loading": "Cargando estadísticas...",
@@ -429,7 +497,8 @@
       "noData": "Sin datos aún.",
       "noActivity": "Sin actividad aún.",
       "bookingsLabel": "reservas",
-      "matchesLabel": "partidos"
+      "matchesLabel": "partidos",
+      "hoursBooked": "Horas pagadas"
     }
   },
   "payment": {
@@ -867,5 +936,82 @@
     "available_one": "{{count}} disponible ahora",
     "available_other": "{{count}} disponibles ahora",
     "none": "Pronto habrá pistas disponibles. Vuelve en unos días."
+  },
+  "errors": {
+    "goHome": "Ir al inicio",
+    "goDashboard": "Ir a mi panel",
+    "back": "Volver atrás",
+    "retry": "Reintentar",
+    "notFound": {
+      "title": "Fuera de pista",
+      "desc": "La página que buscas no existe o ha cambiado de sitio. Comprueba la dirección o vuelve al inicio."
+    },
+    "forbidden": {
+      "title": "Zona reservada",
+      "desc": "Esta sección es solo para el personal de las instalaciones. Si crees que deberías tener acceso, pide a un administrador que revise tu rol."
+    },
+    "crash": {
+      "title": "Tiempo muerto",
+      "desc": "Algo ha fallado al cargar esta pantalla. Reintenta; si vuelve a pasar, recarga la página o vuelve más tarde."
+    },
+    "offline": "Sin conexión. Algunas acciones no funcionarán hasta que vuelvas a tener red."
+  },
+  "loading": {
+    "app": "Cargando…",
+    "checking": "Comprobando tu acceso…"
+  },
+  "levels": {
+    "new": "Nuevo",
+    "rookie": "Novato",
+    "fit": "En forma",
+    "regular": "Habitual",
+    "veteran": "Veterano",
+    "legend": "Leyenda"
+  },
+  "checkout": {
+    "alreadyPaid": "Esta reserva ya está pagada.",
+    "back": "Volver a mis reservas",
+    "cardNumber": "Número de tarjeta",
+    "cvc": "CVC",
+    "expiry": "Caducidad",
+    "errors": {
+      "declined": "Pago rechazado. Revisa la tarjeta.",
+      "noKey": "El pago con tarjeta no está configurado (falta VITE_STRIPE_PUBLIC_KEY).",
+      "rateLimited": "Demasiados intentos de pago. Espera unos minutos.",
+      "server": "No se pudo iniciar el pago. Inténtalo de nuevo."
+    },
+    "expired": {
+      "title": "Reserva caducada",
+      "desc": "No se pagó a tiempo y la franja se ha liberado. No se te ha cobrado nada: puedes volver a reservarla si sigue libre."
+    },
+    "expiresIn": "Caduca en",
+    "kicker": "Pago seguro",
+    "loading": "Preparando el pago…",
+    "notFound": {
+      "title": "Reserva no encontrada",
+      "desc": "Esta reserva no existe o no es tuya."
+    },
+    "pay": "Pagar {{amount}}",
+    "paymentDetails": "Datos de la tarjeta",
+    "processing": "Procesando…",
+    "secureNote": "Pago cifrado con Stripe. KoreManager no guarda los datos de tu tarjeta.",
+    "sport": "Deporte",
+    "subtitle": "Completa el pago para confirmar tu pista.",
+    "summary": "Resumen",
+    "title": "Finalizar reserva",
+    "result": {
+      "paid": {
+        "title": "¡Reserva confirmada!",
+        "desc": "Pago recibido. Tu pista está reservada: la verás en tu historial."
+      },
+      "processing": {
+        "title": "Pago en proceso",
+        "desc": "Stripe está terminando de confirmar el pago. En unos segundos la reserva aparecerá como pagada."
+      },
+      "refunded": {
+        "title": "Pago devuelto",
+        "desc": "La reserva caducó mientras pagabas, así que hemos devuelto el importe automáticamente."
+      }
+    }
   }
 }

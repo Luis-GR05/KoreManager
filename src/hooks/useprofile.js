@@ -1,84 +1,62 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import toast from 'react-hot-toast';
+import { normalizeDni, normalizePhone, normalizeSpaces } from '../lib/validation';
 
 /**
- * Hook de perfil (wrapper sobre AuthContext) con helper de actualización.
- * @returns {{
- *  profile: any,
- *  roleName: string,
- *  loading: boolean,
- *  updating: boolean,
- *  updateProfile: (next: any) => Promise<void>
- * }}
+ * Perfil del usuario + guardado de datos personales.
+ * - Usa UPDATE (la fila la crea el registro), nunca upsert: así no se puede
+ *   pisar el email ni el rol desde el navegador.
+ * - Los datos se normalizan igual que en el registro y la base de datos los
+ *   vuelve a validar (trigger); si los rechaza, se muestra su mensaje.
  */
 export function useProfile() {
-  const { profile, refreshProfile, user } = useAuth();
+  const { profile, refreshProfile, user, profileLoading } = useAuth();
+  const { t } = useTranslation();
   const [updating, setUpdating] = useState(false);
 
   const updateProfile = async (formData) => {
-    if (!user) return;
+    if (!user) return false;
     setUpdating(true);
-
-    /**
-   * Actualiza el perfil en tabla `profiles` y sincroniza metadatos en Supabase Auth.
-   * Intenta primero campos extendidos; si el esquema no existe, cae a campos básicos.
-   *
-   * @param {{
-   *  full_name: string,
-   *  telefono: string,
-   *  dni?: string,
-   *  fecha_nacimiento?: string,
-   *  direccion?: string,
-   *  codigo_postal?: string,
-   *  municipio?: string,
-   *  provincia?: string
-   * }} next
-   * @returns {Promise<void>}
-   */
     try {
-      const profileUpdates = {
-        id: user.id,
-        email: user.email,
-        full_name: formData.full_name,
-        telefono: formData.telefono,
-        dni: formData.dni || null,
+      const updates = {
+        full_name: normalizeSpaces(formData.full_name),
+        telefono: normalizePhone(formData.telefono),
+        dni: normalizeDni(formData.dni),
         fecha_nacimiento: formData.fecha_nacimiento || null,
-        direccion: formData.direccion || null,
-        codigo_postal: formData.codigo_postal || null,
-        municipio: formData.municipio || null,
-        provincia: formData.provincia || null,
+        direccion: normalizeSpaces(formData.direccion),
+        codigo_postal: String(formData.codigo_postal ?? '').trim(),
+        municipio: normalizeSpaces(formData.municipio),
+        provincia: formData.provincia,
       };
 
-      const [profileRes, authRes] = await Promise.all([
-        supabase.from('profiles').upsert(profileUpdates),
-        supabase.auth.updateUser({
-          data: { 
-            full_name: formData.full_name,
-            telefono: formData.telefono 
-          }
-        })
-      ]);
+      const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+      if (error) {
+        if (error.code === '23505') throw new Error(t('profile.dniTaken'));
+        throw error;
+      }
 
-      if (profileRes.error) throw profileRes.error;
-      if (authRes.error) throw authRes.error;
+      // Copia en los metadatos de Auth (no crítica)
+      await supabase.auth.updateUser({ data: { full_name: updates.full_name, telefono: updates.telefono } })
+        .catch(() => {});
 
-      toast.success('Perfil actualizado correctamente');
+      toast.success(t('profile.saved'));
       await refreshProfile();
-      
+      return true;
     } catch (error) {
-      console.error('[useProfile] Error:', error.message);
-      toast.error('Error al actualizar: ' + error.message);
+      toast.error(t('profile.saveError', { msg: error.message }));
+      return false;
     } finally {
       setUpdating(false);
     }
   };
 
-  return { 
-    profile, 
-    updating, 
+  return {
+    profile,
+    updating,
     updateProfile,
-    loading: updating
+    loading: !profile && profileLoading,
   };
 }

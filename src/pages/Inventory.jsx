@@ -4,6 +4,7 @@ import { useAuth } from '../context/useAuth';
 import { Package, Plus, Minus, Box, Search, PlusCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import BrandLoader from '../components/feedback/BrandLoader';
 
 export default function Inventory() {
   const { roleName } = useAuth();
@@ -227,7 +228,7 @@ export default function Inventory() {
       )}
 
       {loading ? (
-        <div className="text-brand-lime animate-pulse">{t('inventory.loading')}</div>
+        <BrandLoader fullscreen={false} label={t('inventory.loading')} />
       ) : loadError ? (
         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-300 text-sm">
           <p className="font-bold mb-1">{t('inventory.errorTitle')}</p>

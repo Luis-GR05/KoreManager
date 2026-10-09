@@ -100,19 +100,24 @@ export function retryAfter(resetAt: string | null): string {
 
 /**
  * Importe real de una reserva calculado en servidor (nunca confiar en el
- * precio que envía el navegador): precio por franja × nº de franjas
- * (la principal + las enlazadas con currency = 'linked_<id>').
+ * precio que envía el navegador): precio por hora de la instalación × nº de
+ * franjas (la principal + las enlazadas con currency = 'linked_<id>').
  */
 export async function computeAmountCents(
   admin: AnyClient,
-  reserva: { id: number; user_id: string },
+  reserva: { id: number; user_id: string; installation_id?: number },
 ): Promise<number> {
-  const slotPrice = Number(Deno.env.get("SLOT_PRICE_CENTS") ?? "500");
+  const fallback = Number(Deno.env.get("SLOT_PRICE_CENTS") ?? "500");
+  let price = fallback;
+  if (reserva.installation_id) {
+    const { data } = await admin.from("instalaciones").select("precio_hora_cents").eq("id", reserva.installation_id).maybeSingle();
+    if (data && Number.isFinite(Number(data.precio_hora_cents))) price = Number(data.precio_hora_cents);
+  }
   const { count } = await admin
     .from("reservas")
     .select("id", { count: "exact", head: true })
     .eq("user_id", reserva.user_id)
     .eq("currency", `linked_${reserva.id}`)
     .neq("payment_status", "cancelled");
-  return slotPrice * (1 + (count ?? 0));
+  return price * (1 + (count ?? 0));
 }

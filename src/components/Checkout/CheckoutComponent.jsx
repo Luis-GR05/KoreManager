@@ -1,34 +1,28 @@
-import React from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import { useTranslation } from 'react-i18next';
 import { CheckoutForm } from './CheckoutForm';
 
-// Recomendación: Mantén loadStripe fuera del componente render
-// para evitar recrear el objeto Stripe en cada renderizado.
-// Asegúrate de definir VITE_STRIPE_PUBLIC_KEY en tus variables de entorno locales (.env)
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_tu_public_key_aqui');
+const STRIPE_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+// Fuera del componente para no recrear Stripe en cada render
+const stripePromise = STRIPE_KEY ? loadStripe(STRIPE_KEY) : null;
 
 /**
- * Componente contenedor de la pasarela de pago. Envuelve el formulario
- * con el contexto de Elements de Stripe para permitir la tokenización.
- * 
- * @param {Object} props
- * @param {number} props.amount - Cantidad a cobrar en céntimos.
- * @param {string} props.orderId - UUID de la reserva pendiente.
- * @returns {import('react').JSX.Element}
+ * Envuelve el formulario de pago con el contexto de Stripe Elements.
+ * @param {{ amount: number, orderId: number, onExpired?: () => void }} props
  */
-export const CheckoutComponent = ({ amount, orderId }) => {
+export function CheckoutComponent({ amount, orderId, onExpired }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-center justify-center p-8 theme-elevated min-h-[400px]">
-      <div className="w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6 theme-text">
-          Completar Reserva
-        </h2>
-        
+    <div className="p-6 md:p-8">
+      <h2 className="text-xl font-black theme-text mb-5">{t('checkout.paymentDetails')}</h2>
+      {stripePromise ? (
         <Elements stripe={stripePromise}>
-          <CheckoutForm amount={amount} orderId={orderId} />
+          <CheckoutForm amount={amount} orderId={orderId} onExpired={onExpired} />
         </Elements>
-      </div>
+      ) : (
+        <p className="text-sm text-red-600 dark:text-red-400 font-bold" role="alert">{t('checkout.errors.noKey')}</p>
+      )}
     </div>
   );
-};
+}

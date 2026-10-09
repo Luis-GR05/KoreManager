@@ -2,23 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, Trash2, BarChart2, Star, Image as ImageIcon, ArrowUpRight } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, BarChart2, Star, Image as ImageIcon, ArrowUpRight, CreditCard, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { groupReservas, localIsoDate } from '../lib/bookings';
+import { getLevel } from '../lib/levels';
+import LevelEmblem from '../components/levels/LevelEmblem';
 
-/**
- * Determina el nivel del jugador a partir de partidos completados.
- * @param {number} total
- * @returns {{nombre: string, emoji: string, color: string, next: (number|null), threshold: number}}
- */
-function getNivel(total) {
-  if (total >= 50) return { nombre: 'Leyenda',   emoji: '🏆', color: 'text-brand-purple dark:text-brand-lime',   next: null,  threshold: 50 };
-  if (total >= 25) return { nombre: 'Veterano',   emoji: '⭐', color: 'text-yellow-600 dark:text-yellow-400',   next: 50,   threshold: 25 };
-  if (total >= 10) return { nombre: 'Habitual',   emoji: '🔥', color: 'text-orange-500 dark:text-orange-400',   next: 25,   threshold: 10 };
-  if (total >= 5)  return { nombre: 'En Forma',   emoji: '💪', color: 'text-blue-500 dark:text-blue-400',     next: 10,   threshold: 5  };
-  if (total >= 1)  return { nombre: 'Novato',     emoji: '🎾', color: 'theme-text',     next: 5,    threshold: 1  };
-  return                  { nombre: 'Nuevo',      emoji: '👤', color: 'theme-faint',     next: 1,    threshold: 0  };
-}
 
 /**
  * Dashboard del usuario:
@@ -31,7 +20,7 @@ function getNivel(total) {
  */
 export default function Dashboard() {
   const { user, profile } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [instalaciones, setInstalaciones] = useState([]);
   const [misReservas, setMisReservas]     = useState([]);
@@ -44,7 +33,7 @@ export default function Dashboard() {
   const META_PARTIDOS = 5;
   useEffect(() => {
     if (!user?.id) return;
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = localIsoDate();
 
     const fetchData = async () => {
       const userId = user.id;
@@ -55,20 +44,24 @@ export default function Dashboard() {
         .order('id');
       if (dataInst) setInstalaciones(dataInst);
 
+      await supabase.rpc('expire_pending_reservas').then(() => {}, () => {});
       const { data: dataReservas } = await supabase
         .from('reservas')
-        .select(`id, fecha, hora, instalaciones ( nombre )`)
+        .select(`id, fecha, hora, currency, payment_status, precio_cents, instalaciones ( nombre )`)
         .eq('user_id', userId)
         .gte('fecha', hoy)
-        .order('fecha', { ascending: true });
-      if (dataReservas) setMisReservas(dataReservas);
+        .in('payment_status', ['pending', 'paid'])
+        .order('fecha', { ascending: true })
+        .order('hora', { ascending: true });
+      if (dataReservas) setMisReservas(groupReservas(dataReservas).slice(0, 5));
 
-      const primerDiaMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-        .toISOString().split('T')[0];
+      const now = new Date();
+      const primerDiaMes = localIsoDate(new Date(now.getFullYear(), now.getMonth(), 1));
       const { count: countMes } = await supabase
         .from('reservas')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
+        .eq('payment_status', 'paid')
         .gte('fecha', primerDiaMes);
       setPartidosMes(countMes || 0);
 
@@ -76,6 +69,7 @@ export default function Dashboard() {
         .from('reservas')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
+        .eq('payment_status', 'paid')
         .lt('fecha', hoy);
       setTotalJugados(countTotal || 0);
 
@@ -132,17 +126,6 @@ export default function Dashboard() {
     };
   }, [resolveAvatarUrl]);
 
-  const cancelarReserva = async (id) => {
-    const { error } = await supabase.from('reservas').delete().eq('id', id);
-    if (error) {
-      toast.error(t('dashboard.cancelError'));
-    } else {
-      setMisReservas(prev => prev.filter(r => r.id !== id));
-      setPartidosMes(prev => Math.max(0, prev - 1));
-      toast.success(t('dashboard.cancelSuccess'));
-    }
-  };
-
   if (loading) return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -164,11 +147,9 @@ export default function Dashboard() {
   );
 
   const progreso   = Math.min(Math.round((partidosMes / META_PARTIDOS) * 100), 100);
-  const nivel      = getNivel(totalJugados);
+  const nivel      = getLevel(totalJugados);
   const sigNivel   = nivel.next;
-  const progrNivel = sigNivel
-    ? Math.min(Math.round((totalJugados / sigNivel) * 100), 100)
-    : 100;
+  const progrNivel = nivel.progress;
 
   const firstName = profile?.full_name?.trim()?.split(' ')?.[0] || profile?.email?.split('@')?.[0] || 'jugador';
 
@@ -287,25 +268,33 @@ export default function Dashboard() {
                   >
                     <Link to="/historial" className="flex items-center gap-4 flex-1">
                       <div className="w-12 h-12 bg-brand-purple/25 dark:bg-brand-lime/25 rounded-xl flex items-center justify-center text-brand-purple dark:text-brand-lime font-black text-lg">
-                        {String(reserva.hora).split(':')[0]}h
+                        {String(reserva.franjas[0]).split(':')[0]}h
                       </div>
                       <div>
                         <h4 className="font-bold theme-text group-hover:text-brand-purple dark:group-hover:text-brand-lime transition-colors">
                           {reserva.instalaciones?.nombre || t('dashboard.courtSport')}
                         </h4>
-                        <div className="flex items-center gap-3 text-xs theme-faint mt-1">
-                          <span className="flex items-center gap-1"><Calendar size={12} /> {reserva.fecha}</span>
-                          <span className="flex items-center gap-1"><Clock size={12} /> {reserva.hora}</span>
+                        <div className="flex flex-wrap items-center gap-3 text-xs theme-faint mt-1">
+                          <span className="flex items-center gap-1 capitalize"><Calendar size={12} /> {new Date(`${reserva.fecha}T00:00:00`).toLocaleDateString(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                          <span className="flex items-center gap-1 tabular-nums"><Clock size={12} /> {reserva.franjas.join(', ')}</span>
+                          <span className={`rounded-full px-2 py-0.5 font-bold ${reserva.payment_status === 'paid' ? 'bg-green-500/10 text-green-700 dark:text-green-400' : 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'}`}>
+                            {reserva.payment_status === 'paid' ? t('history.status.paid') : t('history.status.pending')}
+                          </span>
                         </div>
                       </div>
                     </Link>
-                    <button
-                      onClick={() => cancelarReserva(reserva.id)}
-                      className="p-2 theme-faint hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors shrink-0 ml-4"
-                      title={t('dashboard.cancelBooking')}
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    {reserva.payment_status === 'pending' ? (
+                      <Link
+                        to={`/checkout/${reserva.id}`}
+                        className="ml-4 shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-brand-purple dark:bg-brand-lime px-3 py-2 text-xs font-black text-white dark:text-black"
+                      >
+                        <CreditCard size={14} /> {t('history.pay')}
+                      </Link>
+                    ) : (
+                      <Link to="/historial" className="ml-4 shrink-0 p-2 theme-faint hover:theme-text rounded-xl" aria-label={t('dashboard.viewHistory')}>
+                        <ChevronRight size={18} />
+                      </Link>
+                    )}
                   </div>
                 ))}
               </div>
@@ -364,14 +353,12 @@ export default function Dashboard() {
           {/* NIVEL DEL JUGADOR */}
           <div className="theme-card p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-xl flex items-center justify-center text-xl">
-                {nivel.emoji}
-              </div>
+              <LevelEmblem tier={nivel.tier} size={52} className={nivel.color} title={t(`levels.${nivel.key}`)} />
               <div>
                 <p className="text-[10px] theme-faint font-bold uppercase tracking-wider">{t('dashboard.yourLevel')}</p>
-                <p className={`text-lg font-black ${nivel.color}`}>{nivel.nombre}</p>
+                <p className={`text-lg font-black ${nivel.color}`}>{t(`levels.${nivel.key}`)}</p>
               </div>
-              <Link to="/estadisticas" className="ml-auto theme-faint hover:text-brand-purple dark:hover:text-brand-lime transition-colors" title="Ver estadísticas completas">
+              <Link to="/estadisticas" className="ml-auto theme-faint hover:text-brand-purple dark:hover:text-brand-lime transition-colors" aria-label={t('dashboard.fullStats')}>
                 <BarChart2 size={18} />
               </Link>
             </div>

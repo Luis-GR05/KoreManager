@@ -57,25 +57,25 @@ El proyecto destaca por su interfaz **Dark Mode Premium**, utilizando acentos en
 ## <img src="https://api.iconify.design/lucide/folder-tree.svg?color=%23CCFF00" width="24" style="vertical-align: middle; margin-right: 4px;" /> Arquitectura del Proyecto
 
 ```text
-📦 KORE MANAGER
- ┣ 📂 Docs                  # Documentación oficial y manuales del proyecto actualizados en PDF
- ┣ 📂 public
- ┃ ┣ 📂 favicon             # Ecosistema completo de favicons y site.webmanifest
- ┃ ┣ 📂 images              # Imágenes de la aplicación (incluido fondoHero.png con filtro premium)
- ┃ ┣ 📜 robots.txt          # Reglas de rastreo de motores de búsqueda
- ┃ ┗ 📜 sitemap.xml         # Mapa del sitio estructurado para indexación
- ┣ 📂 src
- ┃ ┣ 📂 assets              # Recursos estáticos
- ┃ ┣ 📂 components          # Componentes UI reutilizables (Botones, Modales, CookieConsent, etc.)
- ┃ ┣ 📂 context             # Estados globales (AuthContext)
- ┃ ┣ 📂 hooks               # Custom Hooks (useprofile.js para gestión de perfiles, etc.)
- ┃ ┣ 📂 pages               # Vistas principales (Dashboard, Landing rediseñado, legal/Cookies, etc.)
- ┃ ┗ 📜 main.jsx            # Punto de entrada de React
- ┣ 📂 supabase
- ┃ ┣ 📂 functions           # Edge Functions de Deno (Ej: generate-avatar)
- ┃ ┗ 📜 supabase_schema.sql # Esquema completo de BD (Tablas, RLS, Triggers, RPC)
- ┣ 📜 vercel.json           # Configuración de redirecciones y Cabeceras de Seguridad Extremas
- ┗ 📜 package.json          # Dependencias y scripts
+KORE MANAGER/
+ ┣ Docs/                  # Documentación oficial y manuales del proyecto actualizados en PDF
+ ┣ public/
+ ┃ ┣ favicon/             # Ecosistema completo de favicons y site.webmanifest
+ ┃ ┣ images/              # Imágenes de la aplicación (incluido fondoHero.png con filtro premium)
+ ┃ ┣ robots.txt           # Reglas de rastreo de motores de búsqueda
+ ┃ ┗ sitemap.xml          # Mapa del sitio estructurado para indexación
+ ┣ src/
+ ┃ ┣ assets/              # Recursos estáticos
+ ┃ ┣ components/          # Componentes UI reutilizables (Botones, Modales, CookieConsent, etc.)
+ ┃ ┣ context/             # Estados globales (AuthContext)
+ ┃ ┣ hooks/               # Custom Hooks (useprofile.js para gestión de perfiles, etc.)
+ ┃ ┣ pages/               # Vistas principales (Dashboard, Landing rediseñado, legal/Cookies, etc.)
+ ┃ ┗ main.jsx             # Punto de entrada de React
+ ┣ supabase/
+ ┃ ┣ functions/           # Edge Functions de Deno (pagos, cancelaciones, asistente Kore)
+ ┃ ┗ supabase_schema.sql  # Esquema completo de BD (Tablas, RLS, Triggers, RPC)
+ ┣ vercel.json            # Configuración de redirecciones y Cabeceras de Seguridad Extremas
+ ┗ package.json           # Dependencias y scripts
 ```
 
 ---
@@ -134,7 +134,7 @@ npm run dev
 
 ---
 
-## 📺 Video Explicativo
+## <img src="https://api.iconify.design/lucide/monitor-play.svg?color=%23CCFF00" width="24" style="vertical-align: middle; margin-right: 4px;" /> Video Explicativo
 
 Hemos preparado un video explicativo completo de **KORE MANAGER** donde se muestra el funcionamiento general de la plataforma: el proceso de reserva de pistas, el pago con Stripe, la generación de avatares con Inteligencia Artificial y el panel de control del administrador.
 
@@ -184,6 +184,28 @@ supabase functions deploy create-checkout-session
 Variables opcionales del asistente: `GEMINI_MODEL` (por defecto `gemini-3.5-flash-lite`), `CHAT_DAILY_LIMIT` (900),
 `CHAT_MINUTE_LIMIT` (12), `CHAT_USER_HOURLY` (20), `CHAT_ANON_HOURLY` (8). Pagos: `SLOT_PRICE_CENTS` (500).
 El importe de cada pago se recalcula en servidor; ya no se confía en el precio enviado por el navegador.
+
+### Reservas, pagos y roles (2026-10-09)
+1. Aplica `supabase/migrations/20261009120000_reservas_pagos_roles.sql` **después** de las dos anteriores.
+   - `user_role()` + política de lectura en `roles`: el panel de administración vuelve a reconocer al admin.
+   - Precio por pista (`instalaciones.precio_hora_cents`, editable en el panel de admin).
+   - Reservas atómicas (`create_booking`), cancelación (`cancel_booking`), caducidad de pendientes sin borrar
+     filas, devolución automática del material y franja única solo entre reservas activas.
+2. Despliega las funciones:
+```bash
+supabase functions deploy confirm-payment
+supabase functions deploy cancel-booking
+supabase functions deploy stripe-webhook --no-verify-jwt
+supabase functions deploy create-payment-intent
+supabase functions deploy create-checkout-session
+supabase secrets set CANCEL_MIN_HOURS=24   # opcional: horas mínimas para cancelar con reembolso
+```
+3. En Stripe → Webhooks añade el evento `charge.refunded` (además de `payment_intent.succeeded`,
+   `payment_intent.payment_failed`, `checkout.session.completed` y `checkout.session.expired`).
+
+Flujo: el usuario reserva (queda *pendiente*), paga con tarjeta y `confirm-payment` verifica el cobro con Stripe y la
+marca como *pagada* al momento (el webhook es la red de seguridad). Una pendiente se puede cancelar sin coste; una pagada
+se cancela con reembolso automático hasta `CANCEL_MIN_HOURS` antes (el personal puede cancelar siempre).
 
 ### Recomendado en el panel de Supabase
 - Authentication → Rate Limits: revisa los límites de inicio de sesión, registro y emails.

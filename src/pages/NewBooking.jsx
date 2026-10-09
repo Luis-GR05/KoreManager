@@ -1,376 +1,310 @@
-import { useMemo, useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import {
+  AlertCircle, CalendarDays, CheckCircle, Clock, CreditCard, Minus, Package, Plus, Sun, Sunset, Trash2,
+} from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { useNavigate, Link } from 'react-router-dom';
-import { Calendar, Clock, CheckCircle, AlertCircle, X, ChevronsUpDown, ChevronLeft, ChevronRight, Package } from 'lucide-react';
-import toast from 'react-hot-toast';
+import DatePicker from '../components/ui/DatePicker';
+import BrandLoader from '../components/feedback/BrandLoader';
+import { describeSport } from '../lib/sports';
+import {
+  MAX_DAYS_AHEAD, MAX_SLOTS, MIN_LEAD_HOURS, TIME_SLOTS, addDaysIso, cancelReserva, cancelErrorMessage,
+  formatEuros, localIsoDate, pricePerSlot, slotStartMs,
+} from '../lib/bookings';
+
+const STRIP_DAYS = 14;
 
 /**
- * Lista de franjas horarias reservables (formato HH:mm).
- * @type {string[]}
+ * Modal de confirmación de la reserva.
+ * @param {{ summary: { court: string, dateLabel: string, slots: string[], total: string }, busy: boolean, onConfirm: () => void, onCancel: () => void }} props
  */
-const TIME_SLOTS = [
-  '09:00', '10:00', '11:00', '12:00', '13:00',
-  '16:00', '17:00', '18:00', '19:00', '20:00', '21:00',
-];
-
-/**
- * Convierte un Date a string ISO (YYYY-MM-DD) en hora local.
- * @param {Date} d
- * @returns {string}
- */
-function toISODate(d) {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-/**
- * Comprueba si dos fechas caen el mismo día (año/mes/día) en hora local.
- * @param {Date} a
- * @param {Date} b
- * @returns {boolean}
- */
-function isSameDay(a, b) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-/**
- * Devuelve la fecha truncada a inicio de día (00:00:00) en hora local.
- * @param {Date} d
- * @returns {Date}
- */
-function startOfDay(d) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-/**
- * Construye una cuadrícula de calendario 6x7 (42 días) empezando en domingo.
- * Incluye días del mes anterior/siguiente para completar semanas.
- * @param {Date} monthDate Fecha dentro del mes objetivo.
- * @returns {Date[]}
- */
-function buildCalendarGrid(monthDate) {
-  const firstOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-  const startWeekday = firstOfMonth.getDay();
-  const start = new Date(firstOfMonth);
-  start.setDate(firstOfMonth.getDate() - startWeekday);
-
-  const days = [];
-  for (let i = 0; i < 42; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    days.push(d);
-  }
-  return days;
-}
-
-/**
- * Modal de selección de fecha con calendario mensual.
- * @param {{value: string, minDate: string, onSelect: (next: string) => void, onClose: () => void}} props
- * @returns {import('react').JSX.Element}
- */
-function CalendarModal({ value, minDate, onSelect, onClose }) {
-  const selected = value ? new Date(`${value}T00:00:00`) : null;
-  const min = minDate ? new Date(`${minDate}T00:00:00`) : null;
-
-  const initial = selected || (min ? new Date(min) : new Date());
-  const [cursor, setCursor] = useState(new Date(initial.getFullYear(), initial.getMonth(), 1));
-
-  const monthLabel = cursor.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-  const grid = buildCalendarGrid(cursor);
-  const today = startOfDay(new Date());
-
+function ConfirmBookingModal({ summary, busy, onConfirm, onCancel }) {
   const { t } = useTranslation();
 
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && !busy) onCancel(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [busy, onCancel]);
+
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-      <div className="theme-card border theme-border p-6 md:p-7 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-purple dark:text-brand-lime/70">{t('booking.calendar.selectDay')}</p>
-            <h3 className="text-xl font-black theme-text mt-1 flex items-center gap-2">
-              <Calendar size={18} className="text-brand-purple dark:text-brand-lime" />
-              {t('booking.calendar.title')}
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/15 dark:hover:bg-white/15 transition-colors inline-flex items-center justify-center"
-            aria-label="Cerrar calendario"
-          >
-            <X size={18} />
-          </button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-booking-title">
+      <div className="theme-card border theme-border p-7 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="w-14 h-14 bg-brand-purple/15 dark:bg-brand-lime/15 rounded-2xl flex items-center justify-center mb-5 mx-auto">
+          <CalendarDays className="text-brand-purple dark:text-brand-lime" size={28} />
         </div>
-
-        <div className="mt-5 flex items-center justify-between">
+        <h2 id="confirm-booking-title" className="text-xl font-black theme-text text-center">{t('booking.confirmTitle')}</h2>
+        <dl className="mt-5 space-y-2 text-sm">
+          <div className="flex justify-between gap-4"><dt className="theme-faint">{t('booking.court')}</dt><dd className="font-bold theme-text text-right">{summary.court}</dd></div>
+          <div className="flex justify-between gap-4"><dt className="theme-faint">{t('booking.date')}</dt><dd className="font-bold theme-text text-right capitalize">{summary.dateLabel}</dd></div>
+          <div className="flex justify-between gap-4"><dt className="theme-faint">{t('booking.hours')}</dt><dd className="font-bold theme-text text-right tabular-nums">{summary.slots.join(' · ')}</dd></div>
+          <div className="flex justify-between gap-4 pt-3 mt-3 border-t theme-border"><dt className="font-bold theme-text">{t('booking.totalToPay')}</dt><dd className="text-xl font-black text-brand-purple dark:text-brand-lime tabular-nums">{summary.total}</dd></div>
+        </dl>
+        <p className="mt-4 text-xs theme-faint">{t('booking.confirmNote')}</p>
+        <div className="mt-6 flex gap-3">
           <button
-            onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors inline-flex items-center justify-center"
-            aria-label="Mes anterior"
-          >
-            <ChevronLeft size={18} />
-          </button>
-
-          <div className="text-sm font-black theme-text capitalize tracking-tight">
-            {monthLabel}
-          </div>
-
-          <button
-            onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-            className="w-10 h-10 rounded-2xl border theme-border theme-text hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors inline-flex items-center justify-center"
-            aria-label="Mes siguiente"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
-
-        <div className="mt-4 grid grid-cols-7 gap-2 text-[11px] font-bold theme-muted uppercase tracking-wider">
-          {t('booking.calendar.days', { returnObjects: true }).map((d) => (
-            <div key={d} className="text-center">{d}</div>
-          ))}
-        </div>
-
-        <div className="mt-2 grid grid-cols-7 gap-2">
-          {grid.map((d) => {
-            const inMonth = d.getMonth() === cursor.getMonth();
-            const isToday = isSameDay(d, today);
-            const isSelected = selected ? isSameDay(d, selected) : false;
-            const disabled = min ? startOfDay(d) < startOfDay(min) : false;
-
-            return (
-              <button
-                key={d.toISOString()}
-                disabled={disabled}
-                onClick={() => {
-                  if (disabled) return;
-                  onSelect(toISODate(d));
-                  onClose();
-                }}
-                className={[
-                  'h-11 rounded-2xl border text-sm font-black transition-all',
-                  disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-brand-purple/15 dark:hover:bg-white/15 hover:border-brand-purple/40 dark:hover:border-white/30',
-                  inMonth ? 'theme-text' : 'theme-faint',
-                  isSelected ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg' : 'theme-bg theme-border',
-                  !isSelected && isToday ? 'ring-1 ring-brand-purple/30 dark:ring-brand-lime/30' : '',
-                ].join(' ')}
-              >
-                {d.getDate()}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-5 flex items-center justify-between gap-3">
-          <button
-            onClick={() => {
-              const base = min ? new Date(`${minDate}T00:00:00`) : new Date();
-              onSelect(toISODate(base));
-              onClose();
-            }}
-            className="flex-1 py-3 rounded-2xl border theme-border theme-text font-black hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors"
-          >
-            {t('booking.calendar.today')}
-          </button>
-          <button
-            onClick={() => {
-              onSelect(minDate);
-              onClose();
-            }}
-            className="flex-1 py-3 rounded-2xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black hover:opacity-90 transition-opacity"
-          >
-            {t('booking.calendar.confirm')}
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}
-
-/**
- * Modal de confirmación de reserva multi-franja.
- * @param {{date: string, slots: string[], instalacion: string, totalCents: number, onConfirm: () => void, onCancel: () => void}} props
- * @returns {import('react').JSX.Element}
- */
-function ConfirmBookingModal({ date, slots, instalacion, totalCents, onConfirm, onCancel }) {
-  const { t } = useTranslation();
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="theme-card border theme-border p-8 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="w-14 h-14 bg-brand-purple/20 dark:bg-brand-lime/20 rounded-2xl flex items-center justify-center mb-5 mx-auto">
-          <Calendar className="text-brand-purple dark:text-brand-lime" size={28} />
-        </div>
-        <h3 className="text-xl font-bold theme-text text-center mb-1">{t('booking.confirmTitle')}</h3>
-        <p className="theme-muted text-sm text-center mb-6">
-          {t('booking.confirmDesc', { court: instalacion, date, slots: slots.join(', ') })}
-          <br /><br />
-          {t('booking.totalToPay')} <strong className="theme-text">{(totalCents / 100).toFixed(2)} €</strong>
-        </p>
-        <div className="flex gap-3">
-          <button
+            type="button"
             onClick={onCancel}
-            className="flex-1 py-3 rounded-xl border theme-border theme-text font-bold hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+            disabled={busy}
+            className="flex-1 py-3 rounded-xl border theme-border theme-text font-bold hover:bg-brand-purple/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
           >
-            <X size={16} /> {t('booking.cancelBtn')}
+            {t('booking.cancelBtn')}
           </button>
           <button
+            type="button"
             onClick={onConfirm}
-            className="flex-1 py-3 rounded-xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            disabled={busy}
+            className="flex-1 py-3 rounded-xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            <CheckCircle size={16} /> {t('booking.confirmBtn')}
+            <CheckCircle size={16} /> {busy ? t('booking.errors.confirming') : t('booking.confirmBtn')}
           </button>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
 /**
- * Página de creación de reservas:
- * - selección de instalación y fecha
- * - disponibilidad por franja (RPC)
- * - solicitud opcional de material (inventario por tipo de pista)
- * - creación de reserva y redirección a pago (Stripe Checkout)
- * @returns {import('react').JSX.Element}
+ * Aviso cuando el usuario ya tiene una reserva sin pagar: puede pagarla o
+ * cancelarla desde aquí mismo.
+ */
+function PendingBookingNotice({ booking, onCancelled }) {
+  const { t, i18n } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  const dateLabel = new Date(`${booking.fecha}T00:00:00`).toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const cancel = async () => {
+    setBusy(true);
+    try {
+      await cancelReserva(booking);
+      toast.success(t('history.cancelSuccess'));
+      onCancelled();
+    } catch (err) {
+      toast.error(cancelErrorMessage(err, t));
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto animate-in fade-in duration-500">
+      <div className="theme-card border border-amber-500/30 p-8 md:p-10 relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">
+            <AlertCircle size={14} /> {t('booking.pendingBadge')}
+          </span>
+          <h1 className="mt-4 text-2xl md:text-3xl font-black theme-text">{t('booking.pendingTitle')}</h1>
+          <p className="mt-2 theme-faint">{t('booking.pendingDesc', { hours: MIN_LEAD_HOURS })}</p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3 text-sm">
+            <div className="rounded-2xl theme-bg border theme-border p-4">
+              <p className="text-[11px] uppercase tracking-wider font-bold theme-faint">{t('booking.court')}</p>
+              <p className="mt-1 font-bold theme-text">{booking.instalaciones?.nombre ?? '—'}</p>
+            </div>
+            <div className="rounded-2xl theme-bg border theme-border p-4">
+              <p className="text-[11px] uppercase tracking-wider font-bold theme-faint">{t('booking.date')}</p>
+              <p className="mt-1 font-bold theme-text capitalize">{dateLabel}</p>
+            </div>
+            <div className="rounded-2xl theme-bg border theme-border p-4">
+              <p className="text-[11px] uppercase tracking-wider font-bold theme-faint">{t('booking.totalToPay')}</p>
+              <p className="mt-1 font-black theme-text tabular-nums">{formatEuros(booking.precio_cents, i18n.language)}</p>
+            </div>
+          </div>
+          <p className="mt-4 text-xs theme-faint">{t('booking.pendingWarning')}</p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to={`/checkout/${booking.id}`}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-purple dark:bg-brand-lime text-white dark:text-black font-black hover:opacity-90 transition-opacity"
+            >
+              <CreditCard size={16} /> {t('booking.payNow')}
+            </Link>
+            <button
+              type="button"
+              onClick={cancel}
+              disabled={busy}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-red-500/30 text-red-600 dark:text-red-400 font-bold hover:bg-red-500/10 transition-colors disabled:opacity-50"
+            >
+              <Trash2 size={16} /> {t('booking.cancelPending')}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Página de nueva reserva:
+ * 1. Deporte y pista (las crea el administrador; nada está fijo).
+ * 2. Día (tira de 14 días + selector para más adelante).
+ * 3. Franjas (mañana / tarde) con disponibilidad en tiempo real.
+ * 4. Material opcional.
+ * La reserva se crea de forma atómica en el servidor (`create_booking`) y el
+ * precio lo calcula la base de datos.
  */
 export default function NewBooking() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language || 'es';
 
-  const [loading, setLoading] = useState(false);
-  const [instalaciones, setInstalaciones] = useState([]);
-  const [selectedInst, setSelectedInst] = useState(null);
-  const [selectedInstData, setSelectedInstData] = useState(null);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [occupiedSlots, setOccupiedSlots] = useState([]);
+  const today = localIsoDate();
+  const maxDate = addDaysIso(today, MAX_DAYS_AHEAD);
+
+  const [instalaciones, setInstalaciones] = useState(null);
+  const [sport, setSport] = useState('all');
+  const [selectedId, setSelectedId] = useState(null);
+  const [date, setDate] = useState(today);
+  const [occupied, setOccupied] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [inventory, setInventory] = useState([]);
-  const [loadingInventory, setLoadingInventory] = useState(true);
-  const [materialReq, setMaterialReq] = useState({}); // { [inventarioId]: qty }
+  const [loadingInventory, setLoadingInventory] = useState(false);
+  const [materialReq, setMaterialReq] = useState({});
   const [selectedSlots, setSelectedSlots] = useState([]);
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [pending, setPending] = useState(undefined); // undefined = comprobando
+  const [now, setNow] = useState(() => Date.now());
 
-  const [hasPendingBooking, setHasPendingBooking] = useState(false);
-  const [checkingPending, setCheckingPending] = useState(true);
-
-  const [pendingBookingData, setPendingBookingData] = useState(null);
-
-  // Comprobar si hay reservas pendientes (de menos de 3 horas)
+  // Reloj para que las franjas se cierren solas si la página queda abierta
   useEffect(() => {
-    if (!user) return;
-    const checkPending = async () => {
-      const tresHorasAtras = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await supabase
-        .from('reservas')
-        .select('id, fecha, hora, currency')
-        .eq('user_id', user.id)
-        .eq('payment_status', 'pending')
-        .gte('created_at', tresHorasAtras)
-        .limit(1)
-        .maybeSingle();
-
-      if (!error && data) {
-        setPendingBookingData(data);
-        setHasPendingBooking(true);
-      }
-      setCheckingPending(false);
-    };
-    checkPending();
-  }, [user]);
-
-  useEffect(() => {
-    supabase
-      .from('instalaciones')
-      .select('*')
-      .order('id')
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setInstalaciones(data);
-          setSelectedInst(data[0].id);
-          setSelectedInstData(data[0]);
-        }
-      });
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
   }, []);
+
+  const userId = user?.id;
+  const loadPending = useCallback(async () => {
+    if (!userId) return;
+    await supabase.rpc('expire_pending_reservas').then(() => {}, () => {});
+    const { data } = await supabase
+      .from('reservas')
+      .select('id, fecha, hora, currency, precio_cents, payment_status, instalaciones(nombre)')
+      .eq('user_id', userId)
+      .eq('payment_status', 'pending')
+      .eq('currency', 'eur')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setPending(data ?? null);
+  }, [userId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial asíncrona
+    loadPending();
+  }, [loadPending]);
 
   useEffect(() => {
     let alive = true;
-    (async () => {
-      setLoadingInventory(true);
-      const tipo = String(selectedInstData?.tipo || 'general').toLowerCase();
-      if (!selectedInstData?.tipo) {
-        if (!alive) return;
-        setInventory([]);
-        setLoadingInventory(false);
-        return;
-      }
-      let res = await supabase
-        .from('inventario')
-        .select('id, nombre, cantidad, tipo_pista')
-        .eq('tipo_pista', tipo)
-        .order('nombre', { ascending: true });
-
-      if (res?.error && String(res.error.message || '').toLowerCase().includes('tipo_pista')) {
-        res = { data: [], error: null };
-      }
-
-      if (!alive) return;
-      if (res?.error) {
-        console.warn('[Booking] inventario error:', res.error.message);
-        setInventory([]);
-      } else {
-        setInventory(res?.data || []);
-      }
-      setLoadingInventory(false);
-    })();
-    return () => { alive = false; };
-  }, [selectedInstData?.tipo]);
-
-  useEffect(() => {
-    setMaterialReq({});
-    setSelectedSlots([]);
-  }, [selectedInst, date]);
-
-  // Comprobar disponibilidad al cambiar pista o fecha
-  useEffect(() => {
-    if (!selectedInst) return;
     supabase
-      .rpc('get_occupied_slots', { inst_id: selectedInst, date_in: date })
+      .from('instalaciones')
+      .select('*')
+      .order('tipo')
+      .order('nombre')
       .then(({ data, error }) => {
-        if (error) {
-          console.warn('[Booking] get_occupied_slots error:', error.message);
-          setOccupiedSlots([]);
-          return;
-        }
-        setOccupiedSlots((data || []).map(r => String(r.hora).slice(0, 5)));
+        if (!alive) return;
+        if (error) toast.error(t('booking.errors.loadCourts'));
+        const list = data ?? [];
+        setInstalaciones(list);
+        const first = list.find((i) => (i.estado ?? 'disponible') === 'disponible') ?? list[0];
+        if (first) setSelectedId(first.id);
       });
-  }, [selectedInst, date]);
+    return () => { alive = false; };
+  }, [t]);
 
-  const handleSelectInst = (instId) => {
-    const inst = instalaciones.find(i => i.id === Number(instId));
-    if (!inst) return;
-    setSelectedInst(inst.id);
-    setSelectedInstData(inst);
+  const selected = useMemo(
+    () => instalaciones?.find((i) => i.id === selectedId) ?? null,
+    [instalaciones, selectedId],
+  );
+  const bookable = (selected?.estado ?? 'disponible') === 'disponible';
+
+  const sports = useMemo(() => {
+    const seen = new Map();
+    for (const i of instalaciones ?? []) {
+      const tipo = String(i.tipo ?? '').toLowerCase();
+      if (!seen.has(tipo)) seen.set(tipo, describeSport({ tipo }, t));
+    }
+    return [...seen.values()];
+  }, [instalaciones, t]);
+
+  const visibleCourts = useMemo(
+    () => (instalaciones ?? []).filter((i) => sport === 'all' || String(i.tipo).toLowerCase() === sport),
+    [instalaciones, sport],
+  );
+
+  // Franjas ocupadas
+  const refreshOccupied = useCallback(async () => {
+    if (!selectedId) return;
+    setLoadingSlots(true);
+    const { data, error } = await supabase.rpc('get_occupied_slots', { inst_id: selectedId, date_in: date });
+    setOccupied(error ? [] : (data ?? []).map((r) => String(r.hora).slice(0, 5)));
+    setLoadingSlots(false);
+  }, [selectedId, date]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con el servidor
+    refreshOccupied();
+  }, [refreshOccupied]);
+
+  // Material según el tipo de pista
+  const tipoSel = String(selected?.tipo ?? '').toLowerCase();
+  useEffect(() => {
+    if (!tipoSel) return;
+    let alive = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- indicador de carga
+    setLoadingInventory(true);
+    supabase
+      .from('inventario')
+      .select('id, nombre, cantidad, tipo_pista')
+      .eq('tipo_pista', tipoSel)
+      .order('nombre')
+      .then(({ data }) => {
+        if (!alive) return;
+        setInventory(data ?? []);
+        setLoadingInventory(false);
+      });
+    return () => { alive = false; };
+  }, [tipoSel]);
+
+  const selectCourt = (id) => {
+    setSelectedId(id);
+    setSelectedSlots([]);
+    setMaterialReq({});
+  };
+  const selectDate = (iso) => {
+    if (!iso || iso < today || iso > maxDate) return;
+    setDate(iso);
+    setSelectedSlots([]);
   };
 
-  const requestedMaterialRows = useMemo(() => {
-    return Object.entries(materialReq)
-      .map(([id, qty]) => ({ id: Number(id), qty: Number(qty) }))
-      .filter(r => Number.isFinite(r.id) && Number.isFinite(r.qty) && r.qty > 0);
-  }, [materialReq]);
+  const slotState = (time) => {
+    if (occupied.includes(time)) return 'occupied';
+    const start = slotStartMs(date, time);
+    if (start <= now) return 'past';
+    if (start <= now + MIN_LEAD_HOURS * 3_600_000) return 'soon';
+    return 'free';
+  };
 
-  const setReqQty = (id, nextQty, maxQty) => {
-    const safe = Math.max(0, Math.min(Number(nextQty) || 0, maxQty));
-    setMaterialReq(prev => {
+  const toggleSlot = (time) => {
+    if (!bookable || slotState(time) !== 'free') return;
+    setSelectedSlots((prev) => {
+      if (prev.includes(time)) return prev.filter((x) => x !== time);
+      if (prev.length >= MAX_SLOTS) {
+        toast.error(t('booking.errors.maxSlots', { max: MAX_SLOTS }));
+        return prev;
+      }
+      return [...prev, time].sort();
+    });
+  };
+
+  const setReqQty = (id, qty, max) => {
+    const safe = Math.max(0, Math.min(Number(qty) || 0, max));
+    setMaterialReq((prev) => {
       const next = { ...prev };
       if (safe <= 0) delete next[id];
       else next[id] = safe;
@@ -378,279 +312,274 @@ export default function NewBooking() {
     });
   };
 
-  const toggleSlot = (time) => {
-    if (selectedInstData?.estado === 'mantenimiento') return;
-    const hoy = new Date().toISOString().split('T')[0];
-    if (date < hoy) {
-      toast.error(t('booking.errors.pastDate'));
-      return;
-    }
-    if (date === hoy) {
-      const slotStart = new Date(`${date}T${time}:00`);
-      if (slotStart.getTime() <= Date.now()) {
-        toast.error(t('booking.errors.pastSlot'));
-        return;
-      }
-    }
+  const price = pricePerSlot(selected);
+  const totalCents = price * selectedSlots.length;
+  const dateLabel = new Date(`${date}T00:00:00`).toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
 
-    setSelectedSlots(prev =>
-      prev.includes(time) ? prev.filter(t => t !== time) : [...prev, time]
-    );
-  };
-
-  /**
-   * Crea las reservas (1 principal con total, N secundarias con coste 0),
-   * guarda material, reserva stock y redirige.
-   * @returns {Promise<void>}
-   */
   const handleBooking = async () => {
-    if (selectedSlots.length === 0) return;
-    setIsConfirming(false);
-    setLoading(true);
-
-    const toastId = toast.loading(t('booking.errors.confirming'));
-    const PRECIO_CENTS = 500; // 5,00€ por franja
-    const totalCents = PRECIO_CENTS * selectedSlots.length;
-
-    // Ordenamos franjas temporalmente
-    const sortedSlots = [...selectedSlots].sort();
-    const firstTime = sortedSlots[0];
-
-    // Insertar primera reserva (con el precio total)
-    const { data: inserted, error } = await supabase
-      .from('reservas')
-      .insert([{
-        user_id: user.id,
-        installation_id: selectedInst,
-        fecha: date,
-        hora: firstTime,
-        precio_cents: totalCents,
-        currency: 'eur',
-        payment_status: 'pending',
-      }])
-      .select('id')
-      .single();
+    if (!selected || selectedSlots.length === 0) return;
+    setSubmitting(true);
+    const material = Object.entries(materialReq).map(([id, qty]) => ({ id: Number(id), qty: Number(qty) }));
+    const { data: reservaId, error } = await supabase.rpc('create_booking', {
+      p_inst: selected.id,
+      p_fecha: date,
+      p_horas: selectedSlots,
+      p_material: material,
+    });
+    setSubmitting(false);
 
     if (error) {
-      toast.dismiss(toastId);
+      setConfirming(false);
       if (error.code === '23505') {
         toast.error(t('booking.errors.slotTaken'));
-        const { data } = await supabase.rpc('get_occupied_slots', { inst_id: selectedInst, date_in: date });
-        setOccupiedSlots((data || []).map(r => String(r.hora).slice(0, 5)));
+        setSelectedSlots([]);
+        refreshOccupied();
+      } else if (error.code === 'P0001' && /pendiente/i.test(error.message)) {
+        loadPending();
+      } else if (/function .*create_booking|Could not find the function/i.test(error.message)) {
+        toast.error(t('booking.errors.migration'));
       } else {
-        toast.error(t('booking.errors.bookingError') + error.message);
+        toast.error(error.message || t('booking.errors.bookingError'));
       }
-      setLoading(false);
       return;
     }
-
-    const reservaId = inserted.id;
-
-    // Insertar el resto de franjas asociadas (precio 0, currency especial para enlazarlas)
-    if (sortedSlots.length > 1) {
-      const secondaryRows = sortedSlots.slice(1).map(time => ({
-        user_id: user.id,
-        installation_id: selectedInst,
-        fecha: date,
-        hora: time,
-        precio_cents: 0,
-        currency: `linked_${reservaId}`,
-        payment_status: 'pending',
-      }));
-
-      const { error: secErr } = await supabase.from('reservas').insert(secondaryRows);
-      if (secErr) {
-        toast.dismiss(toastId);
-        toast.error(t('booking.errors.secondaryError'));
-      }
-    }
-
-    toast.dismiss(toastId);
-
-    // Material (se asocia solo al ID principal)
-    if (requestedMaterialRows.length > 0) {
-      const rows = requestedMaterialRows.map(r => ({
-        reserva_id: reservaId,
-        inventario_id: r.id,
-        cantidad: r.qty,
-      }));
-
-      const { error: matErr } = await supabase.from('reserva_material').insert(rows);
-      if (matErr) {
-        toast.error(t('booking.errors.materialError'));
-      } else {
-        const { error: stockErr } = await supabase.rpc('reserve_inventory_for_reserva', { reserva_id_in: reservaId });
-        if (stockErr) {
-          toast.error(t('booking.errors.stockError'));
-        }
-      }
-    }
-
     toast.success(t('booking.success'));
     navigate(`/checkout/${reservaId}`);
-    setLoading(false);
   };
 
-  const PRECIO_CENTS = 500;
-  const totalCents = selectedSlots.length * PRECIO_CENTS;
-
-  if (checkingPending) {
-    return <div className="text-center p-12 text-gray-500 animate-pulse">{t('booking.loading')}</div>;
+  /* ──────────────── estados de carga ──────────────── */
+  if (pending === undefined || instalaciones === null) {
+    return <BrandLoader fullscreen={false} label={t('booking.loading')} />;
   }
-
-  if (hasPendingBooking) {
+  if (pending) {
+    return <PendingBookingNotice booking={pending} onCancelled={() => setPending(null)} />;
+  }
+  if (instalaciones.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
-        <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-8 text-center space-y-4">
-          <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto text-red-500">
-            <AlertCircle size={28} />
-          </div>
-          <h2 className="text-xl font-bold theme-text">{t('booking.pendingTitle')}</h2>
-          <p className="theme-faint">
-            {t('booking.pendingDesc', { hours: 3 })}<br />
-            <span className="text-sm mt-2 block">{t('booking.pendingWarning')}</span>
-          </p>
-          {pendingBookingData && (
-            <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/10 inline-block text-left mt-2">
-              <p className="text-sm theme-text"><strong>{t('booking.pendingDate')}</strong> {pendingBookingData.fecha}</p>
-              <p className="text-sm theme-text"><strong>{t('booking.pendingTime')}</strong> {String(pendingBookingData.hora).slice(0, 5)}</p>
-              <p className="text-xs theme-faint mt-1">ID: {pendingBookingData.id} | Ref: {pendingBookingData.currency}</p>
-            </div>
-          )}
-          <div className="pt-4">
-            <Link to="/historial" className="px-6 py-3 rounded-xl bg-red-500 text-white font-bold inline-block hover:bg-red-600 transition-colors">
-              {t('booking.goToHistory')}
-            </Link>
-          </div>
-        </div>
+      <div className="max-w-xl mx-auto theme-card p-10 text-center">
+        <AlertCircle className="mx-auto theme-faint" size={40} />
+        <h1 className="mt-4 text-xl font-black theme-text">{t('booking.noCourtsTitle')}</h1>
+        <p className="mt-2 theme-faint">{t('booking.noCourtsDesc')}</p>
       </div>
     );
   }
 
+  const strip = Array.from({ length: STRIP_DAYS }, (_, i) => addDaysIso(today, i));
+  const morning = TIME_SLOTS.filter((s) => s < '14:00');
+  const afternoon = TIME_SLOTS.filter((s) => s >= '14:00');
+  const freeCount = TIME_SLOTS.filter((s) => slotState(s) === 'free').length;
+
+  const renderSlot = (time) => {
+    const state = slotState(time);
+    const isSel = selectedSlots.includes(time);
+    const disabled = !bookable || state !== 'free';
+    const sub = state === 'occupied' ? t('booking.occupied')
+      : state === 'past' ? t('booking.past')
+        : state === 'soon' ? t('booking.tooSoon')
+          : isSel ? t('booking.selected') : formatEuros(price, lang);
+    return (
+      <button
+        key={time}
+        type="button"
+        disabled={disabled}
+        aria-pressed={isSel}
+        onClick={() => toggleSlot(time)}
+        className={[
+          'relative rounded-2xl border px-3 py-3 text-left transition-all',
+          isSel
+            ? 'bg-brand-purple dark:bg-brand-lime border-brand-purple dark:border-brand-lime text-white dark:text-black shadow-lg -translate-y-0.5'
+            : state === 'occupied'
+              ? 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300 cursor-not-allowed'
+              : state !== 'free' || !bookable
+                ? 'theme-border theme-faint opacity-50 cursor-not-allowed'
+                : 'theme-bg theme-border theme-text hover:border-brand-purple dark:hover:border-brand-lime hover:-translate-y-0.5',
+        ].join(' ')}
+      >
+        <span className="block font-display text-xl font-black tabular-nums leading-none">{time}</span>
+        <span className="mt-1 block text-[11px] font-bold uppercase tracking-wide opacity-80">{sub}</span>
+      </button>
+    );
+  };
+
   return (
     <>
-      {calendarOpen && (
-        <CalendarModal
-          value={date}
-          minDate={new Date().toISOString().split('T')[0]}
-          onSelect={setDate}
-          onClose={() => setCalendarOpen(false)}
-        />
-      )}
-
-      {/* Modal de confirmación */}
-      {isConfirming && (
+      {confirming && (
         <ConfirmBookingModal
-          date={date}
-          slots={selectedSlots.sort()}
-          instalacion={selectedInstData?.nombre || 'Pista'}
-          totalCents={totalCents}
+          summary={{ court: selected?.nombre ?? '', dateLabel, slots: selectedSlots, total: formatEuros(totalCents, lang) }}
+          busy={submitting}
           onConfirm={handleBooking}
-          onCancel={() => setIsConfirming(false)}
+          onCancel={() => setConfirming(false)}
         />
       )}
 
-      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
-        <div>
-          <h1 className="text-3xl font-bold theme-text">{t('booking.title')}</h1>
+      <div className="max-w-5xl mx-auto space-y-6 pb-6 animate-in fade-in duration-500">
+        <header>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-purple dark:text-brand-lime">{t('booking.kicker')}</p>
+          <h1 className="mt-1 text-3xl md:text-4xl font-black theme-text tracking-tight">{t('booking.title')}</h1>
           <p className="theme-faint text-sm mt-1">{t('booking.subtitle')}</p>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 theme-card p-6">
-          <div>
-            <label className="theme-muted text-sm font-bold mb-3 block">{t('booking.selectCourt')}</label>
-            <div className="relative">
-              <ChevronsUpDown className="absolute right-4 top-1/2 -translate-y-1/2 theme-muted" size={18} />
-              <select
-                value={selectedInst ?? ''}
-                onChange={(e) => handleSelectInst(e.target.value)}
-                className="w-full appearance-none theme-bg border theme-border theme-text rounded-2xl p-3 pr-12 font-bold focus:border-brand-purple dark:focus:border-brand-lime outline-none transition-colors"
-              >
-                {instalaciones.map(inst => (
-                  <option key={inst.id} value={inst.id}>
-                    {inst.nombre}{inst.estado === 'mantenimiento' ? ' (Mantenimiento)' : ''}
-                  </option>
-                ))}
-              </select>
+        {/* 1 · Pista */}
+        <section className="theme-card p-5 md:p-6" aria-labelledby="step-court">
+          <h2 id="step-court" className="flex items-center gap-3 font-black theme-text">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-purple dark:bg-brand-lime text-white dark:text-black text-xs">1</span>
+            {t('booking.selectCourt')}
+          </h2>
+
+          {sports.length > 1 && (
+            <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t('booking.sport')}>
+              {[{ tipo: 'all', name: t('booking.allSports') }, ...sports].map((s) => (
+                <button
+                  key={s.tipo}
+                  type="button"
+                  aria-pressed={sport === s.tipo}
+                  onClick={() => setSport(s.tipo)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-bold border transition-colors ${sport === s.tipo
+                    ? 'bg-brand-purple dark:bg-brand-lime border-transparent text-white dark:text-black'
+                    : 'theme-border theme-muted hover:theme-text'}`}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {visibleCourts.map((inst) => {
+              const ok = (inst.estado ?? 'disponible') === 'disponible';
+              const active = inst.id === selectedId;
+              const info = describeSport({ tipo: inst.tipo }, t);
+              return (
+                <button
+                  key={inst.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => selectCourt(inst.id)}
+                  className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all ${active
+                    ? 'border-brand-purple dark:border-brand-lime ring-2 ring-brand-purple/30 dark:ring-brand-lime/30 theme-elevated'
+                    : 'theme-border theme-bg hover:border-brand-purple/50 dark:hover:border-brand-lime/50'} ${ok ? '' : 'opacity-70'}`}
+                >
+                  <span className="text-[11px] font-black uppercase tracking-wider text-brand-purple dark:text-brand-lime">{info.name}</span>
+                  <span className="mt-1 block font-black theme-text text-lg leading-tight">{inst.nombre}</span>
+                  <span className="mt-3 flex items-center justify-between text-xs">
+                    <span className={`font-bold ${ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      ● {ok ? t('booking.status.available') : t(`booking.status.${inst.estado}`, { defaultValue: inst.estado })}
+                    </span>
+                    <span className="theme-muted font-bold tabular-nums">{formatEuros(pricePerSlot(inst), lang)}<span className="theme-faint font-normal">/h</span></span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 2 · Día */}
+        <section className="theme-card p-5 md:p-6" aria-labelledby="step-date">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="step-date" className="flex items-center gap-3 font-black theme-text">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-purple dark:bg-brand-lime text-white dark:text-black text-xs">2</span>
+              {t('booking.date')}
+              <span className="font-bold theme-faint text-sm capitalize">· {dateLabel}</span>
+            </h2>
+          </div>
+
+          <div className="mt-4 -mx-1 flex gap-2 overflow-x-auto pb-2 px-1 snap-x" role="listbox" aria-label={t('booking.date')}>
+            {strip.map((iso) => {
+              const d = new Date(`${iso}T00:00:00`);
+              const active = iso === date;
+              return (
+                <button
+                  key={iso}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => selectDate(iso)}
+                  className={`snap-start shrink-0 w-[4.5rem] rounded-2xl border py-3 text-center transition-all ${active
+                    ? 'bg-brand-purple dark:bg-brand-lime border-transparent text-white dark:text-black shadow-lg'
+                    : 'theme-bg theme-border theme-text hover:border-brand-purple dark:hover:border-brand-lime'}`}
+                >
+                  <span className="block text-[11px] font-bold uppercase opacity-80">
+                    {iso === today ? t('booking.today') : d.toLocaleDateString(lang, { weekday: 'short' })}
+                  </span>
+                  <span className="block font-display text-2xl font-black leading-tight tabular-nums">{d.getDate()}</span>
+                  <span className="block text-[11px] font-bold uppercase opacity-70">{d.toLocaleDateString(lang, { month: 'short' })}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 max-w-xs">
+            <DatePicker
+              id="booking-date"
+              label={t('booking.otherDate')}
+              value={date}
+              min={today}
+              max={maxDate}
+              onChange={(e) => selectDate(e.target.value)}
+              hint={t('booking.maxAhead', { days: MAX_DAYS_AHEAD })}
+            />
+          </div>
+        </section>
+
+        {/* 3 · Franjas */}
+        <section className="theme-card p-5 md:p-6" aria-labelledby="step-slots" aria-busy={loadingSlots}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="step-slots" className="flex items-center gap-3 font-black theme-text">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-purple dark:bg-brand-lime text-white dark:text-black text-xs">3</span>
+              {t('booking.availableSlots')}
+            </h2>
+            <span className="text-xs font-bold theme-faint">{t('booking.freeCount', { count: freeCount })} · {t('booking.maxSlotsHint', { max: MAX_SLOTS })}</span>
+          </div>
+
+          {!bookable && (
+            <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl text-amber-700 dark:text-amber-300 text-sm flex items-center gap-2">
+              <AlertCircle size={16} /> {t('booking.maintenance')}
+            </div>
+          )}
+
+          <div className={`mt-5 space-y-5 transition-opacity ${loadingSlots ? 'opacity-50' : ''}`}>
+            <div>
+              <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wider theme-faint"><Sun size={14} /> {t('booking.morning')}</p>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">{morning.map(renderSlot)}</div>
+            </div>
+            <div>
+              <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wider theme-faint"><Sunset size={14} /> {t('booking.afternoon')}</p>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">{afternoon.map(renderSlot)}</div>
             </div>
           </div>
+          <p className="mt-4 text-xs theme-faint flex items-center gap-1.5"><Clock size={12} /> {t('booking.leadNote', { hours: MIN_LEAD_HOURS })}</p>
+        </section>
 
-          <div>
-            <label className="theme-muted text-sm font-bold mb-3 block">{t('booking.date')}</label>
-            <button
-              onClick={() => setCalendarOpen(true)}
-              className="w-full theme-bg border theme-border theme-text rounded-2xl p-3 font-black focus:border-brand-purple dark:focus:border-brand-lime outline-none
-              hover:bg-brand-purple/15 dark:hover:bg-white/15 transition-colors flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <Calendar size={18} className="text-brand-purple dark:text-brand-lime" />
-                {date}
-              </span>
-              <span className="theme-faint text-sm font-bold">{t('booking.openCalendar')}</span>
-            </button>
-
-            {selectedInstData?.estado === 'mantenimiento' && (
-              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-400 text-sm flex items-center gap-2">
-                <AlertCircle size={16} />
-                {t('booking.maintenance')}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="theme-card p-6">
-          <h3 className="theme-text font-bold mb-1 flex items-center gap-2">
-            <Package className="text-brand-purple dark:text-brand-lime" size={18} />
-            {t('booking.material')}
-          </h3>
-          <p className="text-xs theme-muted mb-5">
-            {t('booking.materialDesc')}
-          </p>
+        {/* 4 · Material */}
+        <section className="theme-card p-5 md:p-6" aria-labelledby="step-material">
+          <h2 id="step-material" className="flex items-center gap-3 font-black theme-text">
+            <span className="grid h-7 w-7 place-items-center rounded-full theme-elevated border theme-border text-xs"><Package size={14} /></span>
+            {t('booking.material')} <span className="text-xs font-bold theme-faint">({t('booking.optional')})</span>
+          </h2>
+          <p className="mt-1 text-xs theme-muted">{t('booking.materialDesc')}</p>
 
           {loadingInventory ? (
-            <p className="text-brand-purple dark:text-brand-lime animate-pulse text-sm">{t('booking.loadingInventory')}</p>
+            <p className="mt-4 text-sm theme-faint animate-pulse">{t('booking.loadingInventory')}</p>
           ) : inventory.length === 0 ? (
-            <p className="theme-faint text-sm">{t('booking.noMaterial')}</p>
+            <p className="mt-4 theme-faint text-sm">{t('booking.noMaterial')}</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {inventory.map((it) => {
-                const maxQty = Math.max(0, Number(it.cantidad) || 0);
-                const current = Number(materialReq[it.id] || 0);
-                const disabled = maxQty === 0;
+                const max = Math.max(0, Math.min(20, Number(it.cantidad) || 0));
+                const qty = Number(materialReq[it.id] || 0);
                 return (
-                  <div
-                    key={it.id}
-                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${disabled ? 'theme-elevated theme-border opacity-50' : 'theme-bg theme-border hover:border-brand-purple dark:hover:border-brand-lime transition-colors'
-                      }`}
-                  >
+                  <div key={it.id} className={`rounded-2xl border p-3 pl-4 flex items-center justify-between gap-3 theme-bg theme-border ${max === 0 ? 'opacity-50' : ''}`}>
                     <div className="min-w-0">
                       <p className="text-sm font-bold theme-text truncate">{it.nombre}</p>
-                      <p className="text-[11px] theme-faint">
-                        {t('booking.stock')} <span className="theme-text font-bold">{maxQty}</span>
-                      </p>
+                      <p className="text-[11px] theme-faint">{t('booking.stock')} <span className="theme-text font-bold">{it.cantidad}</span></p>
                     </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        disabled={disabled || current <= 0}
-                        onClick={() => setReqQty(it.id, current - 1, maxQty)}
-                        className="w-10 h-10 rounded-xl border theme-border theme-text hover:bg-brand-purple/15 dark:hover:bg-white/15 disabled:opacity-40 transition-colors"
-                        aria-label="Restar"
-                      >
-                        −
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button type="button" disabled={qty <= 0} onClick={() => setReqQty(it.id, qty - 1, max)} className="w-9 h-9 grid place-items-center rounded-xl border theme-border theme-text disabled:opacity-30" aria-label={t('booking.less', { item: it.nombre })}>
+                        <Minus size={14} />
                       </button>
-                      <div className="w-10 text-center font-black theme-text tabular-nums">
-                        {current}
-                      </div>
-                      <button
-                        type="button"
-                        disabled={disabled || current >= maxQty}
-                        onClick={() => setReqQty(it.id, current + 1, maxQty)}
-                        className="w-10 h-10 rounded-xl bg-brand-purple/10 dark:bg-brand-lime/10 border border-brand-purple/20 dark:border-brand-lime/20 text-brand-purple dark:text-brand-lime hover:bg-brand-purple dark:hover:bg-brand-lime hover:text-white dark:hover:text-black disabled:opacity-30 transition-colors"
-                        aria-label="Sumar"
-                      >
-                        +
+                      <output className="w-8 text-center font-black theme-text tabular-nums" aria-live="polite">{qty}</output>
+                      <button type="button" disabled={qty >= max} onClick={() => setReqQty(it.id, qty + 1, max)} className="w-9 h-9 grid place-items-center rounded-xl bg-brand-purple/10 dark:bg-brand-lime/10 text-brand-purple dark:text-brand-lime disabled:opacity-30" aria-label={t('booking.more', { item: it.nombre })}>
+                        <Plus size={14} />
                       </button>
                     </div>
                   </div>
@@ -658,57 +587,29 @@ export default function NewBooking() {
               })}
             </div>
           )}
-        </div>
+        </section>
 
-        <div>
-          <h3 className="theme-text font-bold mb-4 flex items-center gap-2">
-            <Clock className="text-brand-purple dark:text-brand-lime" /> {t('booking.availableSlots')}
-          </h3>
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {TIME_SLOTS.filter((time) => {
-              const slotStart = new Date(`${date}T${time}:00`);
-              // Solo mostrar franjas que tengan al menos 3 horas de margen desde la hora actual
-              return slotStart.getTime() > Date.now() + 3 * 60 * 60 * 1000;
-            }).map((time) => {
-              const isOccupied = occupiedSlots.includes(time);
-              const isSelected = selectedSlots.includes(time);
-              return (
-                <button
-                  key={time}
-                  disabled={isOccupied || loading || selectedInstData?.estado === 'mantenimiento'}
-                  onClick={() => toggleSlot(time)}
-                  className={`py-4 rounded-2xl font-bold text-lg transition-all ${isOccupied
-                      ? 'bg-red-500/25 text-red-700 dark:text-red-400 border border-red-500/40 cursor-not-allowed opacity-100'
-                      : isSelected
-                        ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black border-brand-purple dark:border-brand-lime shadow-lg scale-105'
-                        : 'theme-elevated theme-text border theme-border hover:border-brand-purple dark:hover:border-brand-lime/50 disabled:opacity-30'
-                    }`}
-                >
-                  {time}
-                  {isOccupied && <span className="text-[10px] block font-normal">{t('booking.occupied')}</span>}
-                  {isSelected && !isOccupied && <span className="text-[10px] block font-black">{t('booking.selected')}</span>}
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedSlots.length > 0 && (
-            <div className="mt-8 pt-6 border-t theme-border flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div>
-                <p className="theme-faint text-sm">{t('booking.slotsSelected')} <strong className="theme-text">{selectedSlots.length}</strong></p>
-                <p className="text-2xl font-black text-brand-purple dark:text-brand-lime">{(totalCents / 100).toFixed(2)} €</p>
+        {/* Barra de resumen (se pega abajo al hacer scroll) */}
+        {selectedSlots.length > 0 && (
+          <div className="sticky bottom-4 z-30 pr-16 sm:pr-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-brand-purple/30 dark:border-brand-lime/30 theme-card px-5 py-4 shadow-2xl">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold theme-text">{selected?.nombre} · <span className="capitalize">{dateLabel}</span></p>
+                <p className="truncate text-xs theme-faint tabular-nums">{selectedSlots.join(' · ')}</p>
               </div>
-              <button
-                onClick={() => setIsConfirming(true)}
-                disabled={loading}
-                className="w-full sm:w-auto px-8 py-3 bg-brand-purple dark:bg-brand-lime text-white dark:text-black rounded-xl font-black shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {selectedSlots.length > 1 ? t('booking.bookSlots') : t('booking.bookSlot')}
-                <CheckCircle size={18} />
-              </button>
+              <div className="flex items-center gap-4 shrink-0">
+                <span className="text-xl font-black text-brand-purple dark:text-brand-lime tabular-nums">{formatEuros(totalCents, lang)}</span>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-brand-purple dark:bg-brand-lime px-5 py-3 font-black text-white dark:text-black hover:opacity-90"
+                >
+                  {t('booking.continue')} <CheckCircle size={16} />
+                </button>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

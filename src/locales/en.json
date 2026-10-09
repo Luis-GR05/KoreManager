@@ -72,7 +72,8 @@
     "maxLevel": "You've reached the maximum level!",
     "monthlyGoal": "Monthly Goal",
     "monthlyGoalDesc": "of {{meta}} matches booked",
-    "courtSport": "Sports Court"
+    "courtSport": "Sports Court",
+    "fullStats": "See full stats"
   },
   "history": {
     "title": "My",
@@ -95,8 +96,10 @@
       "inProgress": "In progress",
       "completed": "Completed",
       "paid": "Paid",
-      "pending": "Pending Payment",
-      "cancelled": "Cancelled"
+      "pending": "Payment pending",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "failed": "Payment failed"
     },
     "empty": {
       "noBookings": "You have no bookings yet",
@@ -111,7 +114,9 @@
       "freeSlot": "The time slot will be freed for other users.",
       "paidNote": "Note: This booking is already paid. Please contact the club to manage possible refunds.",
       "back": "Go back",
-      "confirm": "Yes, cancel"
+      "confirm": "Yes, cancel",
+      "refundNote": "It's paid: we'll refund {{amount}} to your card.",
+      "noRefundNote": "Paid bookings can only be cancelled with a refund up to {{hours}} h before. Contact the centre."
     },
     "pay": "Pay",
     "cancel": "Cancel",
@@ -119,7 +124,15 @@
     "errorCancel": "Error cancelling the booking.",
     "cancelSuccess": "Booking cancelled successfully.",
     "cancelSuccessMulti": "Bookings cancelled successfully.",
-    "sport": "Sports Court"
+    "sport": "Sports Court",
+    "cancelling": "Cancelling…",
+    "refundSuccess": "Booking cancelled. The refund will reach your card in a few days.",
+    "errors": {
+      "notFound": "The booking doesn't exist.",
+      "past": "The booking has already started or passed.",
+      "rateLimited": "Too many cancellations in a row. Wait a few minutes.",
+      "tooLate": "It can no longer be cancelled with a refund (less than {{hours}} h to go)."
+    }
   },
   "profile": {
     "loading": "Loading player profile...",
@@ -160,13 +173,16 @@
     "legalNotice": "Legal notice",
     "privacyPolicy": "Privacy policy",
     "cookiesPolicy": "Cookies policy",
-    "terms": "Terms of use"
+    "terms": "Terms of use",
+    "saved": "Profile updated.",
+    "saveError": "Couldn't save: {{msg}}",
+    "dniTaken": "That ID number is already registered to another account."
   },
   "booking": {
     "loading": "Loading...",
     "pendingTitle": "You have a pending booking",
-    "pendingDesc": "You must complete the payment for your current booking before making a new one. Pending bookings expire in {{hours}} hours.",
-    "pendingWarning": "⚠️ If the booking is for within the next 3 hours, it will expire in 15 minutes if not paid.",
+    "pendingDesc": "Pay or cancel your current booking before making another. Unpaid bookings expire after {{hours}} hours.",
+    "pendingWarning": "If the booking is for within the next 3 hours, it will expire in 15 minutes if not paid.",
     "pendingDate": "Date:",
     "pendingTime": "Time:",
     "goToHistory": "Go to Payment History",
@@ -211,13 +227,48 @@
       "pastDate": "You cannot book a past date.",
       "pastSlot": "That time slot has already passed.",
       "slotTaken": "That slot was already booked. Choose another.",
-      "bookingError": "Booking error: ",
+      "bookingError": "Couldn't create the booking.",
       "materialError": "Could not save the requested equipment.",
       "stockError": "Not enough stock for the requested equipment.",
       "secondaryError": "Warning: Some selected slots could not be registered.",
-      "confirming": "Confirming booking..."
+      "confirming": "Confirming booking...",
+      "loadCourts": "Couldn't load the courts.",
+      "maxSlots": "You can book at most {{max}} slots at once.",
+      "migration": "The latest database migration (bookings & payments) hasn't been applied."
     },
-    "success": "Booking created. Redirecting to payment..."
+    "success": "Booking created. Redirecting to payment...",
+    "afternoon": "Afternoon",
+    "allSports": "All",
+    "cancelPending": "Cancel booking",
+    "confirmNote": "You'll need to pay to confirm it; otherwise it expires and the slot is released.",
+    "continue": "Continue",
+    "court": "Court",
+    "freeCount_one": "{{count}} free slot",
+    "freeCount_other": "{{count}} free slots",
+    "hours": "Times",
+    "kicker": "Book in 3 steps",
+    "leadNote": "Slots can be booked up to {{hours}} h before they start.",
+    "less": "Remove {{item}}",
+    "more": "Add {{item}}",
+    "maxAhead": "Up to {{days}} days ahead.",
+    "maxSlotsHint": "max. {{max}} per booking",
+    "morning": "Morning",
+    "noCourtsTitle": "No courts yet",
+    "noCourtsDesc": "The centre hasn't published any courts yet. Check back soon.",
+    "optional": "optional",
+    "otherDate": "Another date",
+    "past": "Past",
+    "payNow": "Pay now",
+    "pendingBadge": "Payment pending",
+    "sport": "Sport",
+    "today": "Today",
+    "tooSoon": "Closed",
+    "status": {
+      "available": "Available",
+      "disponible": "Available",
+      "mantenimiento": "Maintenance",
+      "ocupada": "Occupied"
+    }
   },
   "inventory": {
     "title": "Equipment Management",
@@ -285,7 +336,7 @@
       "noData": "No data yet."
     },
     "achievements": "Achievements",
-    "unlocked": "✓ Unlocked",
+    "unlocked": "Unlocked",
     "logros": {
       "primer_partido": {
         "title": "First Serve!",
@@ -334,7 +385,10 @@
       },
       "noName": "No name",
       "noPhone": "—",
-      "notFound": "No users found."
+      "notFound": "No users found.",
+      "roleError": "Couldn't change the role: {{msg}}",
+      "roleUpdated": "Role updated.",
+      "selfRole": "You can't change your own role"
     },
     "courts": {
       "loading": "Loading installations...",
@@ -351,12 +405,20 @@
       "save": "Save",
       "saving": "Saving...",
       "edit": "Edit",
-      "deleteConfirm": "Are you sure you want to permanently delete this court? (It may fail if it has references)",
-      "deleteError": "PostgreSQL error: could not delete. It may have active bookings.",
+      "deleteConfirm": "The court will be permanently deleted. If it has bookings the database will refuse: set it to maintenance instead.",
+      "deleteError": "Can't delete: it has bookings. Set it to maintenance so it can't be booked.",
       "deleteSuccess": "Installation permanently deleted.",
       "updateSuccess": "Court updated",
       "createSuccess": "Court created",
-      "nameRequired": "Name is required"
+      "nameRequired": "Name is required",
+      "delete": "Delete",
+      "deleteTitle": "Delete {{name}}?",
+      "empty": "No courts yet. Create the first one so members can book.",
+      "price": "Price / hour",
+      "priceInvalid": "Enter a valid price (0 – 1000 €).",
+      "typeHint": "Pick an existing sport or type a new one to create it.",
+      "typePlaceholder": "E.g. padel, tennis, volleyball…",
+      "typeRequired": "Enter the sport (2–40 characters)."
     },
     "alerts": {
       "loading": "Loading alerts...",
@@ -373,7 +435,10 @@
       "deleteConfirm": "Delete this alert permanently?",
       "deleteSuccess": "Alert deleted.",
       "titleRequired": "Title is required.",
-      "createError": "Error creating: "
+      "createError": "Error creating: ",
+      "activate": "Activate notice",
+      "deactivate": "Deactivate notice",
+      "messageRequired": "The message can't be empty."
     },
     "bookings": {
       "loading": "Loading system bookings...",
@@ -402,19 +467,22 @@
       "more": "+{{count}} more",
       "cancelModal": {
         "title": "Cancel this booking?",
-        "desc": "It will be permanently deleted and the user will lose their time slot.",
+        "desc": "The booking will be cancelled and the slot released for other members.",
         "back": "Go back",
         "cancelling": "Cancelling...",
-        "confirm": "Yes, cancel"
+        "confirm": "Yes, cancel",
+        "descPaid": "It's paid: {{amount}} will be refunded automatically and the slot released."
       },
       "noResults": "No bookings in this period.",
       "noResultsSearch": "No bookings found for that search.",
       "showing": "Showing {{shown}} of {{total}} bookings",
-      "loaded": "(loaded {{count}})",
+      "loaded": "{{count}} loaded",
       "loadMore": "Load more",
       "loading2": "Loading...",
       "cancelSuccess": "Booking cancelled.",
-      "cancelError": "Error cancelling: "
+      "cancelError": "Error cancelling: ",
+      "onlyActive": "Active only",
+      "revenue": "Revenue collected"
     },
     "adminStats": {
       "loading": "Loading statistics...",
@@ -429,7 +497,8 @@
       "noData": "No data yet.",
       "noActivity": "No activity yet.",
       "bookingsLabel": "bookings",
-      "matchesLabel": "matches"
+      "matchesLabel": "matches",
+      "hoursBooked": "Paid hours"
     }
   },
   "payment": {
@@ -867,5 +936,82 @@
     "available_one": "{{count}} available now",
     "available_other": "{{count}} available now",
     "none": "Courts will be available soon. Check back in a few days."
+  },
+  "errors": {
+    "goHome": "Go home",
+    "goDashboard": "Go to my dashboard",
+    "back": "Go back",
+    "retry": "Try again",
+    "notFound": {
+      "title": "Out of bounds",
+      "desc": "The page you're looking for doesn't exist or has moved. Check the address or go back home."
+    },
+    "forbidden": {
+      "title": "Restricted area",
+      "desc": "This section is for facility staff only. If you think you should have access, ask an administrator to check your role."
+    },
+    "crash": {
+      "title": "Time-out",
+      "desc": "Something went wrong loading this screen. Try again; if it keeps happening, reload the page or come back later."
+    },
+    "offline": "You're offline. Some actions won't work until you're back online."
+  },
+  "loading": {
+    "app": "Loading…",
+    "checking": "Checking your access…"
+  },
+  "levels": {
+    "new": "New",
+    "rookie": "Rookie",
+    "fit": "In shape",
+    "regular": "Regular",
+    "veteran": "Veteran",
+    "legend": "Legend"
+  },
+  "checkout": {
+    "alreadyPaid": "This booking is already paid.",
+    "back": "Back to my bookings",
+    "cardNumber": "Card number",
+    "cvc": "CVC",
+    "expiry": "Expiry",
+    "errors": {
+      "declined": "Payment declined. Check your card.",
+      "noKey": "Card payments aren't configured (missing VITE_STRIPE_PUBLIC_KEY).",
+      "rateLimited": "Too many payment attempts. Wait a few minutes.",
+      "server": "Couldn't start the payment. Please try again."
+    },
+    "expired": {
+      "title": "Booking expired",
+      "desc": "It wasn't paid in time and the slot was released. You haven't been charged: book it again if it's still free."
+    },
+    "expiresIn": "Expires in",
+    "kicker": "Secure payment",
+    "loading": "Preparing payment…",
+    "notFound": {
+      "title": "Booking not found",
+      "desc": "This booking doesn't exist or isn't yours."
+    },
+    "pay": "Pay {{amount}}",
+    "paymentDetails": "Card details",
+    "processing": "Processing…",
+    "secureNote": "Encrypted payment by Stripe. KoreManager never stores your card details.",
+    "sport": "Sport",
+    "subtitle": "Complete the payment to confirm your court.",
+    "summary": "Summary",
+    "title": "Checkout",
+    "result": {
+      "paid": {
+        "title": "Booking confirmed!",
+        "desc": "Payment received. Your court is booked — you'll see it in your history."
+      },
+      "processing": {
+        "title": "Payment processing",
+        "desc": "Stripe is finishing the confirmation. The booking will show as paid in a few seconds."
+      },
+      "refunded": {
+        "title": "Payment refunded",
+        "desc": "The booking expired while you were paying, so we refunded the amount automatically."
+      }
+    }
   }
 }

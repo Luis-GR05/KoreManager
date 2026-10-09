@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Check, Circle, Eye, EyeOff, Lock } from 'lucide-react';
 import Input from './Input';
 import { passwordRules, passwordScore } from '../../lib/validation';
 
@@ -69,7 +69,7 @@ export function PasswordStrength({ value, personal = [], id }) {
       <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
         {Object.entries(rules).map(([k, ok]) => (
           <li key={k} className={`flex items-center gap-1.5 ${ok ? 'text-emerald-600 dark:text-emerald-400' : 'theme-faint'}`}>
-            <span aria-hidden="true">{ok ? '✓' : '·'}</span>
+            {ok ? <Check size={13} strokeWidth={3} aria-hidden="true" /> : <Circle size={6} fill="currentColor" aria-hidden="true" className="mx-[3.5px]" />}
             <span>{t(`validation.rules.${k}`)}</span>
             <span className="sr-only">{ok ? '(cumplido)' : '(pendiente)'}</span>
           </li>

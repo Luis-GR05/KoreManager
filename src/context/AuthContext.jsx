@@ -47,6 +47,9 @@ export function AuthProvider({ children }) {
 
   const [authLoading, setAuthLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  // true cuando el rol se ha confirmado con el servidor (no solo desde caché).
+  // Las rutas con permisos esperan a esto para no expulsar a un admin recién ascendido.
+  const [roleVerified, setRoleVerified] = useState(false);
 
   /**
    * Limpia el estado local (incluyendo caché) sin llamadas a red.
@@ -58,6 +61,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     setProfile(null);
     setRoleName("ciudadano");
+    setRoleVerified(false);
   }, []);
 
   /**
@@ -78,11 +82,12 @@ export function AuthProvider({ children }) {
           setRoleName(cacheNow.roleName ?? "ciudadano");
           const reqId = ++profileReqIdRef.current;
           withTimeout(fetchProfile(userId), 10000, null).then((res) => {
-            if (!res) return;
+            if (!res) { if (mountedRef.current) setRoleVerified(true); return; }
             if (!mountedRef.current) return;
             if (profileReqIdRef.current !== reqId) return;
-            setProfile(res.profile);
+            if (res.profile) setProfile(res.profile);
             setRoleName(res.roleName);
+            setRoleVerified(true);
           });
           return;
         }
@@ -92,11 +97,12 @@ export function AuthProvider({ children }) {
       setProfileLoading(true);
       try {
         const res = await withTimeout(fetchProfile(userId), 10000, null);
-        if (!res) return;
+        if (!res) { if (mountedRef.current) setRoleVerified(true); return; }
         if (!mountedRef.current) return;
         if (profileReqIdRef.current !== reqId) return;
         setProfile(res.profile);
         setRoleName(res.roleName);
+        setRoleVerified(true);
       } catch (err) {
         console.error("[Auth] Error cargando perfil:", err);
       } finally {
@@ -194,6 +200,7 @@ export function AuthProvider({ children }) {
       loading,
       authLoading,
       profileLoading,
+      roleVerified,
       signOut,
       refreshProfile,
     }),
@@ -205,6 +212,7 @@ export function AuthProvider({ children }) {
       loading,
       authLoading,
       profileLoading,
+      roleVerified,
       signOut,
       refreshProfile,
     ],

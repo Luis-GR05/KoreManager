@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { lazy, Suspense, useEffect } from 'react';
 
@@ -8,6 +8,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import CookieConsent from './components/CookieConsent';
 import KoreAssistant from './components/chat/KoreAssistant';
+import BrandLoader from './components/feedback/BrandLoader';
+import ErrorBoundary from './components/feedback/ErrorBoundary';
+import OfflineBanner from './components/feedback/OfflineBanner';
 
 
 // Páginas con Lazy Loading para mejorar rendimiento (code splitting)
@@ -30,16 +33,12 @@ const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const Inventory = lazy(() => import('./pages/Inventory'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const Estadisticas = lazy(() => import('./pages/Estadisticas'));
+const NotFound = lazy(() => import('./pages/errors/NotFound'));
 
 /**
  * Spinner de carga minimalista para las transiciones entre páginas
  */
-const PageLoader = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center theme-bg" role="status" aria-live="polite">
-    <div className="w-10 h-10 rounded-full border-4 border-brand-purple/20 border-t-brand-purple dark:border-brand-lime/20 dark:border-t-brand-lime animate-spin" />
-    <span className="sr-only">Cargando…</span>
-  </div>
-);
+const PageLoader = () => <BrandLoader />;
 
 /**
  * Al cambiar de ruta (no de ancla) vuelve arriba, como en una web tradicional.
@@ -81,6 +80,8 @@ export default function App() {
         <ScrollToTop />
         <CookieConsent />
         <KoreAssistant />
+        <OfflineBanner />
+        <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -148,9 +149,10 @@ export default function App() {
               </ProtectedRoute>
             } />
 
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </BrowserRouter>
     </AuthProvider>
     </ThemeProvider>

@@ -2,30 +2,21 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { BarChart2, Trophy, Calendar, Clock, MapPin, Zap, Star, Target, TrendingUp, Award, PlusCircle } from 'lucide-react';
+import { BarChart2, Trophy, Calendar, Clock, MapPin, Zap, Target, TrendingUp, Award, PlusCircle } from 'lucide-react';
 import { getReservaStatus } from '../lib/reservaStatus';
+import { LEVELS, getLevel } from '../lib/levels';
+import LevelEmblem from '../components/levels/LevelEmblem';
+import BrandLoader from '../components/feedback/BrandLoader';
 import { useTranslation } from 'react-i18next';
 
-const LOGROS = [
-  { id: 'primer_partido',       icon: '🎾', threshold: 1,  color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',   border: 'border-brand-purple/30 dark:border-brand-lime/30'   },
-  { id: 'cinco_partidos',       icon: '💪', threshold: 5,  color: 'text-blue-500 dark:text-blue-400',     bg: 'bg-blue-500/10 dark:bg-blue-400/10',     border: 'border-blue-500/30 dark:border-blue-400/30'     },
-  { id: 'diez_partidos',        icon: '🔥', threshold: 10, color: 'text-orange-500 dark:text-orange-400',   bg: 'bg-orange-500/10 dark:bg-orange-400/10',   border: 'border-orange-500/30 dark:border-orange-400/30'   },
-  { id: 'veinticinco_partidos', icon: '⭐', threshold: 25, color: 'text-yellow-600 dark:text-yellow-400',   bg: 'bg-yellow-600/10 dark:bg-yellow-400/10',   border: 'border-yellow-600/30 dark:border-yellow-400/30'   },
-  { id: 'cincuenta_partidos',   icon: '🏆', threshold: 50, color: 'text-brand-purple dark:text-brand-lime',   bg: 'bg-brand-purple/10 dark:bg-brand-lime/10',   border: 'border-brand-purple/30 dark:border-brand-lime/30'   },
-];
+/** Logros: uno por nivel (mismos umbrales), con su emblema propio. */
+const LOGRO_IDS = ['primer_partido', 'cinco_partidos', 'diez_partidos', 'veinticinco_partidos', 'cincuenta_partidos'];
+const LOGROS = LEVELS.slice(1).map((lvl, i) => ({ ...lvl, id: LOGRO_IDS[i] }));
 
 const DIAS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const DIAS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HORAS_LABEL = ['09', '10', '11', '12', '13', '16', '17', '18', '19', '20', '21'];
 
-function getNivel(total) {
-  if (total >= 50) return { nombre: 'Leyenda', color: 'text-brand-purple dark:text-brand-lime', bg: 'bg-brand-purple/20 dark:bg-brand-lime/20', next: null };
-  if (total >= 25) return { nombre: 'Veterano', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-600/20 dark:bg-yellow-400/20', next: 50 };
-  if (total >= 10) return { nombre: 'Habitual', color: 'text-orange-500 dark:text-orange-400', bg: 'bg-orange-500/20 dark:bg-orange-400/20', next: 25 };
-  if (total >= 5)  return { nombre: 'En Forma', color: 'text-blue-500 dark:text-blue-400',   bg: 'bg-blue-500/20 dark:bg-blue-400/20',   next: 10 };
-  if (total >= 1)  return { nombre: 'Novato',   color: 'theme-text',   bg: 'theme-elevated',      next: 5  };
-  return                  { nombre: 'Sin nivel', color: 'theme-faint',  bg: 'theme-bg',       next: 1  };
-}
 
 function StatCard({ icon, label, value, color, bg, isText = false }) {
   const Icon = icon;
@@ -76,8 +67,8 @@ function LogroCard({ logro, unlocked, unlockedLabel }) {
   const titulo = t(`stats.logros.${logro.id}.title`, { defaultValue: logro.id });
   const desc   = t(`stats.logros.${logro.id}.desc`,  { defaultValue: '' });
   return (
-    <div className={`rounded-2xl p-4 border transition-all ${unlocked ? `${logro.bg} ${logro.border}` : 'theme-bg theme-border opacity-40 grayscale'}`}>
-      <div className="text-3xl mb-2">{logro.icon}</div>
+    <div className={`rounded-2xl p-4 border transition-all ${unlocked ? `${logro.bg} ${logro.border}` : 'theme-bg theme-border opacity-60'}`}>
+      <LevelEmblem tier={logro.tier} size={52} locked={!unlocked} className={`mb-2 ${unlocked ? logro.color : 'theme-faint'}`} />
       <h4 className={`font-bold text-sm ${unlocked ? logro.color : 'theme-faint'}`}>{titulo}</h4>
       <p className="text-[11px] theme-faint mt-0.5">{desc}</p>
       {unlocked && (
@@ -102,21 +93,12 @@ export default function Estadisticas() {
     if (!user?.id || !roleName) return;
 
     const isAdmin = roleName === 'admin';
-    const cacheKey = isAdmin ? 'kore_estadisticas_reservas_admin_v1' : `kore_estadisticas_reservas_v1:${user.id}`;
-    const cached = (() => {
-      try { return JSON.parse(sessionStorage.getItem(cacheKey) || 'null'); } catch { return null; }
-    })();
-
-    if (cached?.data && Array.isArray(cached.data)) {
-      setReservas(cached.data);
-      setLoading(false);
-    }
-
     let alive = true;
     (async () => {
       let query = supabase
         .from('reservas')
         .select('id, fecha, hora, instalaciones ( nombre, tipo )')
+        .eq('payment_status', 'paid')
         .order('fecha', { ascending: false });
 
       if (!isAdmin) query = query.eq('user_id', user.id);
@@ -127,11 +109,10 @@ export default function Estadisticas() {
       const next = data || [];
       setReservas(next);
       setLoading(false);
-      try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: next })); } catch { /* ignore */ }
     })();
 
     return () => { alive = false; };
-  }, [user?.id]);
+  }, [user?.id, roleName]);
 
   const now = new Date();
   const pasadas = reservas.filter(r => getReservaStatus(r.fecha, r.hora, 60, now) === 'completed');
@@ -168,15 +149,11 @@ export default function Estadisticas() {
   });
   const instFavorita = Object.entries(porInst).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
-  const nivel = getNivel(pasadas.length);
+  const nivel = getLevel(pasadas.length);
   const sigNivel = nivel.next;
-  const progresoNivel = sigNivel ? Math.round((pasadas.length / sigNivel) * 100) : 100;
+  const progresoNivel = nivel.progress;
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <p className="text-brand-lime animate-pulse text-lg font-medium">{t('stats.loading')}</p>
-    </div>
-  );
+  if (loading) return <BrandLoader fullscreen={false} label={t('stats.loading')} />;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -201,14 +178,12 @@ export default function Estadisticas() {
       {/* NIVEL */}
       <div className="bg-gradient-to-r from-brand-purple/10 dark:from-[#1A1A2E] to-transparent dark:to-[#1F1F2E] rounded-3xl p-6 border theme-border flex flex-col md:flex-row items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-brand-purple/10 dark:bg-brand-lime/10 rounded-2xl flex items-center justify-center">
-            <Star className="text-brand-purple dark:text-brand-lime" size={32} />
-          </div>
+          <LevelEmblem tier={nivel.tier} size={72} className={nivel.color} title={t(`levels.${nivel.key}`)} />
           <div>
             <p className="text-xs theme-faint font-bold uppercase tracking-wider mb-1">
               {roleName === 'admin' ? t('stats.level.center') : t('stats.level.current')}
             </p>
-            <span className={`text-2xl font-black ${nivel.color}`}>{nivel.nombre}</span>
+            <span className={`text-2xl font-black ${nivel.color}`}>{t(`levels.${nivel.key}`)}</span>
           </div>
         </div>
         <div className="flex-1 w-full">

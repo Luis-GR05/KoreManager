@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   User, Mail, Phone, Save, Trophy, Calendar, MapPin,
-  TrendingUp, Image as ImageIcon, ShieldCheck
+  TrendingUp, Image as ImageIcon, ShieldCheck, IdCard, Map,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
@@ -12,6 +12,20 @@ import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import {
+  MIN_AGE, PROVINCE_LIST, cleanDniNumber, dniLetterFor, provinceFromPostalCode,
+  validateAddress, validateBirthDate, validateCity, validateDni, validateName,
+  validatePhone, validatePostalCode, validateProvince,
+} from '../lib/validation';
+import { localIsoDate } from '../lib/bookings';
+import BrandLoader from '../components/feedback/BrandLoader';
+
+/** Fecha máxima de nacimiento (edad mínima). */
+function maxBirthDate() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - MIN_AGE);
+  return localIsoDate(d);
+}
 
 /**
  * Página de perfil:
@@ -39,6 +53,8 @@ export default function Profile() {
     municipio: '',
     provincia: '',
   });
+  const [touched, setTouched] = useState({});
+  const [submitted, setSubmitted] = useState(false);
   const [stats, setStats] = useState({ total: 0, proximas: 0, favorita: '—' });
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -121,13 +137,14 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) return;
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = localIsoDate();
 
     const fetchStats = async () => {
       const { data } = await supabase
         .from('reservas')
         .select('fecha, instalaciones ( nombre )')
         .eq('user_id', user.id)
+        .eq('payment_status', 'paid')
         .order('fecha', { ascending: false });
 
       if (!data) { setLoadingStats(false); return; }
@@ -148,27 +165,55 @@ export default function Profile() {
     fetchStats();
   }, [user]);
 
+  /** Errores traducidos por campo (mismas reglas que el registro y que la BD). */
+  const errors = useMemo(() => {
+    const f = formData;
+    const tr = (e) => (e ? t(`validation.${e.key}`, e.vars) : undefined);
+    return {
+      full_name: tr(validateName(f.full_name)),
+      telefono: tr(validatePhone(f.telefono)),
+      dni: tr(validateDni(f.dni)),
+      fecha_nacimiento: tr(validateBirthDate(f.fecha_nacimiento)),
+      direccion: tr(validateAddress(f.direccion)),
+      codigo_postal: tr(validatePostalCode(f.codigo_postal)),
+      municipio: tr(validateCity(f.municipio)),
+      provincia: tr(validateProvince(f.provincia, f.codigo_postal)),
+    };
+  }, [formData, t]);
+  const errorFor = (name) => ((touched[name] || submitted) ? errors[name] : undefined);
+
+  const handleField = (e) => {
+    const { name, value } = e.target;
+    let v = value;
+    if (name === 'dni') {
+      const num = cleanDniNumber(v);
+      const letter = dniLetterFor(num);
+      v = letter ? num + letter : num;
+    }
+    if (name === 'codigo_postal') v = String(v).replace(/\D/g, '').slice(0, 5);
+    setFormData((prev) => {
+      const next = { ...prev, [name]: v };
+      if (name === 'codigo_postal' && v.length === 5) {
+        const prov = provinceFromPostalCode(v);
+        if (prov) next.provincia = prov;
+      }
+      return next;
+    });
+  };
+  const handleBlur = (e) => setTouched((p) => ({ ...p, [e.target.name]: true }));
+  const field = (name) => ({ name, value: formData[name], onChange: handleField, onBlur: handleBlur, error: errorFor(name) });
+
   /**
    * Envía el formulario de perfil.
    * @param {import('react').FormEvent} e
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // VALIDACIONES DE SEGURIDAD
-    const phoneRegex = /^[0-9+]{9,15}$/;
-    if (formData.telefono && !phoneRegex.test(formData.telefono)) {
-      toast.error(t('register.errorPhone'));
+    setSubmitted(true);
+    if (Object.values(errors).some(Boolean)) {
+      toast.error(t('validation.fixErrors'));
       return;
     }
-
-    const dniRegex = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
-    const nieRegex = /^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
-    if (formData.dni && !dniRegex.test(formData.dni) && !nieRegex.test(formData.dni)) {
-      toast.error(t('register.errorDni'));
-      return;
-    }
-
     await updateProfile(formData);
   };
 
@@ -234,7 +279,7 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <div className="p-8 text-brand-lime animate-pulse">{t('profile.loading')}</div>;
+  if (loading) return <BrandLoader fullscreen={false} label={t('profile.loading')} />;
 
   const statsCards = [
     { 
@@ -261,6 +306,8 @@ export default function Profile() {
     },
   ];
 
+  const dniLetter = /[A-Z]$/.test(formData.dni) && formData.dni.length === 9 ? formData.dni.slice(-1) : null;
+  const dniNumberPart = dniLetter ? formData.dni.slice(0, -1) : formData.dni;
   return (
     <div className="max-w-7xl mx-auto space-y-8 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
       {/* HEADER / COVER */}
@@ -370,101 +417,66 @@ export default function Profile() {
               </div>
             </div>
 
-            <div>
-              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">
-                {t('profile.fullName')}
-              </label>
+            <Input icon={User} id="pf-name" label={t('profile.fullName')} autoComplete="name" maxLength={80} placeholder={t('profile.fullNamePlaceholder')} {...field('full_name')} />
+            <Input icon={Phone} id="pf-phone" type="tel" label={t('profile.phone')} autoComplete="tel" inputMode="tel" maxLength={20} placeholder={t('profile.phonePlaceholder')} {...field('telefono')} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:items-start">
               <Input
-                icon={User}
-                type="text"
-                value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                placeholder={t('profile.fullNamePlaceholder')}
+                icon={IdCard}
+                id="pf-dni"
+                label={t('profile.dni')}
+                hint={t('register.dniHint')}
+                autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
+                inputMode={/^[XYZ]/.test(formData.dni) ? 'text' : 'numeric'}
+                maxLength={9}
+                {...field('dni')}
+                value={dniNumberPart}
+                trailing={(
+                  <span aria-live="polite" className={`grid h-9 min-w-9 place-items-center rounded-lg px-2 font-display text-xl font-black transition-colors ${dniLetter ? 'bg-brand-purple text-white dark:bg-brand-lime dark:text-[#0F0F1A]' : 'theme-elevated theme-faint'}`}>
+                    <span className="sr-only">{t('register.dniLetter')}: </span>{dniLetter ?? '?'}
+                  </span>
+                )}
               />
-            </div>
-
-            <div>
-              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.phone')}</label>
-              <Input
-                icon={Phone}
-                type="tel"
-                value={formData.telefono}
-                onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                placeholder={t('profile.phonePlaceholder')}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.dni')}</label>
-                <Input
-                  icon={User}
-                  type="text"
-                  value={formData.dni}
-                  onChange={(e) => setFormData({ ...formData, dni: e.target.value.toUpperCase() })}
-                  placeholder={t('profile.dniPlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <DatePicker
-                  id="profile-birth"
-                  name="fecha_nacimiento"
-                  label={t('profile.birthDate')}
-                  min="1900-01-01"
-                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 14)).toISOString().slice(0, 10)}
-                  value={formData.fecha_nacimiento}
-                  onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value === 'invalid' ? '' : e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-bold theme-faint uppercase ml-1 mb-2 block">{t('profile.address')}</label>
-              <Input
-                icon={MapPin}
-                type="text"
-                value={formData.direccion}
-                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                placeholder={t('profile.addressPlaceholder')}
+              <DatePicker
+                id="profile-birth"
+                name="fecha_nacimiento"
+                label={t('profile.birthDate')}
+                min="1900-01-01"
+                max={maxBirthDate()}
+                value={formData.fecha_nacimiento}
+                onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value === 'invalid' ? '' : e.target.value })}
+                onBlur={() => setTouched((p) => ({ ...p, fecha_nacimiento: true }))}
+                error={errorFor('fecha_nacimiento')}
                 required
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input icon={MapPin} id="pf-address" label={t('profile.address')} autoComplete="street-address" maxLength={120} placeholder={t('profile.addressPlaceholder')} {...field('direccion')} />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:items-start">
+              <Input icon={MapPin} id="pf-cp" label={t('profile.postalCode')} autoComplete="postal-code" inputMode="numeric" maxLength={5} placeholder={t('profile.postalCodePlaceholder')} {...field('codigo_postal')} />
+              <Input icon={MapPin} id="pf-city" label={t('profile.city')} autoComplete="address-level2" maxLength={60} placeholder={t('profile.cityPlaceholder')} {...field('municipio')} />
               <div>
-                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.postalCode')}</label>
-                <Input
-                  icon={MapPin}
-                  type="text"
-                  value={formData.codigo_postal}
-                  onChange={(e) => setFormData({ ...formData, codigo_postal: e.target.value })}
-                  placeholder={t('profile.postalCodePlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.city')}</label>
-                <Input
-                  icon={MapPin}
-                  type="text"
-                  value={formData.municipio}
-                  onChange={(e) => setFormData({ ...formData, municipio: e.target.value })}
-                  placeholder={t('profile.cityPlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold theme-muted uppercase ml-1 mb-2 block">{t('profile.province')}</label>
-                <Input
-                  icon={MapPin}
-                  type="text"
-                  value={formData.provincia}
-                  onChange={(e) => setFormData({ ...formData, provincia: e.target.value })}
-                  placeholder={t('profile.provincePlaceholder')}
-                  required
-                />
+                <label htmlFor="pf-province" className="mb-2 block text-sm font-bold theme-text">{t('profile.province')}</label>
+                <div className="relative">
+                  <Map size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 theme-faint" />
+                  <select
+                    id="pf-province"
+                    name="provincia"
+                    value={formData.provincia}
+                    onChange={handleField}
+                    onBlur={handleBlur}
+                    aria-invalid={!!errorFor('provincia')}
+                    aria-describedby={errorFor('provincia') ? 'pf-province-error' : undefined}
+                    className={`w-full appearance-none rounded-2xl border theme-bg theme-text py-3.5 pl-11 pr-4 outline-none transition-colors focus:border-brand-purple dark:focus:border-brand-lime ${errorFor('provincia') ? 'border-red-500' : 'theme-border'}`}
+                  >
+                    <option value="">—</option>
+                    {PROVINCE_LIST.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                {errorFor('provincia') && <p id="pf-province-error" className="mt-1.5 text-xs font-bold text-red-600 dark:text-red-400" role="alert">{errorFor('provincia')}</p>}
               </div>
             </div>
 

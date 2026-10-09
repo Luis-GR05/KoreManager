@@ -9,28 +9,29 @@ const PROFILE_CACHE_KEY = 'kore_profile_v1';
  * @returns {Promise<{profile: any, roleName: string}>}
  */
 export async function fetchProfile(userId) {
-  if (!userId) return { profile: null, roleName: 'ciudadano' };
+  if (!userId) return { profile: null, roleName: 'ciudadano', verified: false };
 
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*, roles(nombre)')
-      .eq('id', userId)
-      .single();
+    // El rol se pide a la función SQL user_role() (SECURITY DEFINER): no
+    // depende de que la tabla `roles` sea legible con RLS. El join queda
+    // como respaldo para bases de datos sin la función.
+    const [profileRes, roleRes] = await Promise.all([
+      supabase.from('profiles').select('*, roles(nombre)').eq('id', userId).maybeSingle(),
+      supabase.rpc('user_role'),
+    ]);
 
-    if (error || !data) {
-      console.warn('[Auth] Perfil no encontrado:', error?.message);
-      return { profile: null, roleName: 'ciudadano' };
-    }
+    const data = profileRes.data;
+    if (profileRes.error) console.warn('[Auth] Perfil:', profileRes.error.message);
 
-    const roleName = (data.roles?.nombre ?? 'ciudadano').toLowerCase().trim();
+    const fromRpc = typeof roleRes.data === 'string' ? roleRes.data : null;
+    const fromJoin = data?.roles?.nombre ?? null;
+    const roleName = String(fromRpc ?? fromJoin ?? 'ciudadano').toLowerCase().trim();
 
-    saveProfileCache(data, roleName);
-
-    return { profile: data, roleName };
+    if (data) saveProfileCache(data, roleName);
+    return { profile: data ?? null, roleName, verified: !roleRes.error || !!data };
   } catch (err) {
     console.error('[Auth] Error cargando perfil:', err);
-    return { profile: null, roleName: 'ciudadano' };
+    return { profile: null, roleName: 'ciudadano', verified: false };
   }
 }
 
