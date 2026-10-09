@@ -94,7 +94,7 @@ async function userContext(admin: SupabaseClient<any, any, any>, userId: string,
 }
 
 function systemPrompt(context: string, lang: string) {
-  return `Eres "Kore", el asistente virtual de KoreManager, la plataforma municipal para reservar pistas de pádel, fútbol sala y tenis.
+  return `Eres "Kore", el asistente virtual de KoreManager, la plataforma municipal para gestionar y reservar instalaciones del Polideportivo Municipal de Montijo.
 
 REGLAS
 - Responde SIEMPRE en ${lang === "en" ? "inglés" : "español"}, con tono cercano, claro y breve (máximo 120 palabras).

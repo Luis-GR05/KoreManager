@@ -1,9 +1,9 @@
 import { supabase } from '../supabaseClient';
 
-/** Franjas reservables (deben coincidir con `create_booking` en SQL). */
+/** Franjas reservables (deben coincidir con `create_booking` en SQL; Polideportivo abre de 10:00 a 23:00). */
 export const TIME_SLOTS = [
-  '09:00', '10:00', '11:00', '12:00', '13:00',
-  '16:00', '17:00', '18:00', '19:00', '20:00', '21:00',
+  '10:00', '11:00', '12:00', '13:00',
+  '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00',
 ];
 
 /** Máximo de franjas por reserva y días de antelación (igual que en SQL). */
@@ -11,8 +11,8 @@ export const MAX_SLOTS = 6;
 export const MAX_DAYS_AHEAD = 60;
 /** Margen mínimo para reservar una franja (las pendientes caducan antes). */
 export const MIN_LEAD_HOURS = 3;
-/** Precio por defecto si la pista aún no tiene `precio_hora_cents`. */
-export const DEFAULT_PRICE_CENTS = 500;
+/** Precio por defecto si la pista aún no tiene `precio_hora_cents` (12 €/h oficial Montijo). */
+export const DEFAULT_PRICE_CENTS = 1200;
 
 const pad = (n) => String(n).padStart(2, '0');
 

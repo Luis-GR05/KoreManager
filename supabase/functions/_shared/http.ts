@@ -107,7 +107,7 @@ export async function computeAmountCents(
   admin: AnyClient,
   reserva: { id: number; user_id: string; installation_id?: number },
 ): Promise<number> {
-  const fallback = Number(Deno.env.get("SLOT_PRICE_CENTS") ?? "500");
+  const fallback = Number(Deno.env.get("SLOT_PRICE_CENTS") ?? "1200");
   let price = fallback;
   if (reserva.installation_id) {
     const { data } = await admin.from("instalaciones").select("precio_hora_cents").eq("id", reserva.installation_id).maybeSingle();

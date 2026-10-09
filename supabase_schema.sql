@@ -162,12 +162,17 @@ CREATE TRIGGER on_auth_user_created
 -- 4. INSTALACIONES
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS instalaciones (
-  id     SERIAL PRIMARY KEY,
-  nombre TEXT NOT NULL,
-  tipo   TEXT,
+  id                SERIAL PRIMARY KEY,
+  nombre            TEXT NOT NULL,
+  tipo              TEXT,
   -- 'disponible' | 'mantenimiento' | 'ocupada'
-  estado TEXT DEFAULT 'disponible'
+  estado            TEXT DEFAULT 'disponible',
+  precio_hora_cents INT NOT NULL DEFAULT 1200 CHECK (precio_hora_cents BETWEEN 0 AND 100000)
 );
+
+-- Migración: por si la tabla ya existía sin la columna precio_hora_cents
+ALTER TABLE instalaciones ADD COLUMN IF NOT EXISTS precio_hora_cents INT NOT NULL DEFAULT 1200;
+UPDATE instalaciones SET precio_hora_cents = 1200 WHERE precio_hora_cents IS NULL OR precio_hora_cents = 500;
 
 -- Limpieza de duplicados (por nombre) + constraint UNIQUE para evitar repeticiones
 -- 1) Normaliza nombres (trim)

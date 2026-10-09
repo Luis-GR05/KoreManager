@@ -24,7 +24,10 @@ GRANT EXECUTE ON FUNCTION public.user_role() TO authenticated;
 -- 2. INSTALACIONES · precio por hora editable por el administrador
 -- ────────────────────────────────────────────────────────────────────────
 ALTER TABLE public.instalaciones
-  ADD COLUMN IF NOT EXISTS precio_hora_cents INT NOT NULL DEFAULT 500;
+  ADD COLUMN IF NOT EXISTS precio_hora_cents INT NOT NULL DEFAULT 1200;
+UPDATE public.instalaciones
+  SET precio_hora_cents = 1200
+  WHERE precio_hora_cents IS NULL OR precio_hora_cents = 500;
 ALTER TABLE public.instalaciones DROP CONSTRAINT IF EXISTS instalaciones_precio_chk;
 ALTER TABLE public.instalaciones ADD CONSTRAINT instalaciones_precio_chk CHECK (precio_hora_cents BETWEEN 0 AND 100000);
 
@@ -83,9 +86,9 @@ BEGIN
     NEW.paid_at := NULL;
     NEW.stripe_checkout_session_id := NULL;
     NEW.stripe_payment_intent_id := NULL;
-    -- El precio lo fija el servidor (precio por hora de la instalación)
+    -- El precio lo fija el servidor (precio por hora de la instalación, 12 € por defecto)
     NEW.precio_cents := CASE WHEN NEW.currency LIKE 'linked\_%' THEN 0
-      ELSE coalesce((SELECT precio_hora_cents FROM instalaciones WHERE id = NEW.installation_id), 500) END;
+      ELSE coalesce((SELECT precio_hora_cents FROM instalaciones WHERE id = NEW.installation_id), 1200) END;
     RETURN NEW;
   END IF;
 
@@ -220,7 +223,7 @@ DECLARE
   h          TEXT;
   parent_id  BIGINT;
   item       JSONB;
-  allowed    TEXT[] := ARRAY['09:00','10:00','11:00','12:00','13:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+  allowed    TEXT[] := ARRAY['09:00','10:00','11:00','12:00','13:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
 BEGIN
   IF uid IS NULL THEN
     RAISE EXCEPTION 'Inicia sesión para reservar.' USING ERRCODE = '42501';

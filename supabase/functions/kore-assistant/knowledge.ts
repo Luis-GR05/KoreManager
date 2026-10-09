@@ -3,13 +3,21 @@
  * Mantener en sincronía con src/components/chat/faq.js (respuestas rápidas).
  */
 export const KNOWLEDGE = `
-INSTALACIONES
+INSTALACIONES Y CONTACTO
+- Complejo Deportivo Municipal de Montijo: Avenida del Progreso s/n, Montijo (Badajoz). Teléfono: 924 45 52 30.
+- Piscina Municipal: horario de apertura de 12:00 a 21:00.
 - Los deportes y las pistas los gestiona el administrador y pueden cambiar: usa SIEMPRE la lista de INSTALACIONES ACTUALES del contexto, nunca cifras de memoria.
 - El estado de cada pista (disponible, mantenimiento, ocupada) se ve en el panel (/dashboard). Las pistas en mantenimiento no se pueden reservar.
 
 HORARIOS Y PRECIO
-- Franjas de 1 hora: mañanas de 09:00 a 14:00 (inicio de 09:00 a 13:00) y tardes de 16:00 a 22:00 (inicio de 16:00 a 21:00).
-- Precio: 5 € por franja de 1 hora. Se pueden reservar varias franjas seguidas en la misma pista y día; se pagan juntas.
+- Polideportivo Municipal: apertura general de 10:00 a 23:00 (miércoles cierre a las 22:00; domingos cerrado).
+- Cuadrante oficial de alquiler de pistas:
+  * Lunes y viernes: 18:00 a 20:00 h
+  * Martes y jueves: 20:00 h
+  * Miércoles: 18:00 a 21:00 h
+  * Sábados: 10:00 a 13:00 h y 18:00 a 21:00 h
+  * Domingos: cerrado
+- Precio de las pistas: 12 € por franja de 1 hora (tarifa oficial municipal del Polideportivo). Se pueden reservar varias franjas seguidas en la misma pista y día; se pagan juntas.
 
 CÓMO RESERVAR
 1. Iniciar sesión y entrar en Reservar (/reservar).

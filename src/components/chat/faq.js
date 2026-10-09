@@ -18,8 +18,8 @@ export const FAQ = [
     weight: 1.5,
     q: { es: '¿Cuánto cuesta?', en: 'How much does it cost?' },
     a: {
-      es: 'Cada franja de **1 hora cuesta 5 €**. Puedes reservar varias franjas seguidas en la misma pista y se pagan juntas.',
-      en: 'Each **1-hour slot costs €5**. You can book several consecutive slots on the same court and pay for them together.',
+      es: 'Cada franja de **1 hora cuesta 12 €** (tarifa oficial municipal del Polideportivo). Puedes reservar varias franjas seguidas en la misma pista y se pagan juntas.',
+      en: 'Each **1-hour slot costs €12** (official municipal rate for Montijo Sports Centre). You can book several consecutive slots on the same court and pay for them together.',
     },
     keywords: ['precio', 'cuesta', 'cuanto', 'tarifa', 'euros', 'coste', 'vale', 'price', 'cost', 'how much', 'fee'],
   },
@@ -28,8 +28,8 @@ export const FAQ = [
     weight: 1.5,
     q: { es: '¿Qué horarios hay?', en: 'What are the opening hours?' },
     a: {
-      es: 'Hay franjas de 1 hora:\n- **Mañanas:** de 09:00 a 14:00.\n- **Tardes:** de 16:00 a 22:00.\nEn [Reservar](/reservar) verás en tiempo real cuáles están libres.',
-      en: 'There are 1-hour slots:\n- **Mornings:** 09:00 to 14:00.\n- **Afternoons:** 16:00 to 22:00.\nYou can see which ones are free in real time on [Book](/reservar).',
+      es: 'El Polideportivo Municipal abre de **10:00 a 23:00** (miércoles hasta las 22:00, domingos cerrado).\nLos horarios de alquiler de pistas según el cuadrante municipal son:\n- **Lunes y viernes:** de 18:00 a 20:00.\n- **Martes y jueves:** a las 20:00.\n- **Miércoles:** de 18:00 a 21:00.\n- **Sábados:** de 10:00 a 13:00 y de 18:00 a 21:00.\n- **Domingos:** cerrado.\nEn [Reservar](/reservar) puedes consultar las franjas libres en tiempo real.',
+      en: 'The Municipal Sports Centre is open from **10:00 to 23:00** (Wednesdays until 22:00, Sundays closed).\nCourt rental slots according to municipal schedule are:\n- **Mondays & Fridays:** 18:00 to 20:00.\n- **Tuesdays & Thursdays:** at 20:00.\n- **Wednesdays:** 18:00 to 21:00.\n- **Saturdays:** 10:00 to 13:00 & 18:00 to 21:00.\n- **Sundays:** closed.\nCheck real-time availability on [Book](/reservar).',
     },
     keywords: ['horario', 'hora', 'abre', 'cierra', 'abierto', 'franja', 'mañana', 'tarde', 'hours', 'open', 'close', 'schedule', 'time slot'],
   },
@@ -57,10 +57,10 @@ export const FAQ = [
     id: 'facilities',
     q: { es: '¿Qué instalaciones hay?', en: 'Which facilities are there?' },
     a: {
-      es: 'Las pistas y deportes disponibles los gestiona el ayuntamiento y pueden cambiar. Puedes verlos todos, con su estado (disponible o en mantenimiento), en tu [panel](/dashboard) y al [Reservar](/reservar). Si quieres, pregúntame y te digo qué hay ahora mismo.',
-      en: 'Courts and sports are managed by the council and may change. You can see them all, with their status (available or under maintenance), on your [dashboard](/dashboard) and when you [Book](/reservar). Ask me and I\'ll tell you what\'s available right now.',
+      es: 'El complejo municipal (Avenida del Progreso s/n, Montijo · Tel. 924 45 52 30) cuenta con polideportivo, pistas deportivas y piscina municipal (horario de 12:00 a 21:00). Puedes ver todas las pistas con su estado en tu [panel](/dashboard) y al [Reservar](/reservar).',
+      en: 'The municipal complex (Avenida del Progreso s/n, Montijo · Tel. 924 45 52 30) features the sports centre, multi-sport courts and municipal pool (12:00 to 21:00). Check all courts and live status on your [dashboard](/dashboard) and on [Book](/reservar).',
     },
-    keywords: ['instalacion', 'pista', 'padel', 'tenis', 'futbol', 'sala', 'campo', 'deporte', 'facilit', 'court', 'tennis', 'futsal', 'sport', 'pitch'],
+    keywords: ['instalacion', 'pista', 'padel', 'tenis', 'futbol', 'sala', 'campo', 'deporte', 'facilit', 'court', 'tennis', 'futsal', 'sport', 'pitch', 'polideportivo', 'piscina'],
   },
   {
     id: 'equipment',
