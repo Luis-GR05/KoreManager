@@ -1,12 +1,13 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Calendar, Clock, AlertTriangle, MapPin, PlusCircle, BarChart2, Star, Image as ImageIcon, ArrowUpRight, CreditCard, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { groupReservas, localIsoDate } from '../lib/bookings';
 import { getLevel } from '../lib/levels';
 import LevelEmblem from '../components/levels/LevelEmblem';
+import { useAvisos } from '../hooks/useAvisos';
 
 
 /**
@@ -24,11 +25,49 @@ export default function Dashboard() {
 
   const [instalaciones, setInstalaciones] = useState([]);
   const [misReservas, setMisReservas]     = useState([]);
-  const [avisos, setAvisos]               = useState([]);
   const [loading, setLoading]             = useState(true);
   const [partidosMes, setPartidosMes]     = useState(0);
   const [totalJugados, setTotalJugados]   = useState(0);
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState(null);
+
+  const { avisos, unread, unreadCount, markAllRead } = useAvisos();
+  const location = useLocation();
+  const avisosRef = useRef(null);
+  const [focusAvisos, setFocusAvisos] = useState(false);
+  // Ids sin leer al llegar: se siguen marcando como "nuevo" mientras estás en la página
+  const [unreadIds, setUnreadIds] = useState(() => new Set());
+  const unreadKey = unread.map((a) => a.id).join(',');
+  const [lastUnreadKey, setLastUnreadKey] = useState('');
+  if (unreadKey && unreadKey !== lastUnreadKey) {
+    setLastUnreadKey(unreadKey);
+    setUnreadIds((prev) => new Set([...prev, ...unread.map((a) => a.id)]));
+  }
+
+  // Desde la campana (#avisos): ir a la sección y resaltarla
+  useEffect(() => {
+    if (location.hash !== '#avisos' || loading) return undefined;
+    const node = avisosRef.current;
+    if (!node) return undefined;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    node.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    const on = setTimeout(() => setFocusAvisos(true), 300);
+    const off = setTimeout(() => setFocusAvisos(false), 2000);
+    return () => { clearTimeout(on); clearTimeout(off); };
+  }, [location.hash, location.key, loading]);
+
+  // Marcar como leídos cuando la sección de avisos se ve en pantalla
+  useEffect(() => {
+    const node = avisosRef.current;
+    if (!node || !unreadCount) return undefined;
+    if (typeof IntersectionObserver === 'undefined') { markAllRead(); return undefined; }
+    let timer;
+    const io = new IntersectionObserver(([e]) => {
+      clearTimeout(timer);
+      if (e.isIntersecting) timer = setTimeout(markAllRead, 1200);
+    }, { threshold: 0.4 });
+    io.observe(node);
+    return () => { clearTimeout(timer); io.disconnect(); };
+  }, [unreadCount, markAllRead, loading]);
 
   const META_PARTIDOS = 5;
   useEffect(() => {
@@ -72,13 +111,6 @@ export default function Dashboard() {
         .eq('payment_status', 'paid')
         .lt('fecha', hoy);
       setTotalJugados(countTotal || 0);
-
-      const { data: dataAvisos } = await supabase
-        .from('avisos')
-        .select('*')
-        .eq('activo', true)
-        .order('created_at', { ascending: false });
-      if (dataAvisos) setAvisos(dataAvisos);
 
       setLoading(false);
     };
@@ -332,9 +364,14 @@ export default function Dashboard() {
         <div className="space-y-6">
 
           {/* AVISOS */}
-          <div>
-            <h2 className="font-display text-2xl font-extrabold uppercase theme-text mb-4 flex items-center gap-2">
+          <section id="avisos" ref={avisosRef} aria-labelledby="avisos-title" className={`scroll-mt-28 ${focusAvisos ? 'avisos-focus' : ''}`}>
+            <h2 id="avisos-title" className="font-display text-2xl font-extrabold uppercase theme-text mb-4 flex items-center gap-2">
               <AlertTriangle className="text-brand-red" /> {t('dashboard.alerts')}
+              {unreadCount > 0 && (
+                <span className="ml-1 rounded-full bg-red-500/15 px-2 py-0.5 font-sans text-[11px] font-black normal-case tracking-normal text-red-600 dark:text-red-400">
+                  {t('dashboard.newAlerts', { count: unreadCount })}
+                </span>
+              )}
             </h2>
             {avisos.length === 0 ? (
               <div className="theme-card p-6 text-sm theme-faint">
@@ -342,13 +379,17 @@ export default function Dashboard() {
               </div>
             ) : (
               avisos.map((aviso) => (
-                <div key={aviso.id} className="bg-brand-purple/15 border border-brand-purple/30 p-5 rounded-2xl mb-3 hover:border-brand-purple/50 transition-colors">
-                  <h5 className="font-bold text-brand-purple mb-1">{aviso.titulo}</h5>
+                <article key={aviso.id} className={`bg-brand-purple/15 border p-5 pr-9 rounded-2xl mb-3 transition-colors ${unreadIds.has(aviso.id) ? 'aviso-new border-red-500/40' : 'border-brand-purple/30 hover:border-brand-purple/50'}`}>
+                  <h3 className="font-bold text-brand-purple dark:text-brand-lime mb-1">
+                    {unreadIds.has(aviso.id) && <span className="sr-only">{t('dashboard.newAlert')}: </span>}
+                    {aviso.titulo}
+                  </h3>
                   <p className="text-xs theme-text leading-relaxed">{aviso.mensaje}</p>
-                </div>
+                  <p className="mt-2 text-[10px] theme-faint">{new Date(aviso.created_at).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short' })}</p>
+                </article>
               ))
             )}
-          </div>
+          </section>
 
           {/* NIVEL DEL JUGADOR */}
           <div className="theme-card p-6">

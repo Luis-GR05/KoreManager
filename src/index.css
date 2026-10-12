@@ -380,3 +380,41 @@ html:not(.dark) :focus-visible { outline-color: #8A2BE2; }
 .dark .settings-panel { background: linear-gradient(160deg, #1E1A3A 0%, #15132B 100%); box-shadow: 0 30px 60px -20px rgba(0,0,0,.8), 0 0 40px -12px rgba(138,43,226,.45); }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Campana de avisos ── */
+.notif-badge {
+  position: absolute; top: -7px; right: -7px;
+  min-width: 1.35rem; height: 1.35rem; padding: 0 0.3rem;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(160deg, #FF4D4D 0%, #E0182D 100%);
+  color: #fff;
+  font-family: 'Big Shoulders Display Variable', 'Big Shoulders Display', system-ui, sans-serif;
+  font-weight: 900; font-size: 0.8rem; line-height: 1; letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  border: 2.5px solid var(--color-bg, #0F0F1A);
+  box-shadow: 0 4px 14px -2px rgba(255, 45, 70, 0.6);
+  animation: notif-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.notif-bell--active { border-color: rgba(255, 77, 77, 0.35); }
+.notif-bell--active .notif-bell__icon { transform-origin: 50% 2px; animation: notif-ring 3.2s ease-in-out 0.4s infinite; }
+@keyframes notif-pop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes notif-ring {
+  0%, 82%, 100% { transform: rotate(0); }
+  85% { transform: rotate(16deg); } 88% { transform: rotate(-14deg); }
+  91% { transform: rotate(10deg); } 94% { transform: rotate(-6deg); } 97% { transform: rotate(2deg); }
+}
+/* Aviso nuevo resaltado en el inicio */
+.aviso-new { position: relative; }
+.aviso-new::after {
+  content: ''; position: absolute; top: 1rem; right: 1rem;
+  width: 0.55rem; height: 0.55rem; border-radius: 999px;
+  background: #FF3B4E; box-shadow: 0 0 0 4px rgba(255, 59, 78, 0.2);
+}
+.avisos-focus { animation: avisos-flash 1.6s ease-out; border-radius: 1.5rem; }
+@keyframes avisos-flash { 0% { box-shadow: 0 0 0 0 rgba(204, 255, 0, 0.55); } 100% { box-shadow: 0 0 0 18px rgba(204, 255, 0, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .notif-badge, .notif-bell--active .notif-bell__icon, .avisos-focus { animation: none; }
+}
+/* Topbar: fondo casi opaco para que el contenido no se lea por detrás al hacer scroll */
+.app-topbar { background-color: color-mix(in srgb, var(--color-bg) 97%, transparent); }

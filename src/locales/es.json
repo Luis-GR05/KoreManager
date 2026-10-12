@@ -8,7 +8,10 @@
     "language": "Idioma",
     "theme": "Tema",
     "changePassword": "Cambiar Contraseña",
-    "comingSoon": "Próximamente"
+    "comingSoon": "Próximamente",
+    "notifications": "Avisos",
+    "notificationsUnread_one": "{{count}} aviso sin leer",
+    "notificationsUnread_other": "{{count}} avisos sin leer"
   },
   "footer": {
     "tagline": "Gestión deportiva moderna para instalaciones municipales y clubes.",
@@ -73,7 +76,10 @@
     "monthlyGoal": "Meta del Mes",
     "monthlyGoalDesc": "de {{meta}} partidos reservados",
     "courtSport": "Pista Deportiva",
-    "fullStats": "Ver estadísticas completas"
+    "fullStats": "Ver estadísticas completas",
+    "newAlerts_one": "{{count}} nuevo",
+    "newAlerts_other": "{{count}} nuevos",
+    "newAlert": "Nuevo"
   },
   "history": {
     "title": "Mis",

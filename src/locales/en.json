@@ -8,7 +8,10 @@
     "language": "Language",
     "theme": "Theme",
     "changePassword": "Change Password",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "notifications": "Notices",
+    "notificationsUnread_one": "{{count}} unread notice",
+    "notificationsUnread_other": "{{count}} unread notices"
   },
   "footer": {
     "tagline": "Modern sports management for municipal facilities and clubs.",
@@ -73,7 +76,10 @@
     "monthlyGoal": "Monthly Goal",
     "monthlyGoalDesc": "of {{meta}} matches booked",
     "courtSport": "Sports Court",
-    "fullStats": "See full stats"
+    "fullStats": "See full stats",
+    "newAlerts_one": "{{count}} new",
+    "newAlerts_other": "{{count}} new",
+    "newAlert": "New"
   },
   "history": {
     "title": "My",

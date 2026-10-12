@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/useAuth';
 import { useTheme } from '../context/ThemeContext';
-import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon, Menu, X, Settings, Globe, Moon, Sun, Key } from 'lucide-react';
+import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon, Menu, X, Settings, Globe, Moon, Sun, Key, Bell } from 'lucide-react';
+import { useAvisos } from '../hooks/useAvisos';
 import { supabase } from '../supabaseClient';
 import LegalFooter from './LegalFooter';
 import ChangePasswordModal from './ChangePasswordModal';
@@ -24,6 +25,7 @@ export default function Layout({ children }) {
   const location = useLocation();
   const { roleName, signOut, profile } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount } = useAvisos();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -241,7 +243,7 @@ export default function Layout({ children }) {
       {/* MAIN */}
       <main className="relative md:pl-72 flex flex-col min-h-screen">
         {/* Topbar (sticky) */}
-        <div className="sticky top-0 z-40 theme-bg/90 backdrop-blur-xl border-b theme-border transition-colors duration-300">
+        <div className="app-topbar sticky top-0 z-40 backdrop-blur-xl border-b theme-border transition-colors duration-300">
           <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               {/* Botón hamburguesa — solo móvil */}
@@ -263,7 +265,21 @@ export default function Layout({ children }) {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 relative" ref={settingsRef}>
+            <div className="flex items-center gap-2 sm:gap-3 relative" ref={settingsRef}>
+              {/* Avisos: lleva a la sección de avisos del inicio */}
+              <Link
+                to="/dashboard#avisos"
+                className={`notif-bell relative p-2.5 rounded-xl border transition-all theme-bg theme-border hover:theme-elevated ${unreadCount ? 'theme-text notif-bell--active' : 'theme-faint hover:theme-text'}`}
+                aria-label={unreadCount ? t('layout.notificationsUnread', { count: unreadCount }) : t('layout.notifications')}
+                title={unreadCount ? t('layout.notificationsUnread', { count: unreadCount }) : t('layout.notifications')}
+              >
+                <Bell size={20} className="notif-bell__icon" />
+                {unreadCount > 0 && (
+                  <span key={unreadCount} className="notif-badge" aria-hidden="true">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
               <button
                 onClick={() => setSettingsOpen(!settingsOpen)}
                 aria-expanded={settingsOpen}
