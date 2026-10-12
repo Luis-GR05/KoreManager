@@ -163,15 +163,15 @@ export default function Dashboard() {
   })();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 bg-cueva-gradient min-h-screen -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
+    <div className="max-w-6xl mx-auto space-y-8 bg-cueva-gradient min-h-screen sm:-m-6 sm:p-6 md:-m-8 md:p-8 sm:rounded-[3rem]">
 
       {/* HERO */}
-      <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25 shadow-2xl">
+      <header className="relative overflow-hidden theme-card p-5 sm:p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25 shadow-2xl">
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-brand-lime/15 rounded-full blur-3xl anim-floaty pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-purple/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-start gap-4">
             <div className="w-14 h-14 rounded-2xl theme-bg border theme-border flex items-center justify-center theme-faint shrink-0 overflow-hidden">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="" className="w-full h-full object-cover" />
@@ -179,11 +179,11 @@ export default function Dashboard() {
                 <ImageIcon size={22} />
               )}
             </div>
-            <div>
+            <div className="min-w-0 w-full">
               <p className="text-[11px] font-bold theme-faint uppercase tracking-widest">
                 {t('dashboard.panelLabel')}
               </p>
-              <h1 className="font-display text-4xl md:text-6xl font-black uppercase theme-text leading-[0.9] mt-1">
+              <h1 className="font-display text-[2.6rem] sm:text-5xl md:text-6xl font-black uppercase theme-text leading-[0.9] mt-1 break-words">
                 {t('dashboard.greeting')} <span className="text-brand-purple dark:text-brand-lime">{firstName}</span>
               </h1>
               <p className="theme-faint text-sm mt-1 max-w-2xl">

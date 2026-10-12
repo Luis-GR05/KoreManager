@@ -238,7 +238,7 @@ export default function BookingHistory() {
         />
       )}
 
-      <div className="max-w-7xl mx-auto space-y-6 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
+      <div className="max-w-7xl mx-auto space-y-6 bg-cueva-gradient sm:-m-6 sm:p-6 md:-m-8 md:p-8 sm:rounded-[3rem]">
 
         {/* Cabecera */}
         <header className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-lime/25 via-transparent to-brand-purple/25 shadow-2xl">
@@ -266,7 +266,7 @@ export default function BookingHistory() {
 
         {/* Stats rápidas */}
         {!loading && groupedReservas.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             {[
               { 
                 label: t('history.stats.total'), 
@@ -292,10 +292,10 @@ export default function BookingHistory() {
             ].map(({ label, value, color, border, shadow }) => (
               <div 
                 key={label} 
-                className={`theme-card rounded-3xl p-5 text-center border ${border} transition-all duration-300 shadow-xl ${shadow} hover:scale-[1.02] cursor-default`}
+                className={`theme-card rounded-3xl p-3 sm:p-5 text-center border ${border} transition-all duration-300 shadow-xl ${shadow} hover:scale-[1.02] cursor-default`}
               >
-                <p className={`text-3xl font-black ${color} tracking-tight`}>{value}</p>
-                <p className="text-[10px] theme-muted font-extrabold uppercase tracking-widest mt-1.5">{label}</p>
+                <p className={`text-2xl sm:text-3xl font-black ${color} tracking-tight`}>{value}</p>
+                <p className="text-[9px] sm:text-[10px] theme-muted font-extrabold uppercase tracking-wider sm:tracking-widest mt-1.5">{label}</p>
               </div>
             ))}
           </div>

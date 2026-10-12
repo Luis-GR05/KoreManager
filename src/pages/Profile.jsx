@@ -309,15 +309,15 @@ export default function Profile() {
   const dniLetter = /[A-Z]$/.test(formData.dni) && formData.dni.length === 9 ? formData.dni.slice(-1) : null;
   const dniNumberPart = dniLetter ? formData.dni.slice(0, -1) : formData.dni;
   return (
-    <div className="max-w-7xl mx-auto space-y-8 bg-cueva-gradient -m-6 p-6 md:-m-8 md:p-8 rounded-[3rem]">
+    <div className="max-w-7xl mx-auto space-y-8 bg-cueva-gradient sm:-m-6 sm:p-6 md:-m-8 md:p-8 sm:rounded-[3rem]">
       {/* HEADER / COVER */}
-      <div className="relative overflow-hidden theme-card p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20 shadow-2xl">
+      <div className="relative overflow-hidden theme-card p-5 sm:p-6 md:p-8 anim-shine border-none bg-gradient-to-br from-brand-purple/25 via-transparent to-brand-lime/20 shadow-2xl">
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none anim-floaty" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-lime/12 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
           {/* Avatar slot */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 min-w-0">
             <div className="w-20 h-20 rounded-3xl theme-bg border theme-border flex items-center justify-center theme-faint shrink-0">
               {avatarDisplayUrl ? (
                 <img src={avatarDisplayUrl} alt="Avatar" className="w-full h-full object-cover rounded-3xl" />
@@ -327,7 +327,7 @@ export default function Profile() {
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-bold theme-faint uppercase tracking-widest">{t('profile.myProfile')}</p>
-              <h1 className="text-3xl md:text-4xl font-black theme-text truncate">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black theme-text break-words">
                 {profile?.full_name || 'Usuario'}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -345,19 +345,19 @@ export default function Profile() {
       </div>
 
       {/* Mini Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {statsCards.map(({ label, value, icon, color, bg, isText }) => {
           const Icon = icon;
           return (
-            <div key={label} className="theme-card p-5 flex items-center gap-4 hover:border-brand-purple dark:hover:border-brand-lime transition-all duration-300 glow-purple hover:scale-[1.02] shadow-xl">
+            <div key={label} className="theme-card p-3 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 min-w-0 hover:border-brand-purple dark:hover:border-brand-lime transition-all duration-300 glow-purple hover:scale-[1.02] shadow-xl">
               <div className={`p-2.5 rounded-xl ${bg} ${color} shrink-0`}>
                 <Icon size={18} />
               </div>
               <div className="min-w-0">
-                <p className={`font-black tracking-tight ${isText ? 'text-sm truncate' : 'text-3xl'} ${color} mb-0.5`}>
+                <p className={`font-black tracking-tight ${isText ? 'text-xs sm:text-sm line-clamp-2' : 'text-2xl sm:text-3xl'} ${color} mb-0.5`}>
                   {loadingStats ? '—' : value}
                 </p>
-                <p className="text-[10px] theme-muted font-extrabold uppercase tracking-widest">{label}</p>
+                <p className="text-[9px] sm:text-[10px] theme-muted font-extrabold uppercase tracking-wider sm:tracking-widest leading-tight">{label}</p>
               </div>
             </div>
           );

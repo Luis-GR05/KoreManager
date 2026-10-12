@@ -36,11 +36,11 @@ function Kpi({ label, value, icon, tone = 'brand' }) {
     amber: 'text-amber-700 dark:text-amber-300 bg-amber-500/15',
   };
   return (
-    <div className="theme-card p-5 flex items-center gap-4">
-      <div className={`p-3.5 rounded-2xl ${tones[tone]}`}><Icon size={22} /></div>
-      <div className="min-w-0">
-        <p className="text-xs theme-faint font-bold uppercase tracking-wider">{label}</p>
-        <p className="text-2xl font-black theme-text tabular-nums">{value}</p>
+    <div className="theme-card p-3 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 min-w-0">
+      <div className={`p-2 sm:p-3.5 rounded-xl sm:rounded-2xl ${tones[tone]}`}><Icon size={20} /></div>
+      <div className="min-w-0 w-full">
+        <p className="text-lg sm:text-2xl font-black theme-text tabular-nums truncate sm:order-2">{value}</p>
+        <p className="text-[9px] sm:text-xs theme-faint font-bold uppercase tracking-wider leading-tight sm:order-1">{label}</p>
       </div>
     </div>
   );
@@ -103,7 +103,7 @@ function TabUsuarios() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Kpi label={t('admin.users.totalUsers')} value={usuarios.length} icon={Users} />
         <Kpi label={t('admin.users.activeStaff')} value={staff} icon={Activity} tone="blue" />
         <Kpi label={t('admin.users.activeBookings')} value={activeCount} icon={CheckCircle2} />
@@ -124,7 +124,32 @@ function TabUsuarios() {
             />
           </div>
         </div>
-        <div className="overflow-x-auto">
+        {/* Móvil: tarjetas */}
+        <ul className="md:hidden divide-y divide-[color:var(--color-border)]">
+          {filtered.map((u) => (
+            <li key={u.id} className="p-4 flex items-start gap-3">
+              <div className="w-9 h-9 shrink-0 rounded-full bg-brand-purple/10 dark:bg-white/10 flex items-center justify-center text-xs font-bold theme-text">
+                {(u.full_name || u.email || '?').charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold theme-text text-sm">{u.full_name || t('admin.users.noName')}</p>
+                <p className="text-xs theme-muted break-all">{u.email}</p>
+                <p className="text-xs theme-faint">{u.telefono || '—'} · {new Date(u.created_at).toLocaleDateString(i18n.language)}</p>
+              </div>
+              <select
+                value={u.rol_id ?? ''}
+                onChange={(e) => changeRole(u.id, e.target.value)}
+                disabled={u.id === me?.id}
+                aria-label={`${t('admin.users.table.role')} · ${u.full_name || u.email}`}
+                className="shrink-0 theme-bg border theme-border theme-text text-xs rounded-lg px-2 py-2 outline-none capitalize disabled:opacity-60"
+              >
+                {roles.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+              </select>
+            </li>
+          ))}
+          {filtered.length === 0 && <li className="p-8 text-center theme-faint text-sm">{t('admin.users.notFound')}</li>}
+        </ul>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="theme-elevated text-xs uppercase tracking-wider theme-muted border-b theme-border">
@@ -573,7 +598,7 @@ function TabReservas() {
         onCancel={() => setToCancel(null)}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Kpi label={t('admin.bookings.totalBookings')} value={grouped.length} icon={Calendar} />
         <Kpi label={t('admin.bookings.upcoming')} value={proximas} icon={Clock} tone="blue" />
         <Kpi label={t('admin.bookings.revenue')} value={formatEuros(ingresos, i18n.language)} icon={Euro} tone="amber" />
@@ -599,7 +624,39 @@ function TabReservas() {
       </div>
 
       <div className="theme-card overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Móvil: tarjetas */}
+        <ul className="md:hidden divide-y divide-[color:var(--color-border)]">
+          {filtradas.map((r) => {
+            const p = profiles[r.user_id];
+            const future = slotStartMs(r.fecha, r.franjas[0]) > Date.now();
+            return (
+              <li key={r.id} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-bold theme-text text-sm">{r.instalaciones?.nombre || '—'}</p>
+                    <p className="text-xs theme-muted capitalize">
+                      {new Date(`${r.fecha}T00:00:00`).toLocaleDateString(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' })} · <span className="tabular-nums">{r.franjas.join(', ')}</span>
+                    </p>
+                    <p className="mt-1 text-xs theme-faint truncate">{p?.full_name || p?.email || t('admin.bookings.noName')}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${PAY_STYLE[r.payment_status] ?? PAY_STYLE.cancelled}`}>
+                      {t(`history.status.${r.payment_status}`, { defaultValue: r.payment_status })}
+                    </span>
+                    <p className="mt-1 text-xs font-bold theme-text tabular-nums">{formatEuros(r.precio_cents, i18n.language)}</p>
+                  </div>
+                </div>
+                {future && isActive(r) && (
+                  <button type="button" onClick={() => setToCancel(r)} className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400">
+                    <Trash2 size={13} /> {t('history.cancel')}
+                  </button>
+                )}
+              </li>
+            );
+          })}
+          {filtradas.length === 0 && <li className="p-8 text-center theme-faint text-sm">{term ? t('admin.bookings.noResultsSearch') : t('admin.bookings.noResults')}</li>}
+        </ul>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="theme-bg text-xs uppercase tracking-wider theme-faint border-b theme-border">
@@ -747,7 +804,7 @@ function TabEstadisticasAdmin() {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Kpi label={t('admin.adminStats.hoursBooked')} value={reservas.length} icon={Calendar} />
         <Kpi label={t('admin.adminStats.upcoming')} value={proximas} icon={Clock} tone="blue" />
         <Kpi label={t('admin.bookings.revenue')} value={formatEuros(ingresos, i18n.language)} icon={Euro} tone="amber" />
@@ -794,18 +851,19 @@ export default function AdminPanel() {
   const TABS = getTabs(t);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b theme-border pb-6">
         <div>
-          <h1 className="text-3xl font-black theme-text flex items-center gap-3">
-            <ShieldAlert className="text-brand-purple dark:text-brand-lime" size={32} />
+          <h1 className="text-2xl sm:text-3xl font-black theme-text flex items-center gap-3">
+            <ShieldAlert className="text-brand-purple dark:text-brand-lime shrink-0" size={30} />
             {t('admin.title')}
           </h1>
           <p className="theme-faint text-sm mt-1">{t('admin.subtitle')}</p>
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2 theme-card p-1 border theme-border w-fit shadow-sm" role="tablist" aria-label={t('admin.title')}>
+      <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+      <div className="flex gap-1 sm:gap-2 theme-card p-1 border theme-border w-max shadow-sm" role="tablist" aria-label={t('admin.title')}>
         {TABS.map(({ id, label, icon }) => {
           const Icon = icon;
           return (
@@ -815,12 +873,13 @@ export default function AdminPanel() {
               role="tab"
               aria-selected={activeTab === id}
               onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === id ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-sm' : 'theme-faint hover:theme-text'}`}
+              className={`flex shrink-0 items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all ${activeTab === id ? 'bg-brand-purple dark:bg-brand-lime text-white dark:text-black shadow-sm' : 'theme-faint hover:theme-text'}`}
             >
               <Icon size={16} />{label}
             </button>
           );
         })}
+      </div>
       </div>
 
       <div role="tabpanel">

@@ -88,10 +88,12 @@ export default function Layout({ children }) {
   useEffect(() => {
     if (drawerOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('drawer-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('drawer-open');
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => { document.body.style.overflow = ''; document.body.classList.remove('drawer-open'); };
   }, [drawerOpen]);
 
   /**
@@ -240,7 +242,7 @@ export default function Layout({ children }) {
       <main className="relative md:pl-72 flex flex-col min-h-screen">
         {/* Topbar (sticky) */}
         <div className="sticky top-0 z-40 theme-bg/90 backdrop-blur-xl border-b theme-border transition-colors duration-300">
-          <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-4">
+          <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               {/* Botón hamburguesa — solo móvil */}
               <button
@@ -278,7 +280,7 @@ export default function Layout({ children }) {
 
               {/* Menú Desplegable de Ajustes */}
               {settingsOpen && (
-                <div className="absolute top-[120%] right-0 w-64 theme-card border theme-border shadow-2xl p-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                <div className="settings-panel absolute top-[120%] right-0 w-64 max-w-[calc(100vw-2rem)] rounded-3xl border theme-border shadow-2xl p-2 z-50 animate-in slide-in-from-top-2 duration-200">
                   <div className="px-3 py-2 mb-2 border-b theme-border">
                     <p className="text-xs font-bold theme-faint uppercase tracking-widest">{t('layout.settings')}</p>
                   </div>
@@ -293,13 +295,13 @@ export default function Layout({ children }) {
                         onClick={() => changeLanguage('es')}
                         className={`py-2 px-2 rounded-lg text-xs font-bold transition-colors ${i18n.language === 'es' ? 'theme-elevated theme-text' : 'theme-faint hover:theme-text hover:theme-elevated'}`}
                       >
-                        🇪🇸 Español
+                        <span className="mr-1.5 rounded bg-current/10 px-1 text-[10px] opacity-70">ES</span>Español
                       </button>
                       <button 
                         onClick={() => changeLanguage('en')}
                         className={`py-2 px-2 rounded-lg text-xs font-bold transition-colors ${i18n.language === 'en' ? 'theme-elevated theme-text' : 'theme-faint hover:theme-text hover:theme-elevated'}`}
                       >
-                        🇬🇧 English
+                        <span className="mr-1.5 rounded bg-current/10 px-1 text-[10px] opacity-70">EN</span>English
                       </button>
                     </div>
                   </div>
@@ -335,17 +337,11 @@ export default function Layout({ children }) {
                 </div>
               )}
 
-              <button
-                onClick={signOut}
-                className="px-4 py-2 rounded-2xl theme-bg border theme-border theme-text hover:text-red-600 hover:border-red-500/60 hover:theme-elevated transition-all font-bold"
-              >
-                {t('layout.logout')}
-              </button>
             </div>
           </div>
         </div>
 
-        <div id="app-content" tabIndex={-1} className="flex-1 p-6 md:p-8 pb-28 anim-popin focus:outline-none">{children}</div>
+        <div id="app-content" tabIndex={-1} className="flex-1 px-4 py-5 sm:p-6 md:p-8 pb-28 anim-popin focus:outline-none">{children}</div>
         <div className="mt-auto">
           <LegalFooter />
         </div>
@@ -366,7 +362,7 @@ export default function Layout({ children }) {
 
       {/* Panel lateral */}
       <div
-        className={`md:hidden fixed left-0 top-0 h-[100dvh] w-72 z-50 theme-sidebar border-r theme-border
+        className={`md:hidden fixed left-0 top-0 h-[100dvh] w-[85vw] max-w-xs z-50 theme-sidebar border-r theme-border
           flex flex-col shadow-2xl
           transition-transform duration-300 ease-out
           ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -445,10 +441,10 @@ export default function Layout({ children }) {
         </nav>
 
         {/* Cerrar sesión */}
-        <div className="p-4 border-t theme-border">
+        <div className="p-4 border-t theme-border pb-[max(1rem,env(safe-area-inset-bottom))]">
           <button
             onClick={signOut}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl theme-faint hover:text-red-500 hover:bg-red-500/10 transition-colors font-semibold"
+            className="flex items-center justify-center gap-3 px-4 py-3.5 w-full rounded-2xl border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-colors font-bold"
           >
             <LogOut size={20} /> {t('layout.logout')}
           </button>
