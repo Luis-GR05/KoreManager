@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   User, Mail, Phone, Save, Trophy, Calendar, MapPin,
-  TrendingUp, Image as ImageIcon, ShieldCheck, IdCard, Map,
+  TrendingUp, Image as ImageIcon, ShieldCheck, IdCard, Map, KeyRound, ChevronRight,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
@@ -19,6 +19,7 @@ import {
 } from '../lib/validation';
 import { localIsoDate } from '../lib/bookings';
 import BrandLoader from '../components/feedback/BrandLoader';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 
 /** Fecha máxima de nacimiento (edad mínima). */
 function maxBirthDate() {
@@ -53,6 +54,7 @@ export default function Profile() {
     municipio: '',
     provincia: '',
   });
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [stats, setStats] = useState({ total: 0, proximas: 0, favorita: '—' });
@@ -485,6 +487,30 @@ export default function Profile() {
               {updating ? t('profile.saving') : t('profile.save')}
             </Button>
           </form>
+
+          {/* Seguridad */}
+          <section className="theme-card p-6" aria-labelledby="security-title">
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="security-title" className="text-lg font-black theme-text">{t('profile.security')}</h3>
+              <ShieldCheck size={18} className="text-brand-purple dark:text-brand-lime" aria-hidden="true" />
+            </div>
+            <button
+              type="button"
+              onClick={() => setPasswordModalOpen(true)}
+              className="mt-4 w-full flex items-center gap-4 rounded-2xl border theme-border theme-bg p-4 text-left transition-colors hover:border-brand-purple dark:hover:border-brand-lime group"
+            >
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-purple/10 dark:bg-brand-lime/10 text-brand-purple dark:text-brand-lime">
+                <KeyRound size={20} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-bold theme-text">{t('layout.changePassword')}</span>
+                <span className="block text-xs theme-faint">{t('profile.passwordDesc')}</span>
+              </span>
+              <ChevronRight size={18} className="shrink-0 theme-faint transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </section>
+
+          <ChangePasswordModal isOpen={passwordModalOpen} onClose={() => setPasswordModalOpen(false)} />
 
           {/* Legal / privacidad */}
           <div className="theme-card p-6">

@@ -182,7 +182,9 @@
     "terms": "Terms of use",
     "saved": "Profile updated.",
     "saveError": "Couldn't save: {{msg}}",
-    "dniTaken": "That ID number is already registered to another account."
+    "dniTaken": "That ID number is already registered to another account.",
+    "security": "Security",
+    "passwordDesc": "Update the password you use to sign in."
   },
   "booking": {
     "loading": "Loading...",
@@ -526,14 +528,35 @@
     "desc": "Enter your new secure password. Your current session will remain open.",
     "newPassword": "New password",
     "repeatPassword": "Repeat password",
-    "save": "Save Password",
+    "save": "Save password",
     "successTitle": "Password Saved!",
     "errors": {
       "noMatch": "Passwords do not match",
       "minChars": "Password must be at least 6 characters",
-      "updateError": "Error updating password"
+      "updateError": "Error updating password",
+      "wrongCurrent": "Your current password is incorrect.",
+      "samePassword": "The new password must be different from the current one.",
+      "codeFormat": "The code has {{n}} digits.",
+      "codeInvalid": "The code is incorrect or has expired. Request a new one.",
+      "codeSend": "Couldn't send the code. Try again in a few minutes."
     },
-    "successToast": "Password successfully updated"
+    "successToast": "Password successfully updated",
+    "descVerify": "For your security, confirm your current password and choose a new one. We'll then email you a code.",
+    "currentPassword": "Current password",
+    "continue": "Continue",
+    "locked": "Too many attempts. Wait {{s}} s",
+    "codeTitle": "Check your email",
+    "codeDesc": "We've sent a 6-digit code to {{email}}. Enter it to confirm the change.",
+    "codeLabel": "Verification code",
+    "codeResent": "We've sent you a new code.",
+    "resend": "Resend code",
+    "resendIn": "Resend in {{s}} s",
+    "back": "Back",
+    "stepsLabel": "Steps to change your password",
+    "steps": {
+      "verify": "Verify",
+      "code": "Code"
+    }
   },
   "landing": {
     "nav": {

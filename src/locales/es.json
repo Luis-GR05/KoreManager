@@ -182,7 +182,9 @@
     "terms": "Términos de uso",
     "saved": "Perfil actualizado.",
     "saveError": "No se pudo guardar: {{msg}}",
-    "dniTaken": "Ese DNI/NIE ya está registrado en otra cuenta."
+    "dniTaken": "Ese DNI/NIE ya está registrado en otra cuenta.",
+    "security": "Seguridad",
+    "passwordDesc": "Actualiza la contraseña con la que inicias sesión."
   },
   "booking": {
     "loading": "Cargando...",
@@ -526,14 +528,35 @@
     "desc": "Introduce tu nueva contraseña segura. La sesión actual se mantendrá abierta.",
     "newPassword": "Nueva contraseña",
     "repeatPassword": "Repetir contraseña",
-    "save": "Guardar Contraseña",
+    "save": "Guardar contraseña",
     "successTitle": "¡Contraseña Guardada!",
     "errors": {
       "noMatch": "Las contraseñas no coinciden",
       "minChars": "La contraseña debe tener al menos 6 caracteres",
-      "updateError": "Error al actualizar la contraseña"
+      "updateError": "Error al actualizar la contraseña",
+      "wrongCurrent": "La contraseña actual no es correcta.",
+      "samePassword": "La nueva contraseña debe ser distinta de la actual.",
+      "codeFormat": "El código tiene {{n}} dígitos.",
+      "codeInvalid": "El código no es correcto o ha caducado. Pide uno nuevo.",
+      "codeSend": "No se pudo enviar el código. Inténtalo de nuevo en unos minutos."
     },
-    "successToast": "Contraseña actualizada correctamente"
+    "successToast": "Contraseña actualizada correctamente",
+    "descVerify": "Por seguridad, confirma tu contraseña actual y elige la nueva. Después te enviaremos un código al correo.",
+    "currentPassword": "Contraseña actual",
+    "continue": "Continuar",
+    "locked": "Demasiados intentos. Espera {{s}} s",
+    "codeTitle": "Revisa tu correo",
+    "codeDesc": "Hemos enviado un código de 6 dígitos a {{email}}. Introdúcelo para confirmar el cambio.",
+    "codeLabel": "Código de verificación",
+    "codeResent": "Te hemos enviado un nuevo código.",
+    "resend": "Reenviar código",
+    "resendIn": "Reenviar en {{s}} s",
+    "back": "Volver",
+    "stepsLabel": "Pasos para cambiar la contraseña",
+    "steps": {
+      "verify": "Verificar",
+      "code": "Código"
+    }
   },
   "landing": {
     "nav": {

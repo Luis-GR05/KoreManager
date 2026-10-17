@@ -3,11 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/useAuth';
 import { useTheme } from '../context/ThemeContext';
-import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon, Menu, X, Settings, Globe, Moon, Sun, Key, Bell } from 'lucide-react';
+import { Home, Package, User, LogOut, ShieldAlert, Calendar, Clock, BarChart2, ChevronRight, Image as ImageIcon, Menu, X, Settings, Globe, Moon, Sun, Bell } from 'lucide-react';
 import { useAvisos } from '../hooks/useAvisos';
 import { supabase } from '../supabaseClient';
 import LegalFooter from './LegalFooter';
-import ChangePasswordModal from './ChangePasswordModal';
 import Seo from './Seo';
 
 /**
@@ -28,7 +27,6 @@ export default function Layout({ children }) {
   const { unreadCount } = useAvisos();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const settingsRef = useRef(null);
 
   // Cerrar menú de ajustes si se hace clic fuera
@@ -323,7 +321,7 @@ export default function Layout({ children }) {
                   </div>
 
                   {/* Tema */}
-                  <div className="mb-2 border-t theme-border pt-2">
+                  <div className="border-t theme-border pt-2">
                     <button
                       onClick={toggleTheme}
                       className="w-full px-3 py-2 flex items-center justify-between text-sm theme-text font-semibold rounded-xl hover:theme-elevated transition-colors"
@@ -335,19 +333,6 @@ export default function Layout({ children }) {
                       <div className="w-8 h-4 theme-elevated rounded-full relative transition-colors border theme-border">
                         <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${theme === 'dark' ? 'left-4' : 'left-0.5'}`} />
                       </div>
-                    </button>
-                  </div>
-
-                  {/* Cambiar Contraseña */}
-                  <div className="border-t theme-border pt-2">
-                    <button
-                      onClick={() => {
-                        setSettingsOpen(false);
-                        setPasswordModalOpen(true);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold theme-faint hover:theme-text hover:theme-elevated transition-colors"
-                    >
-                      <Key size={16} /> {t('layout.changePassword')}
                     </button>
                   </div>
                 </div>
@@ -466,11 +451,6 @@ export default function Layout({ children }) {
           </button>
         </div>
       </div>
-
-      <ChangePasswordModal 
-        isOpen={passwordModalOpen} 
-        onClose={() => setPasswordModalOpen(false)} 
-      />
     </div>
   );
 }

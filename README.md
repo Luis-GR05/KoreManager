@@ -210,3 +210,9 @@ se cancela con reembolso automático hasta `CANCEL_MIN_HOURS` antes (el personal
 ### Recomendado en el panel de Supabase
 - Authentication → Rate Limits: revisa los límites de inicio de sesión, registro y emails.
 - Authentication → Providers → Email: longitud mínima de contraseña 8 y "Leaked password protection".
+
+### Cambio de contraseña con verificación (2026-10-17)
+Desde *Mi perfil → Seguridad*. Se pide la contraseña actual y, después, un código de 6 dígitos que Supabase envía al
+correo (`supabase.auth.reauthenticate()`); la nueva contraseña solo se guarda con ese código (`updateUser({ password, nonce })`).
+- Authentication → Providers → Email: activa **Secure password change** (obliga a reautenticarse también en el servidor).
+- Authentication → Email Templates → **Reauthentication**: personaliza el correo; debe incluir `{{ .Token }}`.
