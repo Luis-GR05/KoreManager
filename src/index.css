@@ -418,3 +418,17 @@ html:not(.dark) :focus-visible { outline-color: #8A2BE2; }
 }
 /* Topbar: fondo casi opaco para que el contenido no se lea por detrás al hacer scroll */
 .app-topbar { background-color: color-mix(in srgb, var(--color-bg) 97%, transparent); }
+
+/* Sin cursor de texto fuera de campos editables */
+html {
+  caret-color: transparent;
+  cursor: default;
+}
+
+:where(input, textarea, select, [contenteditable]:not([contenteditable="false"])) {
+  caret-color: auto;
+}
+
+:where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="submit"], [type="button"], [type="reset"], [type="file"], [type="color"]), textarea, [contenteditable]:not([contenteditable="false"])) {
+  cursor: text;
+}
